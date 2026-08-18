@@ -4,33 +4,54 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ڈیری-۰۰۱ | دودھ کا کھاتہ</title>
+<meta name="theme-color" content="#0A0F1A">
 <style>
   :root{
-    --navy:#0F5C7A;
-    --navy-dark:#0A3D57;
-    --teal:#17A398;
-    --cream:#FFF8EC;
+    --navy:#2E7FA8;
+    --navy-dark:#1B5C7E;
+    --bg:#0F2A45;
+    --bg-soft:#1B3E60;
+    --panel:#173856;
+    --panel-2:#12314F;
     --gold:#F4A825;
-    --green:#2FA86A;
-    --green-dark:#1E7A4C;
-    --red:#D64545;
-    --ink:#1F2937;
-    --line:#E7DFC9;
+    --green:#3BC17E;
+    --green-dark:#28A868;
+    --red:#FF6B6B;
+    --ink:#F3F8FC;
+    --muted:#A9C0DA;
+    --line:#2C4E72;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
     font-family:'Segoe UI','Tahoma',Arial,sans-serif;
-    background:var(--cream);
+    background:var(--bg);
     color:var(--ink);
     padding-bottom:40px;
+  }
+  .version-banner{
+    text-align:center;font-size:12px;font-weight:600;letter-spacing:1px;
+    padding:8px 10px;
+    background:var(--bg);
+    color:var(--muted);
+  }
+  #versionTag{
+    font-weight:700;
+    animation:softGlow 7s ease-in-out infinite;
+  }
+  @keyframes softGlow{
+    0%{   color:#F4A825; text-shadow:0 0 4px rgba(244,168,37,.35); }
+    30%{  color:#3BC17E; text-shadow:0 0 4px rgba(59,193,126,.35); }
+    55%{  color:#8FA3BE; text-shadow:none; }
+    80%{  color:#FF6B6B; text-shadow:0 0 4px rgba(255,107,107,.3); }
+    100%{ color:#F4A825; text-shadow:0 0 4px rgba(244,168,37,.35); }
   }
   header{
     background:linear-gradient(135deg,var(--navy),var(--navy-dark));
     color:#fff;
     padding:22px 18px 26px;
     border-radius:0 0 22px 22px;
-    box-shadow:0 4px 14px rgba(0,0,0,.15);
+    box-shadow:0 4px 14px rgba(0,0,0,.35);
   }
   header .top{display:flex;justify-content:space-between;align-items:flex-start;}
   header .eyebrow{font-size:12px;opacity:.75;letter-spacing:2px;}
@@ -44,125 +65,171 @@
   .profile-line button{background:none;border:none;color:#FFE9A8;text-decoration:underline;font-size:14px;cursor:pointer;padding:0;}
 
   .card{
-    background:#fff;
+    background:var(--panel);
     margin:16px;
     border-radius:16px;
-    box-shadow:0 3px 10px rgba(15,92,122,.08);
+    box-shadow:0 3px 14px rgba(0,0,0,.35);
     border:1px solid var(--line);
     padding:16px;
   }
   .balance-card{margin-top:-20px;}
   .balance-grid{display:flex;text-align:center;}
   .balance-grid > div{flex:1;}
-  .balance-grid .label{font-size:11px;color:#8a8270;}
+  .balance-grid .label{font-size:11px;color:var(--muted);}
   .balance-grid .value{font-size:19px;font-weight:700;margin-top:2px;}
-  .val-total{color:var(--navy);}
-  .val-paid{color:var(--green-dark);}
+  .val-total{color:#5EC8E8;}
+  .val-paid{color:var(--green);}
   .val-due{color:var(--red);}
   .pay-btn{
-    margin-top:14px;width:100%;padding:11px;border:none;border-radius:10px;
+    margin-top:14px;width:100%;padding:12px;border:none;border-radius:10px;
     background:var(--gold);color:#3a2900;font-weight:700;font-size:14px;cursor:pointer;
   }
   .pay-btn:active{transform:scale(.98);}
   .opening-row{
     margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);
-    display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#8a8270;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);cursor:pointer;
   }
-  .opening-row b{color:var(--navy-dark);font-size:14px;}
+  .opening-row b{color:#FFD98C;font-size:14px;}
 
   .month-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 4px;}
   .month-nav button{
-    background:#fff;border:1px solid var(--line);width:38px;height:38px;border-radius:50%;
-    font-size:16px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.05);color:var(--navy);
+    background:var(--panel);border:1px solid var(--line);width:38px;height:38px;border-radius:50%;
+    font-size:16px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);color:#5EC8E8;
   }
-  .month-nav .label{font-size:18px;font-weight:700;color:var(--navy-dark);}
+  .month-nav .label{font-size:18px;font-weight:700;color:var(--ink);}
 
   .cal-card{padding:14px;}
-  .dow-row{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:#9a8f78;margin-bottom:6px;}
+  .dow-row{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:var(--muted);margin-bottom:6px;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
   .day-cell{
-    aspect-ratio:1;border-radius:10px;border:1px solid var(--line);
-    background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;
-    cursor:pointer;font-size:14px;position:relative;
+    aspect-ratio:4/5;border-radius:12px;border:1px solid rgba(255,255,255,.06);
+    background:linear-gradient(145deg,#234870,#1A3B5C);
+    box-shadow:3px 3px 7px rgba(0,0,0,.35), -2px -2px 5px rgba(255,255,255,.05);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;font-size:15px;position:relative;color:var(--ink);
   }
-  .day-cell.empty{visibility:hidden;}
-  .day-cell.has-milk{background:linear-gradient(160deg,#D9F2E6,#BEEBD4);border-color:var(--green);color:var(--green-dark);font-weight:700;}
-  .day-cell.today{outline:2px solid var(--navy);outline-offset:1px;}
-  .day-cell .liters{font-size:9px;font-weight:400;}
+  .day-cell:active{
+    box-shadow:inset 2px 2px 5px rgba(0,0,0,.35), inset -2px -2px 4px rgba(255,255,255,.04);
+  }
+  .day-cell.empty{visibility:hidden;box-shadow:none;}
+  .day-cell.has-milk{background:linear-gradient(145deg,#1D5C42,#154634);border-color:rgba(140,240,186,.25);color:#9CF3C0;font-weight:700;}
+  .day-cell.today{outline:2px solid var(--gold);outline-offset:1px;}
+  .day-cell .liters{font-size:10px;font-weight:400;opacity:.85;}
 
   .export-row{display:flex;gap:10px;margin:16px;}
   .export-row button{
     flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;
     display:flex;align-items:center;justify-content:center;gap:6px;
   }
-  .btn-print{background:#fff;border:1px solid var(--line)!important;color:var(--navy-dark);box-shadow:0 2px 6px rgba(0,0,0,.05);}
-  .btn-whatsapp{background:var(--green);color:#fff;}
+  .btn-print{background:var(--panel);border:1px solid var(--line)!important;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.25);}
+  .btn-whatsapp{background:var(--green);color:#04241a;}
 
   /* Modal */
   .overlay{
-    position:fixed;inset:0;background:rgba(15,30,40,.45);display:none;
+    position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;
     align-items:flex-end;justify-content:center;z-index:50;
   }
   .overlay.show{display:flex;}
   @media(min-width:600px){.overlay{align-items:center;}}
   .modal{
-    background:#fff;width:100%;max-width:420px;border-radius:20px 20px 0 0;padding:20px 20px 26px;
-    max-height:90vh;overflow-y:auto;
+    background:var(--panel);color:var(--ink);width:100%;max-width:420px;border-radius:20px 20px 0 0;padding:20px 20px 26px;
+    max-height:90vh;overflow-y:auto;border:1px solid var(--line);
   }
   @media(min-width:600px){.modal{border-radius:20px;}}
   .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-  .modal-head h2{margin:0;font-size:19px;color:var(--navy-dark);}
-  .modal-head .close{background:none;border:none;font-size:20px;cursor:pointer;color:#999;}
-  .modal .date-sub{font-size:13px;color:#9a8f78;margin-bottom:14px;}
-  .field-label{font-size:12px;color:#8a8270;margin:10px 0 6px;}
-  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .modal-head h2{margin:0;font-size:19px;color:#5EC8E8;}
+  .modal-head .close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);}
+  .modal .date-sub{font-size:13px;color:var(--muted);margin-bottom:14px;}
+  .field-label{font-size:12px;color:var(--muted);margin:12px 0 6px;}
+
+  .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
   .chip{
-    padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;
-    font-size:14px;cursor:pointer;color:var(--ink);
+    padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg-soft);
+    font-size:13px;cursor:pointer;color:var(--ink);
   }
   .chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .chip.other{color:var(--gold);border-color:#5a4520;}
+
+  select{
+    width:100%;padding:11px 12px;border-radius:10px;border:1px solid #C7D6E8;
+    font-size:15px;margin-top:4px;font-family:inherit;background:#F3F8FC;color:#132A45;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14'><path d='M2 4l5 5 5-5' stroke='%23132A45' stroke-width='1.5' fill='none'/></svg>");
+    background-repeat:no-repeat;background-position:left 12px center;
+  }
   input[type=number],input[type=text]{
-    width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
-    font-size:14px;margin-top:8px;font-family:inherit;
+    width:100%;padding:10px 12px;border-radius:10px;border:1px solid #C7D6E8;
+    font-size:14px;margin-top:8px;font-family:inherit;background:#F3F8FC;color:#132A45;
   }
+  .mini-input{display:none;margin-top:8px;}
+  .mini-input.show{display:block;}
+
   .summary-box{
-    background:var(--cream);border-radius:10px;padding:10px 12px;margin-top:14px;
-    display:flex;justify-content:space-between;font-size:14px;
+    background:var(--bg-soft);border-radius:10px;padding:10px 12px;margin-top:12px;
+    display:flex;justify-content:space-between;font-size:14px;border:1px solid var(--line);
   }
-  .summary-box b{color:var(--navy-dark);}
+  .summary-box b{color:#5EC8E8;}
   .modal-actions{display:flex;gap:10px;margin-top:16px;}
   .btn-primary{
     flex:1;background:var(--navy);color:#fff;border:none;padding:12px;border-radius:10px;
     font-weight:700;font-size:15px;cursor:pointer;
   }
-  .btn-danger{
-    background:#fff;border:1px solid #f2c3c3;color:var(--red);border-radius:10px;padding:0 14px;cursor:pointer;
+  .btn-secondary{
+    flex:1;background:var(--bg-soft);color:var(--ink);border:1px solid var(--line);padding:12px;border-radius:10px;
+    font-weight:700;font-size:15px;cursor:pointer;
   }
+  .btn-danger{
+    background:var(--bg-soft);border:1px solid #5a2020;color:var(--red);border-radius:10px;padding:0 14px;cursor:pointer;
+  }
+
+  /* Day view mode - compact summary */
+  .view-summary{
+    text-align:center;padding:18px 10px 8px;
+  }
+  .view-summary .big{font-size:26px;font-weight:800;color:#8CF0BA;margin-bottom:4px;}
+  .view-summary .calc{font-size:14px;color:var(--muted);}
 
   .toast{
     position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
     background:var(--navy-dark);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;
-    box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.35);z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;
   }
   .toast.show{opacity:1;}
 
-  /* Print */
   #printArea{display:none;}
   @media print{
     body *{visibility:hidden;}
     #printArea, #printArea *{visibility:visible;}
     #printArea{
       display:block!important;position:absolute;top:0;right:0;left:0;
-      font-family:'Arial Narrow',Arial,sans-serif;color:#000;padding:20px;
+      font-family:'Arial Narrow',Arial,sans-serif;color:#000;background:#fff;padding:22px;
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
     }
-    #printArea table{width:100%;border-collapse:collapse;font-size:13px;}
-    #printArea th,#printArea td{border-bottom:1px solid #000;padding:4px 6px;text-align:right;}
-    #printArea .p-head{text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px;}
-    #printArea .p-foot{border-top:2px solid #000;margin-top:10px;padding-top:8px;font-size:14px;}
+    #printArea .poster{
+      border:2.5px solid #000;border-radius:22px;padding:20px;
+    }
+    #printArea .p-head{
+      text-align:center;border:2px solid #000;border-radius:14px;padding:12px;margin-bottom:16px;
+    }
+    #printArea .p-head .t1{font-size:20px;font-weight:bold;letter-spacing:1px;}
+    #printArea .p-head .t2{font-size:13px;margin-top:4px;}
+    #printArea table{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:14px;}
+    #printArea thead th{border-bottom:2px solid #000;padding:6px 8px;text-align:right;font-size:13px;}
+    #printArea tbody tr{background:#f2f2f2;}
+    #printArea tbody td{padding:8px;text-align:right;}
+    #printArea tbody td:first-child{border-radius:0 10px 10px 0;}
+    #printArea tbody td:last-child{border-radius:10px 0 0 10px;}
+    #printArea .p-foot{
+      border:2px solid #000;border-radius:14px;margin-top:16px;padding:14px 16px;font-size:14px;
+    }
+    #printArea .p-foot .row{display:flex;justify-content:space-between;padding:3px 0;}
+    #printArea .p-foot .row.total{border-top:1.5px dashed #000;margin-top:6px;padding-top:8px;font-weight:bold;font-size:16px;}
   }
 </style>
 </head>
 <body>
+
+<div class="version-banner">✨ ورژن: <span id="versionTag"></span> ✨</div>
 
 <header>
   <div class="top">
@@ -201,7 +268,7 @@
 
 <div class="export-row">
   <button class="btn-print" onclick="doPrint()">🖨️ پرنٹ / پی ڈی ایف</button>
-  <button class="btn-whatsapp" onclick="shareWhatsApp()">📤 واٹس ایپ</button>
+  <button class="btn-whatsapp" onclick="shareWhatsApp()">📤 واٹس ایپ پوسٹر</button>
 </div>
 
 <!-- Day Modal -->
@@ -210,20 +277,35 @@
     <div class="modal-head"><h2>دودھ</h2><button class="close" onclick="closeDay()">✕</button></div>
     <div class="date-sub" id="dayDateSub"></div>
 
-    <div class="field-label">لیٹر</div>
-    <div class="chip-row" id="litersChips"></div>
-    <input type="number" step="0.25" id="litersInput" placeholder="خود لکھیں (مثلاً 1.5)">
+    <!-- compact view mode -->
+    <div id="dayViewBox" style="display:none;">
+      <div class="view-summary">
+        <div class="big" id="viewBig"></div>
+        <div class="calc" id="viewCalc"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-danger" onclick="deleteEntry()">🗑️ حذف</button>
+        <button class="btn-primary" onclick="switchToEdit()">✏️ ترمیم کریں</button>
+      </div>
+    </div>
 
-    <div class="field-label">قیمت فی لیٹر</div>
-    <div class="chip-row" id="priceChips"></div>
-    <input type="number" id="priceInput" placeholder="خود لکھیں">
+    <!-- edit mode -->
+    <div id="dayEditBox" style="display:none;">
+      <div class="field-label">لیٹر</div>
+      <div class="chip-row" id="litersChips"></div>
+      <input type="number" step="0.25" id="litersInput" class="mini-input" placeholder="خود لکھیں (مثلاً 1.5)">
 
-    <div class="summary-box"><span>کل رقم (آج)</span><b id="dayTotal">0</b></div>
-    <div class="summary-box"><span>ماہانہ کل (اب تک)</span><b id="dayMonthTotal">0</b></div>
+      <div class="field-label">قیمت فی لیٹر</div>
+      <select id="priceSelect"></select>
+      <input type="number" id="priceInput" class="mini-input" placeholder="ریٹ لکھیں">
 
-    <div class="modal-actions">
-      <button class="btn-danger" id="deleteBtn" onclick="deleteEntry()" style="display:none;">🗑️</button>
-      <button class="btn-primary" onclick="saveEntry()">محفوظ کریں</button>
+      <div class="summary-box"><span>کل رقم (آج)</span><b id="dayTotal">0</b></div>
+      <div class="summary-box"><span>ماہانہ کل (اب تک)</span><b id="dayMonthTotal">0</b></div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;">منسوخ</button>
+        <button class="btn-primary" onclick="saveEntry()">محفوظ کریں</button>
+      </div>
     </div>
   </div>
 </div>
@@ -268,14 +350,22 @@
 const URDU_MONTHS=["جنوری","فروری","مارچ","اپریل","مئی","جون","جولائی","اگست","ستمبر","اکتوبر","نومبر","دسمبر"];
 const URDU_DAYS=["اتوار","پیر","منگل","بدھ","جمعرات","جمعہ","ہفتہ"];
 const QUICK_LITERS=[1,1.5,2,2.5,3,4,5];
-const QUICK_PRICES=[170,180,190];
+const PRICE_OPTIONS=[170,180,190];
 
 let today=new Date();
 let viewYear=today.getFullYear();
 let viewMonth=today.getMonth();
+const APP_VERSION="DD188tu0238pm";
+document.getElementById('versionTag').textContent=APP_VERSION;
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
 let profile=JSON.parse(localStorage.getItem('dairy001_profile')||'{"name":"","defaultPrice":180}');
 let selectedDay=null;
 let editState={liters:1,price:profile.defaultPrice||180};
+let dayHasEntry=false;
 
 function pad(n){return String(n).padStart(2,'0');}
 function mk(y,m){return `dairy001_month_${y}-${pad(m+1)}`;}
@@ -350,7 +440,6 @@ function render(){
   document.getElementById('grandDue').textContent=fmt(g.due);
   document.getElementById('openingLabel').textContent=fmt(g.opening);
 
-  // dow row
   const dowRow=document.getElementById('dowRow');
   dowRow.innerHTML=URDU_DAYS.map(d=>`<div>${d.slice(0,3)}</div>`).join('');
 
@@ -376,29 +465,92 @@ function changeMonth(delta){
   render();
 }
 
+function buildPriceSelect(selectedPrice){
+  const sel=document.getElementById('priceSelect');
+  let opts=PRICE_OPTIONS.slice();
+  if(!opts.includes(selectedPrice)) opts.push(selectedPrice);
+  opts.sort((a,b)=>a-b);
+  sel.innerHTML = opts.map(p=>`<option value="${p}" ${p==selectedPrice?'selected':''}>${p} روپے / لیٹر</option>`).join('')
+    + `<option value="other">دیگر (خود لکھیں)</option>`;
+}
+
 function openDay(d){
   selectedDay=d;
   const current=loadMonth(viewYear,viewMonth);
   const k=dk(viewYear,viewMonth,d);
   const entry=current.entries[k];
+  dayHasEntry=!!entry;
   editState = entry ? {liters:entry.liters, price:entry.price} : {liters:1, price:profile.defaultPrice||180};
 
   document.getElementById('dayDateSub').textContent=k;
-  document.getElementById('litersInput').value=editState.liters;
-  document.getElementById('priceInput').value=editState.price;
-  document.getElementById('deleteBtn').style.display= entry ? 'block':'none';
 
-  document.getElementById('litersChips').innerHTML=QUICK_LITERS.map(l=>
-    `<button type="button" class="chip${editState.liters==l?' active':''}" onclick="pickLiters(${l})">${l}</button>`).join('');
-  document.getElementById('priceChips').innerHTML=QUICK_PRICES.map(p=>
-    `<button type="button" class="chip${editState.price==p?' active':''}" onclick="pickPrice(${p})">${p}</button>`).join('');
-
-  updateDayTotals();
+  if(entry){
+    showDayView(entry);
+  } else {
+    showDayEdit();
+  }
   document.getElementById('dayOverlay').classList.add('show');
 }
-function pickLiters(l){ editState.liters=l; document.getElementById('litersInput').value=l; openDay(selectedDay); }
-function pickPrice(p){ editState.price=p; document.getElementById('priceInput').value=p; openDay(selectedDay); }
 
+function showDayView(entry){
+  document.getElementById('dayViewBox').style.display='block';
+  document.getElementById('dayEditBox').style.display='none';
+  document.getElementById('viewBig').textContent = fmt(entry.total)+' روپے';
+  document.getElementById('viewCalc').textContent = entry.liters+' لیٹر × '+entry.price+' = '+fmt(entry.total);
+}
+
+function showDayEdit(){
+  document.getElementById('dayViewBox').style.display='none';
+  document.getElementById('dayEditBox').style.display='block';
+  document.getElementById('cancelEditBtn').style.display = dayHasEntry ? 'block':'none';
+
+  document.getElementById('litersInput').value=editState.liters;
+  document.getElementById('litersInput').classList.remove('show');
+  document.getElementById('litersChips').innerHTML=QUICK_LITERS.map(l=>
+    `<button type="button" class="chip${editState.liters==l?' active':''}" onclick="pickLiters(${l})">${l}</button>`).join('')
+    + `<button type="button" class="chip other" onclick="toggleLitersCustom()">دیگر ✎</button>`;
+
+  buildPriceSelect(editState.price);
+  document.getElementById('priceInput').classList.remove('show');
+  document.getElementById('priceInput').value=editState.price;
+
+  updateDayTotals();
+}
+
+function switchToEdit(){ showDayEdit(); }
+function cancelEdit(){
+  const current=loadMonth(viewYear,viewMonth);
+  const k=dk(viewYear,viewMonth,selectedDay);
+  const entry=current.entries[k];
+  if(entry) showDayView(entry); else closeDay();
+}
+
+function toggleLitersCustom(){
+  document.getElementById('litersInput').classList.add('show');
+  document.getElementById('litersInput').focus();
+}
+
+function pickLiters(l){
+  editState.liters=l;
+  document.getElementById('litersInput').value=l;
+  document.querySelectorAll('#litersChips .chip').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  updateDayTotals();
+}
+
+document.addEventListener('change',function(e){
+  if(e.target.id==='priceSelect'){
+    if(e.target.value==='other'){
+      document.getElementById('priceInput').classList.add('show');
+      document.getElementById('priceInput').focus();
+    } else {
+      editState.price=parseFloat(e.target.value)||0;
+      document.getElementById('priceInput').value=editState.price;
+      document.getElementById('priceInput').classList.remove('show');
+      updateDayTotals();
+    }
+  }
+});
 document.addEventListener('input',function(e){
   if(e.target.id==='litersInput'){ editState.liters=parseFloat(e.target.value)||0; updateDayTotals(); }
   if(e.target.id==='priceInput'){ editState.price=parseFloat(e.target.value)||0; updateDayTotals(); }
@@ -419,6 +571,7 @@ function saveEntry(){
   const liters=parseFloat(document.getElementById('litersInput').value)||0;
   const price=parseFloat(document.getElementById('priceInput').value)||0;
   if(liters<=0){ toast('لیٹر درج کریں'); return; }
+  if(price<=0){ toast('قیمت درج کریں'); return; }
   const current=loadMonth(viewYear,viewMonth);
   const k=dk(viewYear,viewMonth,selectedDay);
   current.entries[k]={liters,price,total:liters*price};
@@ -471,36 +624,136 @@ function addPayment(){
   toast('ادائیگی درج ہو گئی');
 }
 
-function buildSummaryText(){
+/* ===== WhatsApp Poster (canvas image) ===== */
+function shareWhatsApp(){
   const current=loadMonth(viewYear,viewMonth);
+  const entries=Object.keys(current.entries||{}).sort().map(k=>({date:k.split('-')[2], ...current.entries[k]}));
   const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
   const monthPaid=(current.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
   const g=grandTotals();
-  let lines=[];
-  lines.push('ڈیری۔۰۰۱ — دودھ کا حساب');
-  if(profile.name) lines.push('دودھی: '+profile.name);
-  lines.push('ماہ: '+URDU_MONTHS[viewMonth]+' '+viewYear);
-  lines.push('——————————————');
-  Object.keys(current.entries||{}).sort().forEach(k=>{
-    const e=current.entries[k];
-    const day=k.split('-')[2];
-    lines.push(day+' تاریخ: '+e.liters+' لیٹر × '+e.price+' = '+fmt(e.total));
+
+  const W=1080;
+  const rowH=52;
+  const headH=230;
+  const footH= g.opening ? 300 : 260;
+  const H = headH + 70 + entries.length*rowH + footH + 60;
+
+  const canvas=document.createElement('canvas');
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+
+  // background
+  ctx.fillStyle='#0A0F1A';
+  roundRect(ctx,0,0,W,H,0); ctx.fill();
+
+  // outer card
+  const pad=36;
+  ctx.fillStyle='#121B2C';
+  roundRect(ctx,pad,pad,W-pad*2,H-pad*2,32); ctx.fill();
+  ctx.strokeStyle='#243350'; ctx.lineWidth=2;
+  roundRect(ctx,pad,pad,W-pad*2,H-pad*2,32); ctx.stroke();
+
+  ctx.textAlign='center';
+  ctx.direction='rtl';
+
+  // header
+  ctx.fillStyle='#F4A825';
+  ctx.font='bold 26px Arial';
+  ctx.fillText('ڈیری — ۰۰۱', W/2, pad+60);
+  ctx.fillStyle='#EAF1F8';
+  ctx.font='bold 44px Arial';
+  ctx.fillText('دودھ کا کھاتہ', W/2, pad+118);
+  ctx.fillStyle='#8FA3BE';
+  ctx.font='24px Arial';
+  let sub = URDU_MONTHS[viewMonth]+' '+viewYear + (profile.name? '   |   دودھی: '+profile.name : '');
+  ctx.fillText(sub, W/2, pad+160);
+
+  ctx.strokeStyle='#243350';
+  ctx.beginPath(); ctx.moveTo(pad+40, pad+190); ctx.lineTo(W-pad-40, pad+190); ctx.stroke();
+
+  // entries
+  ctx.textAlign='right';
+  ctx.font='24px Arial';
+  let y = pad + 190 + 46;
+  entries.forEach((e,i)=>{
+    if(i%2===0){
+      ctx.fillStyle='rgba(255,255,255,0.03)';
+      roundRect(ctx,pad+20,y-32,W-pad*2-40,44,10); ctx.fill();
+    }
+    ctx.fillStyle='#EAF1F8';
+    ctx.fillText(e.date+' تاریخ', W-pad-40, y);
+    ctx.fillStyle='#8FA3BE';
+    ctx.textAlign='center';
+    ctx.fillText(e.liters+' لیٹر × '+e.price, W/2, y);
+    ctx.fillStyle='#8CF0BA';
+    ctx.textAlign='left';
+    ctx.font='bold 24px Arial';
+    ctx.fillText(fmt(e.total), pad+40, y);
+    ctx.font='24px Arial';
+    ctx.textAlign='right';
+    y+=rowH;
   });
-  lines.push('——————————————');
-  lines.push('ماہانہ کل: '+fmt(monthTotal));
-  lines.push('وصول شدہ: '+fmt(monthPaid));
-  lines.push('بقایہ (اس ماہ): '+fmt(monthTotal-monthPaid));
-  if(g.opening) lines.push('سابقہ بقایہ: '+fmt(g.opening));
-  lines.push('کل بقایہ (سب ماہ): '+fmt(g.due));
-  return lines.join('\\n');
+
+  // footer box
+  const fy=y+20;
+  ctx.fillStyle='#0D1626';
+  roundRect(ctx,pad+20,fy,W-pad*2-40,footH,20); ctx.fill();
+  ctx.strokeStyle='#243350';
+  roundRect(ctx,pad+20,fy,W-pad*2-40,footH,20); ctx.stroke();
+
+  let fyy=fy+50;
+  function footRow(label,val,color){
+    ctx.fillStyle='#8FA3BE'; ctx.font='24px Arial'; ctx.textAlign='right';
+    ctx.fillText(label, W-pad-50, fyy);
+    ctx.fillStyle=color||'#EAF1F8'; ctx.font='bold 26px Arial'; ctx.textAlign='left';
+    ctx.fillText(fmt(val), pad+50, fyy);
+    fyy+=48;
+  }
+  footRow('ماہانہ کل','',null); fyy-=48; footRow('ماہانہ کل', monthTotal, '#5EC8E8');
+  footRow('وصول شدہ', monthPaid, '#8CF0BA');
+  footRow('بقایہ (اس ماہ)', monthTotal-monthPaid, '#FF6B6B');
+  if(g.opening) footRow('سابقہ بقایہ', g.opening, '#F4A825');
+
+  ctx.strokeStyle='#3a4a68';
+  ctx.setLineDash([6,6]);
+  ctx.beginPath(); ctx.moveTo(pad+50, fyy-14); ctx.lineTo(W-pad-50, fyy-14); ctx.stroke();
+  ctx.setLineDash([]);
+  fyy+=14;
+
+  ctx.fillStyle='#F4A825'; ctx.font='bold 22px Arial'; ctx.textAlign='right';
+  ctx.fillText('کل بقایہ (سب ماہ)', W-pad-50, fyy);
+  ctx.fillStyle='#FFD98C'; ctx.font='bold 34px Arial'; ctx.textAlign='left';
+  ctx.fillText(fmt(g.due)+' روپے', pad+50, fyy);
+
+  canvas.toBlob(function(blob){
+    const fileName='dairy001-'+viewYear+'-'+pad2(viewMonth+1)+'.png';
+    const file=new File([blob], fileName, {type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      navigator.share({files:[file], title:'دودھ کا کھاتہ', text:'ڈیری-۰۰۱ ماہانہ ریکارڈ'}).catch(()=>{ downloadBlob(blob,fileName); });
+    } else {
+      downloadBlob(blob,fileName);
+      toast('پوسٹر تصویر ڈاؤن لوڈ ہو گئی، واٹس ایپ میں بھیج دیں');
+    }
+  },'image/png');
+}
+function pad2(n){return String(n).padStart(2,'0');}
+function downloadBlob(blob,fileName){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=fileName; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
 }
 
-function shareWhatsApp(){
-  const text=buildSummaryText();
-  const url='https://wa.me/?text='+encodeURIComponent(text);
-  window.open(url,'_blank');
-}
-
+/* ===== Print ===== */
 function doPrint(){
   const current=loadMonth(viewYear,viewMonth);
   const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
@@ -512,21 +765,22 @@ function doPrint(){
     rows+=`<tr><td>${k}</td><td>${e.liters}</td><td>${e.price}</td><td>${fmt(e.total)}</td></tr>`;
   });
   document.getElementById('printArea').innerHTML=`
-    <div class="p-head">
-      <div style="font-size:18px;font-weight:bold;">ڈیری — ۰۰۱ | دودھ کا کھاتہ</div>
-      ${profile.name?`<div>دودھی: ${profile.name}</div>`:''}
-      <div>ماہ: ${URDU_MONTHS[viewMonth]} ${viewYear}</div>
-    </div>
-    <table>
-      <thead><tr><th>تاریخ</th><th>لیٹر</th><th>قیمت/لیٹر</th><th>کل</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div class="p-foot">
-      <div>ماہانہ کل: ${fmt(monthTotal)}</div>
-      <div>وصول شدہ: ${fmt(monthPaid)}</div>
-      <div>بقایہ (اس ماہ): ${fmt(monthTotal-monthPaid)}</div>
-      ${g.opening?`<div>سابقہ بقایہ: ${fmt(g.opening)}</div>`:''}
-      <div style="font-weight:bold;">کل بقایہ (سب ماہ): ${fmt(g.due)}</div>
+    <div class="poster">
+      <div class="p-head">
+        <div class="t1">ڈیری — ۰۰۱ | دودھ کا کھاتہ</div>
+        <div class="t2">${profile.name?('دودھی: '+profile.name+' | '):''}ماہ: ${URDU_MONTHS[viewMonth]} ${viewYear}</div>
+      </div>
+      <table>
+        <thead><tr><th>تاریخ</th><th>لیٹر</th><th>قیمت/لیٹر</th><th>کل</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="p-foot">
+        <div class="row"><span>ماہانہ کل</span><b>${fmt(monthTotal)}</b></div>
+        <div class="row"><span>وصول شدہ</span><b>${fmt(monthPaid)}</b></div>
+        <div class="row"><span>بقایہ (اس ماہ)</span><b>${fmt(monthTotal-monthPaid)}</b></div>
+        ${g.opening?`<div class="row"><span>سابقہ بقایہ</span><b>${fmt(g.opening)}</b></div>`:''}
+        <div class="row total"><span>کل بقایہ (سب ماہ)</span><b>${fmt(g.due)}</b></div>
+      </div>
     </div>`;
   window.print();
 }
