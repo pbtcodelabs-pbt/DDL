@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ڈیری-۰۰۱ | دودھ کا کھاتہ</title>
+<style>
+  :root{
+    --navy:#0F5C7A;
+    --navy-dark:#0A3D57;
+    --teal:#17A398;
+    --cream:#FFF8EC;
+    --gold:#F4A825;
+    --green:#2FA86A;
+    --green-dark:#1E7A4C;
+    --red:#D64545;
+    --ink:#1F2937;
+    --line:#E7DFC9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI','Tahoma',Arial,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    padding-bottom:40px;
+  }
+  header{
+    background:linear-gradient(135deg,var(--navy),var(--navy-dark));
+    color:#fff;
+    padding:22px 18px 26px;
+    border-radius:0 0 22px 22px;
+    box-shadow:0 4px 14px rgba(0,0,0,.15);
+  }
+  header .top{display:flex;justify-content:space-between;align-items:flex-start;}
+  header .eyebrow{font-size:12px;opacity:.75;letter-spacing:2px;}
+  header h1{margin:2px 0 0;font-size:24px;}
+  .profile-btn{
+    background:rgba(255,255,255,.18);
+    border:none;color:#fff;width:40px;height:40px;border-radius:50%;
+    font-size:18px;cursor:pointer;
+  }
+  .profile-line{margin-top:8px;font-size:14px;opacity:.9;}
+  .profile-line button{background:none;border:none;color:#FFE9A8;text-decoration:underline;font-size:14px;cursor:pointer;padding:0;}
+
+  .card{
+    background:#fff;
+    margin:16px;
+    border-radius:16px;
+    box-shadow:0 3px 10px rgba(15,92,122,.08);
+    border:1px solid var(--line);
+    padding:16px;
+  }
+  .balance-card{margin-top:-20px;}
+  .balance-grid{display:flex;text-align:center;}
+  .balance-grid > div{flex:1;}
+  .balance-grid .label{font-size:11px;color:#8a8270;}
+  .balance-grid .value{font-size:19px;font-weight:700;margin-top:2px;}
+  .val-total{color:var(--navy);}
+  .val-paid{color:var(--green-dark);}
+  .val-due{color:var(--red);}
+  .pay-btn{
+    margin-top:14px;width:100%;padding:11px;border:none;border-radius:10px;
+    background:var(--gold);color:#3a2900;font-weight:700;font-size:14px;cursor:pointer;
+  }
+  .pay-btn:active{transform:scale(.98);}
+  .opening-row{
+    margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);
+    display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#8a8270;cursor:pointer;
+  }
+  .opening-row b{color:var(--navy-dark);font-size:14px;}
+
+  .month-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 4px;}
+  .month-nav button{
+    background:#fff;border:1px solid var(--line);width:38px;height:38px;border-radius:50%;
+    font-size:16px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.05);color:var(--navy);
+  }
+  .month-nav .label{font-size:18px;font-weight:700;color:var(--navy-dark);}
+
+  .cal-card{padding:14px;}
+  .dow-row{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:#9a8f78;margin-bottom:6px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .day-cell{
+    aspect-ratio:1;border-radius:10px;border:1px solid var(--line);
+    background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;font-size:14px;position:relative;
+  }
+  .day-cell.empty{visibility:hidden;}
+  .day-cell.has-milk{background:linear-gradient(160deg,#D9F2E6,#BEEBD4);border-color:var(--green);color:var(--green-dark);font-weight:700;}
+  .day-cell.today{outline:2px solid var(--navy);outline-offset:1px;}
+  .day-cell .liters{font-size:9px;font-weight:400;}
+
+  .export-row{display:flex;gap:10px;margin:16px;}
+  .export-row button{
+    flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .btn-print{background:#fff;border:1px solid var(--line)!important;color:var(--navy-dark);box-shadow:0 2px 6px rgba(0,0,0,.05);}
+  .btn-whatsapp{background:var(--green);color:#fff;}
+
+  /* Modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(15,30,40,.45);display:none;
+    align-items:flex-end;justify-content:center;z-index:50;
+  }
+  .overlay.show{display:flex;}
+  @media(min-width:600px){.overlay{align-items:center;}}
+  .modal{
+    background:#fff;width:100%;max-width:420px;border-radius:20px 20px 0 0;padding:20px 20px 26px;
+    max-height:90vh;overflow-y:auto;
+  }
+  @media(min-width:600px){.modal{border-radius:20px;}}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .modal-head h2{margin:0;font-size:19px;color:var(--navy-dark);}
+  .modal-head .close{background:none;border:none;font-size:20px;cursor:pointer;color:#999;}
+  .modal .date-sub{font-size:13px;color:#9a8f78;margin-bottom:14px;}
+  .field-label{font-size:12px;color:#8a8270;margin:10px 0 6px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;
+    font-size:14px;cursor:pointer;color:var(--ink);
+  }
+  .chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  input[type=number],input[type=text]{
+    width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
+    font-size:14px;margin-top:8px;font-family:inherit;
+  }
+  .summary-box{
+    background:var(--cream);border-radius:10px;padding:10px 12px;margin-top:14px;
+    display:flex;justify-content:space-between;font-size:14px;
+  }
+  .summary-box b{color:var(--navy-dark);}
+  .modal-actions{display:flex;gap:10px;margin-top:16px;}
+  .btn-primary{
+    flex:1;background:var(--navy);color:#fff;border:none;padding:12px;border-radius:10px;
+    font-weight:700;font-size:15px;cursor:pointer;
+  }
+  .btn-danger{
+    background:#fff;border:1px solid #f2c3c3;color:var(--red);border-radius:10px;padding:0 14px;cursor:pointer;
+  }
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--navy-dark);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;
+    box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+
+  /* Print */
+  #printArea{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{
+      display:block!important;position:absolute;top:0;right:0;left:0;
+      font-family:'Arial Narrow',Arial,sans-serif;color:#000;padding:20px;
+    }
+    #printArea table{width:100%;border-collapse:collapse;font-size:13px;}
+    #printArea th,#printArea td{border-bottom:1px solid #000;padding:4px 6px;text-align:right;}
+    #printArea .p-head{text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px;}
+    #printArea .p-foot{border-top:2px solid #000;margin-top:10px;padding-top:8px;font-size:14px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <div>
+      <div class="eyebrow">ڈیری — ۰۰۱</div>
+      <h1>دودھ کا کھاتہ</h1>
+    </div>
+    <button class="profile-btn" onclick="openProfile()">👤</button>
+  </div>
+  <div class="profile-line" id="profileLine"></div>
+</header>
+
+<div class="card balance-card">
+  <div class="balance-grid">
+    <div><div class="label">اس ماہ کل</div><div class="value val-total" id="monthTotal">0</div></div>
+    <div><div class="label">وصول شدہ</div><div class="value val-paid" id="monthPaid">0</div></div>
+    <div><div class="label">کل بقایہ</div><div class="value val-due" id="grandDue">0</div></div>
+  </div>
+  <button class="pay-btn" onclick="openPayment()">💰 ادائیگی درج کریں</button>
+  <div class="opening-row" onclick="openOpening()">
+    <span>سابقہ بقایہ (پرانا حساب)</span>
+    <span><b id="openingLabel">0</b> ✏️</span>
+  </div>
+</div>
+
+<div class="month-nav">
+  <button onclick="changeMonth(-1)">›</button>
+  <div class="label" id="monthLabel"></div>
+  <button onclick="changeMonth(1)">‹</button>
+</div>
+
+<div class="card cal-card">
+  <div class="dow-row" id="dowRow"></div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<div class="export-row">
+  <button class="btn-print" onclick="doPrint()">🖨️ پرنٹ / پی ڈی ایف</button>
+  <button class="btn-whatsapp" onclick="shareWhatsApp()">📤 واٹس ایپ</button>
+</div>
+
+<!-- Day Modal -->
+<div class="overlay" id="dayOverlay" onclick="if(event.target===this)closeDay()">
+  <div class="modal">
+    <div class="modal-head"><h2>دودھ</h2><button class="close" onclick="closeDay()">✕</button></div>
+    <div class="date-sub" id="dayDateSub"></div>
+
+    <div class="field-label">لیٹر</div>
+    <div class="chip-row" id="litersChips"></div>
+    <input type="number" step="0.25" id="litersInput" placeholder="خود لکھیں (مثلاً 1.5)">
+
+    <div class="field-label">قیمت فی لیٹر</div>
+    <div class="chip-row" id="priceChips"></div>
+    <input type="number" id="priceInput" placeholder="خود لکھیں">
+
+    <div class="summary-box"><span>کل رقم (آج)</span><b id="dayTotal">0</b></div>
+    <div class="summary-box"><span>ماہانہ کل (اب تک)</span><b id="dayMonthTotal">0</b></div>
+
+    <div class="modal-actions">
+      <button class="btn-danger" id="deleteBtn" onclick="deleteEntry()" style="display:none;">🗑️</button>
+      <button class="btn-primary" onclick="saveEntry()">محفوظ کریں</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="overlay" id="profileOverlay" onclick="if(event.target===this)closeProfile()">
+  <div class="modal">
+    <div class="modal-head"><h2>دودھی کا پروفائل</h2><button class="close" onclick="closeProfile()">✕</button></div>
+    <div class="field-label">دودھی کا نام</div>
+    <input type="text" id="pName" placeholder="مثلاً: اکرم دودھی">
+    <div class="field-label">معمول کی قیمت فی لیٹر</div>
+    <input type="number" id="pPrice">
+    <div class="modal-actions"><button class="btn-primary" onclick="saveProfile()">محفوظ کریں</button></div>
+  </div>
+</div>
+
+<!-- Opening Balance Modal -->
+<div class="overlay" id="openingOverlay" onclick="if(event.target===this)closeOpening()">
+  <div class="modal">
+    <div class="modal-head"><h2>سابقہ بقایہ (پرانا حساب)</h2><button class="close" onclick="closeOpening()">✕</button></div>
+    <div class="date-sub">اگر ایپ شروع کرنے سے پہلے دودھی کے پہلے سے پیسے واجب الادا ہیں تو یہاں لکھ دیں۔ یہ رقم مہینے کے حساب کے ساتھ جمع ہو کر کل بقایہ میں شامل رہے گی۔</div>
+    <input type="number" id="openingInput" placeholder="مثلاً: 1320">
+    <div class="modal-actions"><button class="btn-primary" onclick="saveOpening()">محفوظ کریں</button></div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="overlay" id="payOverlay" onclick="if(event.target===this)closePayment()">
+  <div class="modal">
+    <div class="modal-head"><h2>ادائیگی درج کریں</h2><button class="close" onclick="closePayment()">✕</button></div>
+    <div class="date-sub">کل بقایہ: <b id="payDueLabel"></b></div>
+    <input type="number" id="payAmount" placeholder="رقم لکھیں">
+    <div class="modal-actions"><button class="btn-primary" onclick="addPayment()">جمع کریں</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="printArea"></div>
+
+<script>
+const URDU_MONTHS=["جنوری","فروری","مارچ","اپریل","مئی","جون","جولائی","اگست","ستمبر","اکتوبر","نومبر","دسمبر"];
+const URDU_DAYS=["اتوار","پیر","منگل","بدھ","جمعرات","جمعہ","ہفتہ"];
+const QUICK_LITERS=[1,1.5,2,2.5,3,4,5];
+const QUICK_PRICES=[170,180,190];
+
+let today=new Date();
+let viewYear=today.getFullYear();
+let viewMonth=today.getMonth();
+let profile=JSON.parse(localStorage.getItem('dairy001_profile')||'{"name":"","defaultPrice":180}');
+let selectedDay=null;
+let editState={liters:1,price:profile.defaultPrice||180};
+
+function pad(n){return String(n).padStart(2,'0');}
+function mk(y,m){return `dairy001_month_${y}-${pad(m+1)}`;}
+function dk(y,m,d){return `${y}-${pad(m+1)}-${pad(d)}`;}
+function fmt(n){return (Math.round(n*100)/100).toLocaleString('en-US');}
+
+function loadMonth(y,m){
+  try{ return JSON.parse(localStorage.getItem(mk(y,m))||'null') || {entries:{},payments:[]}; }
+  catch(e){ return {entries:{},payments:[]}; }
+}
+function saveMonth(y,m,data){
+  localStorage.setItem(mk(y,m),JSON.stringify(data));
+}
+function allMonthsKeys(){
+  let keys=[];
+  for(let i=0;i<localStorage.length;i++){
+    let k=localStorage.key(i);
+    if(k && k.startsWith('dairy001_month_')) keys.push(k);
+  }
+  return keys;
+}
+function getOpeningBalance(){
+  return parseFloat(localStorage.getItem('dairy001_opening_balance'))||0;
+}
+function grandTotals(){
+  let milk=0,paid=0;
+  allMonthsKeys().forEach(k=>{
+    try{
+      const d=JSON.parse(localStorage.getItem(k));
+      milk += Object.values(d.entries||{}).reduce((s,e)=>s+(e.total||0),0);
+      paid += (d.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
+    }catch(e){}
+  });
+  const opening=getOpeningBalance();
+  return {milk,paid,opening,due:milk-paid+opening};
+}
+
+function openOpening(){
+  document.getElementById('openingInput').value=getOpeningBalance()||'';
+  document.getElementById('openingOverlay').classList.add('show');
+}
+function closeOpening(){ document.getElementById('openingOverlay').classList.remove('show'); }
+function saveOpening(){
+  const amt=parseFloat(document.getElementById('openingInput').value)||0;
+  localStorage.setItem('dairy001_opening_balance', amt);
+  closeOpening();
+  render();
+  toast('سابقہ بقایہ محفوظ ہو گیا');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function renderProfileLine(){
+  const el=document.getElementById('profileLine');
+  if(profile.name){ el.innerHTML='دودھی: '+profile.name; }
+  else{ el.innerHTML='<button onclick="openProfile()">دودھی کا نام درج کریں</button>'; }
+}
+
+function render(){
+  const current=loadMonth(viewYear,viewMonth);
+  document.getElementById('monthLabel').textContent=URDU_MONTHS[viewMonth]+' '+viewYear;
+
+  const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
+  const monthPaid=(current.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
+  document.getElementById('monthTotal').textContent=fmt(monthTotal);
+  document.getElementById('monthPaid').textContent=fmt(monthPaid);
+  const g=grandTotals();
+  document.getElementById('grandDue').textContent=fmt(g.due);
+  document.getElementById('openingLabel').textContent=fmt(g.opening);
+
+  // dow row
+  const dowRow=document.getElementById('dowRow');
+  dowRow.innerHTML=URDU_DAYS.map(d=>`<div>${d.slice(0,3)}</div>`).join('');
+
+  const daysInMonth=new Date(viewYear,viewMonth+1,0).getDate();
+  const firstDow=new Date(viewYear,viewMonth,1).getDay();
+  const grid=document.getElementById('calGrid');
+  let html='';
+  for(let i=0;i<firstDow;i++) html+='<div class="day-cell empty"></div>';
+  for(let d=1; d<=daysInMonth; d++){
+    const k=dk(viewYear,viewMonth,d);
+    const entry=current.entries[k];
+    const isToday=(viewYear===today.getFullYear() && viewMonth===today.getMonth() && d===today.getDate());
+    let cls='day-cell'+(entry?' has-milk':'')+(isToday?' today':'');
+    html+=`<div class="${cls}" onclick="openDay(${d})"><span>${d}</span>${entry?`<span class="liters">${entry.liters}L</span>`:''}</div>`;
+  }
+  grid.innerHTML=html;
+}
+
+function changeMonth(delta){
+  viewMonth+=delta;
+  if(viewMonth<0){viewMonth=11;viewYear--;}
+  if(viewMonth>11){viewMonth=0;viewYear++;}
+  render();
+}
+
+function openDay(d){
+  selectedDay=d;
+  const current=loadMonth(viewYear,viewMonth);
+  const k=dk(viewYear,viewMonth,d);
+  const entry=current.entries[k];
+  editState = entry ? {liters:entry.liters, price:entry.price} : {liters:1, price:profile.defaultPrice||180};
+
+  document.getElementById('dayDateSub').textContent=k;
+  document.getElementById('litersInput').value=editState.liters;
+  document.getElementById('priceInput').value=editState.price;
+  document.getElementById('deleteBtn').style.display= entry ? 'block':'none';
+
+  document.getElementById('litersChips').innerHTML=QUICK_LITERS.map(l=>
+    `<button type="button" class="chip${editState.liters==l?' active':''}" onclick="pickLiters(${l})">${l}</button>`).join('');
+  document.getElementById('priceChips').innerHTML=QUICK_PRICES.map(p=>
+    `<button type="button" class="chip${editState.price==p?' active':''}" onclick="pickPrice(${p})">${p}</button>`).join('');
+
+  updateDayTotals();
+  document.getElementById('dayOverlay').classList.add('show');
+}
+function pickLiters(l){ editState.liters=l; document.getElementById('litersInput').value=l; openDay(selectedDay); }
+function pickPrice(p){ editState.price=p; document.getElementById('priceInput').value=p; openDay(selectedDay); }
+
+document.addEventListener('input',function(e){
+  if(e.target.id==='litersInput'){ editState.liters=parseFloat(e.target.value)||0; updateDayTotals(); }
+  if(e.target.id==='priceInput'){ editState.price=parseFloat(e.target.value)||0; updateDayTotals(); }
+});
+
+function updateDayTotals(){
+  const liters=parseFloat(document.getElementById('litersInput').value)||0;
+  const price=parseFloat(document.getElementById('priceInput').value)||0;
+  document.getElementById('dayTotal').textContent=fmt(liters*price);
+  const current=loadMonth(viewYear,viewMonth);
+  const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
+  document.getElementById('dayMonthTotal').textContent=fmt(monthTotal);
+}
+
+function closeDay(){ document.getElementById('dayOverlay').classList.remove('show'); selectedDay=null; }
+
+function saveEntry(){
+  const liters=parseFloat(document.getElementById('litersInput').value)||0;
+  const price=parseFloat(document.getElementById('priceInput').value)||0;
+  if(liters<=0){ toast('لیٹر درج کریں'); return; }
+  const current=loadMonth(viewYear,viewMonth);
+  const k=dk(viewYear,viewMonth,selectedDay);
+  current.entries[k]={liters,price,total:liters*price};
+  saveMonth(viewYear,viewMonth,current);
+  closeDay();
+  render();
+  toast('محفوظ ہو گیا');
+}
+
+function deleteEntry(){
+  const current=loadMonth(viewYear,viewMonth);
+  const k=dk(viewYear,viewMonth,selectedDay);
+  delete current.entries[k];
+  saveMonth(viewYear,viewMonth,current);
+  closeDay();
+  render();
+  toast('حذف ہو گیا');
+}
+
+function openProfile(){
+  document.getElementById('pName').value=profile.name||'';
+  document.getElementById('pPrice').value=profile.defaultPrice||180;
+  document.getElementById('profileOverlay').classList.add('show');
+}
+function closeProfile(){ document.getElementById('profileOverlay').classList.remove('show'); }
+function saveProfile(){
+  profile={name:document.getElementById('pName').value, defaultPrice: parseFloat(document.getElementById('pPrice').value)||180};
+  localStorage.setItem('dairy001_profile',JSON.stringify(profile));
+  renderProfileLine();
+  closeProfile();
+  toast('محفوظ ہو گیا');
+}
+
+function openPayment(){
+  const g=grandTotals();
+  document.getElementById('payDueLabel').textContent=fmt(g.due);
+  document.getElementById('payAmount').value='';
+  document.getElementById('payOverlay').classList.add('show');
+}
+function closePayment(){ document.getElementById('payOverlay').classList.remove('show'); }
+function addPayment(){
+  const amt=parseFloat(document.getElementById('payAmount').value);
+  if(!amt||amt<=0){ toast('رقم درج کریں'); return; }
+  const current=loadMonth(viewYear,viewMonth);
+  current.payments=current.payments||[];
+  current.payments.push({date:dk(viewYear,viewMonth,today.getDate()),amount:amt});
+  saveMonth(viewYear,viewMonth,current);
+  closePayment();
+  render();
+  toast('ادائیگی درج ہو گئی');
+}
+
+function buildSummaryText(){
+  const current=loadMonth(viewYear,viewMonth);
+  const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
+  const monthPaid=(current.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
+  const g=grandTotals();
+  let lines=[];
+  lines.push('ڈیری۔۰۰۱ — دودھ کا حساب');
+  if(profile.name) lines.push('دودھی: '+profile.name);
+  lines.push('ماہ: '+URDU_MONTHS[viewMonth]+' '+viewYear);
+  lines.push('——————————————');
+  Object.keys(current.entries||{}).sort().forEach(k=>{
+    const e=current.entries[k];
+    const day=k.split('-')[2];
+    lines.push(day+' تاریخ: '+e.liters+' لیٹر × '+e.price+' = '+fmt(e.total));
+  });
+  lines.push('——————————————');
+  lines.push('ماہانہ کل: '+fmt(monthTotal));
+  lines.push('وصول شدہ: '+fmt(monthPaid));
+  lines.push('بقایہ (اس ماہ): '+fmt(monthTotal-monthPaid));
+  if(g.opening) lines.push('سابقہ بقایہ: '+fmt(g.opening));
+  lines.push('کل بقایہ (سب ماہ): '+fmt(g.due));
+  return lines.join('\\n');
+}
+
+function shareWhatsApp(){
+  const text=buildSummaryText();
+  const url='https://wa.me/?text='+encodeURIComponent(text);
+  window.open(url,'_blank');
+}
+
+function doPrint(){
+  const current=loadMonth(viewYear,viewMonth);
+  const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
+  const monthPaid=(current.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
+  const g=grandTotals();
+  let rows='';
+  Object.keys(current.entries||{}).sort().forEach(k=>{
+    const e=current.entries[k];
+    rows+=`<tr><td>${k}</td><td>${e.liters}</td><td>${e.price}</td><td>${fmt(e.total)}</td></tr>`;
+  });
+  document.getElementById('printArea').innerHTML=`
+    <div class="p-head">
+      <div style="font-size:18px;font-weight:bold;">ڈیری — ۰۰۱ | دودھ کا کھاتہ</div>
+      ${profile.name?`<div>دودھی: ${profile.name}</div>`:''}
+      <div>ماہ: ${URDU_MONTHS[viewMonth]} ${viewYear}</div>
+    </div>
+    <table>
+      <thead><tr><th>تاریخ</th><th>لیٹر</th><th>قیمت/لیٹر</th><th>کل</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="p-foot">
+      <div>ماہانہ کل: ${fmt(monthTotal)}</div>
+      <div>وصول شدہ: ${fmt(monthPaid)}</div>
+      <div>بقایہ (اس ماہ): ${fmt(monthTotal-monthPaid)}</div>
+      ${g.opening?`<div>سابقہ بقایہ: ${fmt(g.opening)}</div>`:''}
+      <div style="font-weight:bold;">کل بقایہ (سب ماہ): ${fmt(g.due)}</div>
+    </div>`;
+  window.print();
+}
+
+renderProfileLine();
+render();
+</script>
+</body>
+</html>
