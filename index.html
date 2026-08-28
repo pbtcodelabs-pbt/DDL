@@ -271,6 +271,12 @@
   <button class="btn-whatsapp" onclick="shareWhatsApp()">📤 واٹس ایپ پوسٹر</button>
 </div>
 
+<div class="export-row">
+  <button class="btn-print" onclick="exportBackup()">💾 بیک اپ لیں (محفوظ کریں)</button>
+  <button class="btn-print" onclick="document.getElementById('restoreFile').click()">📂 بیک اپ بحال کریں</button>
+  <input type="file" id="restoreFile" accept="application/json,.json" style="display:none" onchange="importBackup(event)">
+</div>
+
 <!-- Day Modal -->
 <div class="overlay" id="dayOverlay" onclick="if(event.target===this)closeDay()">
   <div class="modal">
@@ -785,8 +791,62 @@ function doPrint(){
   window.print();
 }
 
+/* ===== Backup / Restore (fixes data loss when browser data is cleared) ===== */
+function exportBackup(){
+  const backup={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k && k.startsWith('dairy001_')) backup[k]=localStorage.getItem(k);
+  }
+  if(Object.keys(backup).length===0){
+    toast('ابھی کوئی ریکارڈ موجود نہیں');
+    return;
+  }
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+  const stamp=new Date();
+  const fileName='dairy001-backup-'+stamp.getFullYear()+'-'+pad2(stamp.getMonth()+1)+'-'+pad2(stamp.getDate())+'.json';
+  downloadBlob(blob,fileName);
+  localStorage.setItem('dairy001_last_backup_at', String(Date.now()));
+  toast('بیک اپ فائل ڈاؤن لوڈ ہو گئی — اسے گوگل ڈرائیو یا واٹس ایپ پر محفوظ رکھیں');
+}
+
+function importBackup(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      const keys=Object.keys(data).filter(k=>k.startsWith('dairy001_'));
+      if(!keys.length){
+        toast('یہ فائل درست بیک اپ نہیں لگتی');
+        return;
+      }
+      if(!confirm('موجودہ ریکارڈ اس بیک اپ سے اوور رائٹ ہو جائے گا۔ جاری رکھیں؟')) return;
+      keys.forEach(k=>localStorage.setItem(k,data[k]));
+      profile=JSON.parse(localStorage.getItem('dairy001_profile')||'{"name":"","defaultPrice":180}');
+      renderProfileLine();
+      render();
+      toast('بیک اپ کامیابی سے بحال ہو گیا');
+    }catch(err){
+      toast('فائل پڑھنے میں مسئلہ ہوا، درست بیک اپ فائل منتخب کریں');
+    }
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+function checkBackupReminder(){
+  const last=parseInt(localStorage.getItem('dairy001_last_backup_at')||'0',10);
+  const daysSince=(Date.now()-last)/(1000*60*60*24);
+  if(!last || daysSince>14){
+    setTimeout(()=>toast('مشورہ: نیچے دیے بٹن سے اپنے ریکارڈ کا بیک اپ لے لیں 💾'), 1500);
+  }
+}
+
 renderProfileLine();
 render();
+checkBackupReminder();
 </script>
 </body>
 </html>
