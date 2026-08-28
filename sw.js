@@ -1,4 +1,4 @@
-const CACHE_NAME = "dairy001-cache-DD188tu0238pm";
+const CACHE_NAME = "khata-book-cache-DDL29801";
 const FILES_TO_CACHE = [
   "./index.html",
   "./sw.js"

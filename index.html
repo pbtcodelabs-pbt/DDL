@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ڈیری-۰۰۱ | دودھ کا کھاتہ</title>
+<title>کھاتہ بک | حساب کتاب</title>
 <meta name="theme-color" content="#0A0F1A">
 <style>
   :root{
@@ -53,16 +53,19 @@
     border-radius:0 0 22px 22px;
     box-shadow:0 4px 14px rgba(0,0,0,.35);
   }
-  header .top{display:flex;justify-content:space-between;align-items:flex-start;}
+  header .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
   header .eyebrow{font-size:12px;opacity:.75;letter-spacing:2px;}
-  header h1{margin:2px 0 0;font-size:24px;}
-  .profile-btn{
+  header h1{margin:2px 0 0;font-size:22px;display:flex;align-items:center;gap:8px;}
+  .icon-btn{
     background:rgba(255,255,255,.18);
     border:none;color:#fff;width:40px;height:40px;border-radius:50%;
+    font-size:18px;cursor:pointer;flex:none;
+  }
+  .header-actions{display:flex;gap:8px;}
+  .back-btn{
+    background:rgba(255,255,255,.18);border:none;color:#fff;width:36px;height:36px;border-radius:50%;
     font-size:18px;cursor:pointer;
   }
-  .profile-line{margin-top:8px;font-size:14px;opacity:.9;}
-  .profile-line button{background:none;border:none;color:#FFE9A8;text-decoration:underline;font-size:14px;cursor:pointer;padding:0;}
 
   .card{
     background:var(--panel);
@@ -112,17 +115,45 @@
     box-shadow:inset 2px 2px 5px rgba(0,0,0,.35), inset -2px -2px 4px rgba(255,255,255,.04);
   }
   .day-cell.empty{visibility:hidden;box-shadow:none;}
-  .day-cell.has-milk{background:linear-gradient(145deg,#1D5C42,#154634);border-color:rgba(140,240,186,.25);color:#9CF3C0;font-weight:700;}
+  .day-cell.has-entry{background:linear-gradient(145deg,#1D5C42,#154634);border-color:rgba(140,240,186,.25);color:#9CF3C0;font-weight:700;}
+  .day-cell.note-only{background:linear-gradient(145deg,#5C4B1D,#463A15);border-color:rgba(240,214,140,.25);color:#F3E39C;}
   .day-cell.today{outline:2px solid var(--gold);outline-offset:1px;}
-  .day-cell .liters{font-size:10px;font-weight:400;opacity:.85;}
+  .day-cell .sub{font-size:9.5px;font-weight:400;opacity:.9;max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
   .export-row{display:flex;gap:10px;margin:16px;}
   .export-row button{
-    flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;
+    flex:1;padding:12px;border-radius:10px;border:none;font-size:13.5px;font-weight:700;cursor:pointer;
     display:flex;align-items:center;justify-content:center;gap:6px;
   }
   .btn-print{background:var(--panel);border:1px solid var(--line)!important;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.25);}
   .btn-whatsapp{background:var(--green);color:#04241a;}
+
+  /* Home screen - people list */
+  .people-list{margin:16px;display:flex;flex-direction:column;gap:12px;}
+  .person-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;
+    display:flex;align-items:center;gap:12px;box-shadow:0 3px 14px rgba(0,0,0,.3);cursor:pointer;
+  }
+  .person-emoji{
+    width:46px;height:46px;border-radius:50%;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;
+    font-size:22px;flex:none;
+  }
+  .person-info{flex:1;min-width:0;}
+  .person-info .pname{font-size:16px;font-weight:700;color:var(--ink);}
+  .person-info .punit{font-size:12px;color:var(--muted);margin-top:2px;}
+  .person-due{text-align:left;flex:none;}
+  .person-due .amt{font-size:16px;font-weight:800;color:var(--red);}
+  .person-due .lbl{font-size:10.5px;color:var(--muted);}
+  .person-due .amt.zero{color:var(--green);}
+  .person-edit-btn{
+    background:var(--bg-soft);border:1px solid var(--line);color:var(--muted);width:32px;height:32px;border-radius:50%;
+    font-size:14px;cursor:pointer;flex:none;
+  }
+  .add-person-btn{
+    margin:6px 16px 16px;padding:14px;border-radius:14px;border:1.5px dashed var(--line);background:transparent;
+    color:#5EC8E8;font-weight:700;font-size:14.5px;cursor:pointer;
+  }
+  .empty-state{margin:40px 24px;text-align:center;color:var(--muted);font-size:14px;line-height:1.9;}
 
   /* Modal */
   .overlay{
@@ -150,6 +181,13 @@
   .chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
   .chip.other{color:var(--gold);border-color:#5a4520;}
 
+  .mode-tabs{display:flex;gap:6px;background:var(--bg-soft);border-radius:12px;padding:4px;margin-bottom:10px;}
+  .mode-tabs button{
+    flex:1;padding:9px 4px;border:none;border-radius:9px;background:transparent;color:var(--muted);
+    font-size:12.5px;font-weight:700;cursor:pointer;
+  }
+  .mode-tabs button.active{background:var(--navy);color:#fff;}
+
   select{
     width:100%;padding:11px 12px;border-radius:10px;border:1px solid #C7D6E8;
     font-size:15px;margin-top:4px;font-family:inherit;background:#F3F8FC;color:#132A45;
@@ -160,6 +198,11 @@
   input[type=number],input[type=text]{
     width:100%;padding:10px 12px;border-radius:10px;border:1px solid #C7D6E8;
     font-size:14px;margin-top:8px;font-family:inherit;background:#F3F8FC;color:#132A45;
+  }
+  textarea{
+    width:100%;padding:10px 12px;border-radius:10px;border:1px solid #C7D6E8;
+    font-size:14px;margin-top:8px;font-family:inherit;background:#F3F8FC;color:#132A45;
+    resize:vertical;min-height:64px;
   }
   .mini-input{display:none;margin-top:8px;}
   .mini-input.show{display:block;}
@@ -181,20 +224,35 @@
   .btn-danger{
     background:var(--bg-soft);border:1px solid #5a2020;color:var(--red);border-radius:10px;padding:0 14px;cursor:pointer;
   }
+  .btn-danger-full{
+    width:100%;background:rgba(255,107,107,.1);border:1px solid #5a2020;color:var(--red);border-radius:10px;padding:12px;
+    font-weight:700;cursor:pointer;margin-top:18px;
+  }
+
+  .emoji-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+  .emoji-row button{
+    width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--bg-soft);font-size:19px;cursor:pointer;
+  }
+  .emoji-row button.active{background:var(--navy);border-color:var(--navy);}
 
   /* Day view mode - compact summary */
   .view-summary{
-    text-align:center;padding:18px 10px 8px;
+    text-align:center;padding:14px 10px 8px;
   }
-  .view-summary .big{font-size:26px;font-weight:800;color:#8CF0BA;margin-bottom:4px;}
-  .view-summary .calc{font-size:14px;color:var(--muted);}
+  .view-summary .big{font-size:24px;font-weight:800;color:#8CF0BA;margin-bottom:4px;}
+  .view-summary .calc{font-size:13.5px;color:var(--muted);}
+  .view-summary .note-txt{font-size:13.5px;color:#F3E39C;margin-top:8px;background:rgba(244,168,37,.08);padding:8px 10px;border-radius:8px;text-align:right;}
 
   .toast{
     position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
     background:var(--navy-dark);color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;
     box-shadow:0 4px 12px rgba(0,0,0,.35);z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;
+    max-width:88%;text-align:center;
   }
   .toast.show{opacity:1;}
+
+  .backup-info{font-size:12.5px;color:var(--muted);line-height:1.9;background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;}
+  .backup-lastline{font-size:12px;color:#8CF0BA;margin-top:8px;}
 
   #printArea{display:none;}
   @media print{
@@ -231,56 +289,78 @@
 
 <div class="version-banner">✨ ورژن: <span id="versionTag"></span> ✨</div>
 
-<header>
-  <div class="top">
-    <div>
-      <div class="eyebrow">ڈیری — ۰۰۱</div>
-      <h1>دودھ کا کھاتہ</h1>
+<!-- ============ HOME SCREEN ============ -->
+<div id="homeScreen">
+  <header>
+    <div class="top">
+      <div>
+        <div class="eyebrow">حساب کتاب</div>
+        <h1>میرے کھاتے 📒</h1>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="openSettings()" title="بیک اپ">⚙️</button>
+      </div>
     </div>
-    <button class="profile-btn" onclick="openProfile()">👤</button>
-  </div>
-  <div class="profile-line" id="profileLine"></div>
-</header>
+  </header>
 
-<div class="card balance-card">
-  <div class="balance-grid">
-    <div><div class="label">اس ماہ کل</div><div class="value val-total" id="monthTotal">0</div></div>
-    <div><div class="label">وصول شدہ</div><div class="value val-paid" id="monthPaid">0</div></div>
-    <div><div class="label">کل بقایہ</div><div class="value val-due" id="grandDue">0</div></div>
-  </div>
-  <button class="pay-btn" onclick="openPayment()">💰 ادائیگی درج کریں</button>
-  <div class="opening-row" onclick="openOpening()">
-    <span>سابقہ بقایہ (پرانا حساب)</span>
-    <span><b id="openingLabel">0</b> ✏️</span>
+  <div id="peopleListWrap">
+    <div class="people-list" id="peopleList"></div>
+    <div id="emptyState" class="empty-state" style="display:none;">
+      ابھی کوئی کھاتہ شامل نہیں 🙂<br>نیچے بٹن سے پہلا کھاتہ بنائیں — جیسے "دودھ والا" یا "سبزی والا"
+    </div>
+    <button class="add-person-btn" onclick="openPersonModal(null)">➕ نیا کھاتہ شامل کریں</button>
   </div>
 </div>
 
-<div class="month-nav">
-  <button onclick="changeMonth(-1)">›</button>
-  <div class="label" id="monthLabel"></div>
-  <button onclick="changeMonth(1)">‹</button>
-</div>
+<!-- ============ PERSON LEDGER SCREEN ============ -->
+<div id="personScreen" style="display:none;">
+  <header>
+    <div class="top">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="back-btn" onclick="goHome()">‹</button>
+        <div>
+          <div class="eyebrow" id="pScreenUnit"></div>
+          <h1 id="pScreenName"><span id="pScreenEmoji"></span> <span id="pScreenNameTxt"></span></h1>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="openPersonModal(currentPersonId)" title="ترمیم">✏️</button>
+    </div>
+  </header>
 
-<div class="card cal-card">
-  <div class="dow-row" id="dowRow"></div>
-  <div class="cal-grid" id="calGrid"></div>
-</div>
+  <div class="card balance-card">
+    <div class="balance-grid">
+      <div><div class="label">اس ماہ کل</div><div class="value val-total" id="monthTotal">0</div></div>
+      <div><div class="label">وصول شدہ</div><div class="value val-paid" id="monthPaid">0</div></div>
+      <div><div class="label">کل بقایہ</div><div class="value val-due" id="grandDue">0</div></div>
+    </div>
+    <button class="pay-btn" onclick="openPayment()">💰 ادائیگی درج کریں</button>
+    <div class="opening-row" onclick="openOpening()">
+      <span>سابقہ بقایہ (پرانا حساب)</span>
+      <span><b id="openingLabel">0</b> ✏️</span>
+    </div>
+  </div>
 
-<div class="export-row">
-  <button class="btn-print" onclick="doPrint()">🖨️ پرنٹ / پی ڈی ایف</button>
-  <button class="btn-whatsapp" onclick="shareWhatsApp()">📤 واٹس ایپ پوسٹر</button>
-</div>
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">›</button>
+    <div class="label" id="monthLabel"></div>
+    <button onclick="changeMonth(1)">‹</button>
+  </div>
 
-<div class="export-row">
-  <button class="btn-print" onclick="exportBackup()">💾 بیک اپ لیں (محفوظ کریں)</button>
-  <button class="btn-print" onclick="document.getElementById('restoreFile').click()">📂 بیک اپ بحال کریں</button>
-  <input type="file" id="restoreFile" accept="application/json,.json" style="display:none" onchange="importBackup(event)">
+  <div class="card cal-card">
+    <div class="dow-row" id="dowRow"></div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+  <div class="export-row">
+    <button class="btn-print" onclick="doPrint()">🖨️ پرنٹ / پی ڈی ایف</button>
+    <button class="btn-whatsapp" onclick="shareWhatsApp()">📤 واٹس ایپ پوسٹر</button>
+  </div>
 </div>
 
 <!-- Day Modal -->
 <div class="overlay" id="dayOverlay" onclick="if(event.target===this)closeDay()">
   <div class="modal">
-    <div class="modal-head"><h2>دودھ</h2><button class="close" onclick="closeDay()">✕</button></div>
+    <div class="modal-head"><h2 id="dayModalTitle">اندراج</h2><button class="close" onclick="closeDay()">✕</button></div>
     <div class="date-sub" id="dayDateSub"></div>
 
     <!-- compact view mode -->
@@ -288,6 +368,7 @@
       <div class="view-summary">
         <div class="big" id="viewBig"></div>
         <div class="calc" id="viewCalc"></div>
+        <div class="note-txt" id="viewNote" style="display:none;"></div>
       </div>
       <div class="modal-actions">
         <button class="btn-danger" onclick="deleteEntry()">🗑️ حذف</button>
@@ -297,13 +378,36 @@
 
     <!-- edit mode -->
     <div id="dayEditBox" style="display:none;">
-      <div class="field-label">لیٹر</div>
-      <div class="chip-row" id="litersChips"></div>
-      <input type="number" step="0.25" id="litersInput" class="mini-input" placeholder="خود لکھیں (مثلاً 1.5)">
+      <div class="mode-tabs" id="modeTabs">
+        <button type="button" onclick="setMode('qty')" id="modeTabQty">مقدار × ریٹ</button>
+        <button type="button" onclick="setMode('amount')" id="modeTabAmount">صرف رقم</button>
+        <button type="button" onclick="setMode('note')" id="modeTabNote">📝 نوٹ</button>
+      </div>
 
-      <div class="field-label">قیمت فی لیٹر</div>
-      <select id="priceSelect"></select>
-      <input type="number" id="priceInput" class="mini-input" placeholder="ریٹ لکھیں">
+      <!-- qty mode fields -->
+      <div id="qtyModeFields">
+        <div class="field-label" id="qtyFieldLabel">مقدار</div>
+        <div class="chip-row" id="qtyChips"></div>
+        <input type="number" step="0.25" id="qtyInput" class="mini-input" placeholder="خود لکھیں">
+
+        <div class="field-label">قیمت فی یونٹ</div>
+        <select id="priceSelect"></select>
+        <input type="number" id="priceInput" class="mini-input" placeholder="ریٹ لکھیں">
+      </div>
+
+      <!-- amount mode fields -->
+      <div id="amountModeFields" style="display:none;">
+        <div class="field-label">کل رقم</div>
+        <input type="number" id="amountOnlyInput" placeholder="مثلاً: 500">
+      </div>
+
+      <!-- note mode fields -->
+      <div id="noteModeFields" style="display:none;">
+        <div class="field-label">نوٹ لکھیں</div>
+        <textarea id="noteInput" placeholder="مثلاً: آج آدھی چھٹی، یا کوئی یاد رکھنے والی بات"></textarea>
+        <div class="field-label">رقم (اختیاری)</div>
+        <input type="number" id="noteAmountInput" placeholder="اگر رقم بھی جوڑنی ہو تو لکھیں">
+      </div>
 
       <div class="summary-box"><span>کل رقم (آج)</span><b id="dayTotal">0</b></div>
       <div class="summary-box"><span>ماہانہ کل (اب تک)</span><b id="dayMonthTotal">0</b></div>
@@ -316,15 +420,32 @@
   </div>
 </div>
 
-<!-- Profile Modal -->
-<div class="overlay" id="profileOverlay" onclick="if(event.target===this)closeProfile()">
+<!-- Person Add/Edit Modal -->
+<div class="overlay" id="personOverlay" onclick="if(event.target===this)closePersonModal()">
   <div class="modal">
-    <div class="modal-head"><h2>دودھی کا پروفائل</h2><button class="close" onclick="closeProfile()">✕</button></div>
-    <div class="field-label">دودھی کا نام</div>
-    <input type="text" id="pName" placeholder="مثلاً: اکرم دودھی">
-    <div class="field-label">معمول کی قیمت فی لیٹر</div>
-    <input type="number" id="pPrice">
-    <div class="modal-actions"><button class="btn-primary" onclick="saveProfile()">محفوظ کریں</button></div>
+    <div class="modal-head"><h2 id="personModalTitle">نیا کھاتہ</h2><button class="close" onclick="closePersonModal()">✕</button></div>
+
+    <div class="field-label">نام</div>
+    <input type="text" id="perName" placeholder="مثلاً: دودھ والا، سبزی والا">
+
+    <div class="field-label">آئیکن منتخب کریں</div>
+    <div class="emoji-row" id="emojiRow"></div>
+
+    <div class="field-label">یونٹ (مقدار کس چیز میں گنیں گے)</div>
+    <select id="perUnit">
+      <option value="لیٹر">لیٹر (دودھ وغیرہ)</option>
+      <option value="کلو">کلو (سبزی، گوشت وغیرہ)</option>
+      <option value="عدد">عدد (روٹی، انڈے وغیرہ)</option>
+      <option value="رقم">صرف رقم (مقدار نہیں)</option>
+    </select>
+
+    <div class="field-label">معمول کی قیمت فی یونٹ</div>
+    <input type="number" id="perRate" placeholder="مثلاً: 180">
+
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="savePerson()">محفوظ کریں</button>
+    </div>
+    <button class="btn-danger-full" id="deletePersonBtn" onclick="deletePerson()" style="display:none;">🗑️ یہ کھاتہ مکمل حذف کریں</button>
   </div>
 </div>
 
@@ -332,7 +453,7 @@
 <div class="overlay" id="openingOverlay" onclick="if(event.target===this)closeOpening()">
   <div class="modal">
     <div class="modal-head"><h2>سابقہ بقایہ (پرانا حساب)</h2><button class="close" onclick="closeOpening()">✕</button></div>
-    <div class="date-sub">اگر ایپ شروع کرنے سے پہلے دودھی کے پہلے سے پیسے واجب الادا ہیں تو یہاں لکھ دیں۔ یہ رقم مہینے کے حساب کے ساتھ جمع ہو کر کل بقایہ میں شامل رہے گی۔</div>
+    <div class="date-sub">اگر ایپ شروع کرنے سے پہلے اس بندے کے پہلے سے پیسے واجب الادا ہیں تو یہاں لکھ دیں۔ یہ رقم مہینے کے حساب کے ساتھ جمع ہو کر کل بقایہ میں شامل رہے گی۔</div>
     <input type="number" id="openingInput" placeholder="مثلاً: 1320">
     <div class="modal-actions"><button class="btn-primary" onclick="saveOpening()">محفوظ کریں</button></div>
   </div>
@@ -348,101 +469,285 @@
   </div>
 </div>
 
+<!-- Settings / Backup Modal -->
+<div class="overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <div class="modal-head"><h2>⚙️ بیک اپ / ترتیبات</h2><button class="close" onclick="closeSettings()">✕</button></div>
+    <div class="date-sub">یہ سب کھاتوں (تمام بندوں) کا مکمل ریکارڈ ایک ہی فائل میں محفوظ / بحال کرتا ہے۔</div>
+
+    <div class="export-row" style="margin:14px 0 0;">
+      <button class="btn-print" onclick="exportBackup()">💾 ابھی بیک اپ لیں</button>
+      <button class="btn-print" onclick="document.getElementById('restoreFile').click()">📂 بیک اپ بحال کریں</button>
+      <input type="file" id="restoreFile" accept="application/json,.json" style="display:none" onchange="importBackup(event)">
+    </div>
+
+    <div class="backup-info">
+      🌅 ایپ کھلتے ہی روزانہ خودکار بیک اپ بنتا ہے۔<br>
+      🌙 رات ۸ بجے کے بعد ایک اور خودکار بیک اپ خود بن جاتا ہے (اگر ایپ کھلی ہو)۔<br>
+      📁 دونوں بیک اپ فائلیں موبائل کے Downloads فولڈر میں محفوظ ہوتی ہیں۔
+    </div>
+    <div class="backup-lastline" id="lastBackupLine"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <div id="printArea"></div>
 
 <script>
+/* ================= CONFIG ================= */
 const URDU_MONTHS=["جنوری","فروری","مارچ","اپریل","مئی","جون","جولائی","اگست","ستمبر","اکتوبر","نومبر","دسمبر"];
 const URDU_DAYS=["اتوار","پیر","منگل","بدھ","جمعرات","جمعہ","ہفتہ"];
-const QUICK_LITERS=[1,1.5,2,2.5,3,4,5];
+const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
+const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
+const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
+const APP_VERSION="DDL29801";
+const MAX_PEOPLE=10;
 
-let today=new Date();
-let viewYear=today.getFullYear();
-let viewMonth=today.getMonth();
-const APP_VERSION="DD188tu0238pm";
 document.getElementById('versionTag').textContent=APP_VERSION;
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
 }
-let profile=JSON.parse(localStorage.getItem('dairy001_profile')||'{"name":"","defaultPrice":180}');
+
+/* ================= STATE ================= */
+let today=new Date();
+let currentPersonId=null;
+let viewYear=today.getFullYear();
+let viewMonth=today.getMonth();
 let selectedDay=null;
-let editState={liters:1,price:profile.defaultPrice||180};
 let dayHasEntry=false;
+let currentMode='qty';
+let editState={qty:1,price:0,amount:0,note:'',noteAmount:0};
+let editingPersonId=null;
+let selectedEmoji=EMOJIS[0];
 
+/* ================= HELPERS ================= */
 function pad(n){return String(n).padStart(2,'0');}
-function mk(y,m){return `dairy001_month_${y}-${pad(m+1)}`;}
-function dk(y,m,d){return `${y}-${pad(m+1)}-${pad(d)}`;}
-function fmt(n){return (Math.round(n*100)/100).toLocaleString('en-US');}
+function fmt(n){return (Math.round((n||0)*100)/100).toLocaleString('en-US');}
+function uid(){return 'p_'+Date.now()+'_'+Math.floor(Math.random()*10000);}
 
-function loadMonth(y,m){
-  try{ return JSON.parse(localStorage.getItem(mk(y,m))||'null') || {entries:{},payments:[]}; }
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ================= PEOPLE DATA ================= */
+function loadPeople(){
+  try{ return JSON.parse(localStorage.getItem('ddlm_people')||'[]'); }
+  catch(e){ return []; }
+}
+function savePeople(list){ localStorage.setItem('ddlm_people', JSON.stringify(list)); }
+function getPerson(id){ return loadPeople().find(p=>p.id===id); }
+
+/* ================= MONTH / LEDGER DATA (per person) ================= */
+function pmk(personId,y,m){ return `ddlm_month_${personId}_${y}-${pad(m+1)}`; }
+function dk(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
+
+function loadPMonth(personId,y,m){
+  try{ return JSON.parse(localStorage.getItem(pmk(personId,y,m))||'null') || {entries:{},payments:[]}; }
   catch(e){ return {entries:{},payments:[]}; }
 }
-function saveMonth(y,m,data){
-  localStorage.setItem(mk(y,m),JSON.stringify(data));
+function savePMonth(personId,y,m,data){
+  localStorage.setItem(pmk(personId,y,m), JSON.stringify(data));
 }
-function allMonthsKeys(){
+function personAllMonthKeys(personId){
   let keys=[];
+  const prefix='ddlm_month_'+personId+'_';
   for(let i=0;i<localStorage.length;i++){
     let k=localStorage.key(i);
-    if(k && k.startsWith('dairy001_month_')) keys.push(k);
+    if(k && k.startsWith(prefix)) keys.push(k);
   }
   return keys;
 }
-function getOpeningBalance(){
-  return parseFloat(localStorage.getItem('dairy001_opening_balance'))||0;
-}
-function grandTotals(){
-  let milk=0,paid=0;
-  allMonthsKeys().forEach(k=>{
+function getPOpening(personId){ return parseFloat(localStorage.getItem('ddlm_opening_'+personId))||0; }
+function setPOpening(personId,val){ localStorage.setItem('ddlm_opening_'+personId, val); }
+
+function personGrandTotals(personId){
+  let total=0,paid=0;
+  personAllMonthKeys(personId).forEach(k=>{
     try{
       const d=JSON.parse(localStorage.getItem(k));
-      milk += Object.values(d.entries||{}).reduce((s,e)=>s+(e.total||0),0);
-      paid += (d.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
+      total+=Object.values(d.entries||{}).reduce((s,e)=>s+(e.total||0),0);
+      paid+=(d.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
     }catch(e){}
   });
-  const opening=getOpeningBalance();
-  return {milk,paid,opening,due:milk-paid+opening};
+  const opening=getPOpening(personId);
+  return {total,paid,opening,due: total-paid+opening};
 }
 
+/* ================= MIGRATION from old single-dairy version ================= */
+function migrateOldDairyIfNeeded(){
+  const hasOld = Object.keys(localStorage).some(k=>k.startsWith('dairy001_month_'));
+  const already = localStorage.getItem('ddlm_migrated_v1');
+  if(!hasOld || already) return;
+  const oldProfile = JSON.parse(localStorage.getItem('dairy001_profile')||'{"name":"","defaultPrice":180}');
+  const person = {
+    id: uid(),
+    name: oldProfile.name || 'دودھ والا',
+    emoji: '🥛',
+    unit: 'لیٹر',
+    rate: oldProfile.defaultPrice || 180
+  };
+  const people = loadPeople();
+  people.push(person);
+  savePeople(people);
+  Object.keys(localStorage).forEach(k=>{
+    if(k.startsWith('dairy001_month_')){
+      const ym = k.replace('dairy001_month_','');
+      const old = JSON.parse(localStorage.getItem(k)||'{"entries":{},"payments":[]}');
+      const newEntries={};
+      Object.keys(old.entries||{}).forEach(dateKey=>{
+        const e=old.entries[dateKey];
+        newEntries[dateKey]={mode:'qty',qty:e.liters,price:e.price,total:e.total};
+      });
+      localStorage.setItem('ddlm_month_'+person.id+'_'+ym, JSON.stringify({entries:newEntries,payments:old.payments||[]}));
+    }
+  });
+  const oldOpening=parseFloat(localStorage.getItem('dairy001_opening_balance'))||0;
+  if(oldOpening) setPOpening(person.id, oldOpening);
+  localStorage.setItem('ddlm_migrated_v1','1');
+  toast('پرانا دودھ کا ریکارڈ نئے نظام میں منتقل ہو گیا ✅');
+}
+
+/* ================= HOME SCREEN ================= */
+function goHome(){
+  document.getElementById('personScreen').style.display='none';
+  document.getElementById('homeScreen').style.display='block';
+  currentPersonId=null;
+  renderHome();
+}
+
+function renderHome(){
+  const people=loadPeople();
+  const wrap=document.getElementById('peopleList');
+  const empty=document.getElementById('emptyState');
+  if(!people.length){
+    wrap.innerHTML='';
+    empty.style.display='block';
+    return;
+  }
+  empty.style.display='none';
+  wrap.innerHTML = people.map(p=>{
+    const g=personGrandTotals(p.id);
+    const dueClass = g.due<=0 ? 'zero':'';
+    return `<div class="person-card" onclick="openPerson('${p.id}')">
+      <div class="person-emoji">${p.emoji||'👤'}</div>
+      <div class="person-info">
+        <div class="pname">${escapeHtml(p.name||'بلا نام')}</div>
+        <div class="punit">یونٹ: ${p.unit}${p.unit!=='رقم' && p.rate? ' • ریٹ '+fmt(p.rate):''}</div>
+      </div>
+      <div class="person-due">
+        <div class="amt ${dueClass}">${fmt(g.due)}</div>
+        <div class="lbl">کل بقایہ</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ================= PERSON ADD/EDIT ================= */
+function openPersonModal(id){
+  editingPersonId=id;
+  const p = id ? getPerson(id) : null;
+  document.getElementById('personModalTitle').textContent = p ? 'کھاتہ میں ترمیم' : 'نیا کھاتہ';
+  document.getElementById('perName').value = p ? p.name : '';
+  document.getElementById('perUnit').value = p ? p.unit : 'لیٹر';
+  document.getElementById('perRate').value = p ? (p.rate||'') : '';
+  selectedEmoji = p ? (p.emoji||EMOJIS[0]) : EMOJIS[0];
+  document.getElementById('deletePersonBtn').style.display = p ? 'block':'none';
+
+  const row=document.getElementById('emojiRow');
+  row.innerHTML = EMOJIS.map(e=>`<button type="button" class="${e===selectedEmoji?'active':''}" onclick="pickEmoji('${e}')">${e}</button>`).join('');
+
+  if(!p && loadPeople().length>=MAX_PEOPLE){
+    toast('زیادہ سے زیادہ '+MAX_PEOPLE+' کھاتے بن سکتے ہیں');
+    return;
+  }
+  document.getElementById('personOverlay').classList.add('show');
+}
+function closePersonModal(){ document.getElementById('personOverlay').classList.remove('show'); }
+function pickEmoji(e){
+  selectedEmoji=e;
+  document.querySelectorAll('#emojiRow button').forEach(b=>b.classList.toggle('active', b.textContent===e));
+}
+function savePerson(){
+  const name=document.getElementById('perName').value.trim();
+  if(!name){ toast('نام لکھیں'); return; }
+  const unit=document.getElementById('perUnit').value;
+  const rate=parseFloat(document.getElementById('perRate').value)||0;
+  let people=loadPeople();
+  if(editingPersonId){
+    const idx=people.findIndex(p=>p.id===editingPersonId);
+    if(idx>-1) people[idx]={...people[idx],name,unit,rate,emoji:selectedEmoji};
+  } else {
+    if(people.length>=MAX_PEOPLE){ toast('زیادہ سے زیادہ '+MAX_PEOPLE+' کھاتے بن سکتے ہیں'); return; }
+    people.push({id:uid(),name,unit,rate,emoji:selectedEmoji});
+  }
+  savePeople(people);
+  closePersonModal();
+  if(currentPersonId){ renderPersonHeader(); render(); } else { renderHome(); }
+  toast('محفوظ ہو گیا');
+}
+function deletePerson(){
+  if(!editingPersonId) return;
+  if(!confirm('یہ کھاتہ اور اس کا سارا ریکارڈ ہمیشہ کے لیے حذف ہو جائے گا۔ جاری رکھیں؟')) return;
+  let people=loadPeople().filter(p=>p.id!==editingPersonId);
+  savePeople(people);
+  personAllMonthKeys(editingPersonId).forEach(k=>localStorage.removeItem(k));
+  localStorage.removeItem('ddlm_opening_'+editingPersonId);
+  closePersonModal();
+  goHome();
+  toast('کھاتہ حذف ہو گیا');
+}
+
+/* ================= OPEN PERSON LEDGER ================= */
+function openPerson(id){
+  currentPersonId=id;
+  viewYear=today.getFullYear();
+  viewMonth=today.getMonth();
+  document.getElementById('homeScreen').style.display='none';
+  document.getElementById('personScreen').style.display='block';
+  renderPersonHeader();
+  render();
+}
+function renderPersonHeader(){
+  const p=getPerson(currentPersonId);
+  if(!p) return;
+  document.getElementById('pScreenEmoji').textContent=p.emoji||'👤';
+  document.getElementById('pScreenNameTxt').textContent=p.name;
+  document.getElementById('pScreenUnit').textContent='یونٹ: '+p.unit;
+}
+
+/* ================= OPENING BALANCE ================= */
 function openOpening(){
-  document.getElementById('openingInput').value=getOpeningBalance()||'';
+  document.getElementById('openingInput').value=getPOpening(currentPersonId)||'';
   document.getElementById('openingOverlay').classList.add('show');
 }
 function closeOpening(){ document.getElementById('openingOverlay').classList.remove('show'); }
 function saveOpening(){
   const amt=parseFloat(document.getElementById('openingInput').value)||0;
-  localStorage.setItem('dairy001_opening_balance', amt);
+  setPOpening(currentPersonId, amt);
   closeOpening();
   render();
   toast('سابقہ بقایہ محفوظ ہو گیا');
 }
 
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
-}
-
-function renderProfileLine(){
-  const el=document.getElementById('profileLine');
-  if(profile.name){ el.innerHTML='دودھی: '+profile.name; }
-  else{ el.innerHTML='<button onclick="openProfile()">دودھی کا نام درج کریں</button>'; }
-}
-
+/* ================= RENDER LEDGER ================= */
 function render(){
-  const current=loadMonth(viewYear,viewMonth);
+  if(!currentPersonId) return;
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   document.getElementById('monthLabel').textContent=URDU_MONTHS[viewMonth]+' '+viewYear;
 
   const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
   const monthPaid=(current.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
   document.getElementById('monthTotal').textContent=fmt(monthTotal);
   document.getElementById('monthPaid').textContent=fmt(monthPaid);
-  const g=grandTotals();
+  const g=personGrandTotals(currentPersonId);
   document.getElementById('grandDue').textContent=fmt(g.due);
   document.getElementById('openingLabel').textContent=fmt(g.opening);
 
@@ -458,8 +763,18 @@ function render(){
     const k=dk(viewYear,viewMonth,d);
     const entry=current.entries[k];
     const isToday=(viewYear===today.getFullYear() && viewMonth===today.getMonth() && d===today.getDate());
-    let cls='day-cell'+(entry?' has-milk':'')+(isToday?' today':'');
-    html+=`<div class="${cls}" onclick="openDay(${d})"><span>${d}</span>${entry?`<span class="liters">${entry.liters}L</span>`:''}</div>`;
+    let cls='day-cell';
+    let sub='';
+    if(entry){
+      if(entry.mode==='note' && !entry.total){ cls+=' note-only'; sub='📝'; }
+      else{
+        cls+=' has-entry';
+        if(entry.mode==='qty') sub=entry.qty+(entry.unitAbbrev||'');
+        else sub='₨'+fmt(entry.total);
+      }
+    }
+    if(isToday) cls+=' today';
+    html+=`<div class="${cls}" onclick="openDay(${d})"><span>${d}</span>${sub?`<span class="sub">${sub}</span>`:''}</div>`;
   }
   grid.innerHTML=html;
 }
@@ -471,75 +786,119 @@ function changeMonth(delta){
   render();
 }
 
+/* ================= DAY MODAL ================= */
 function buildPriceSelect(selectedPrice){
   const sel=document.getElementById('priceSelect');
   let opts=PRICE_OPTIONS.slice();
+  const p=getPerson(currentPersonId);
+  if(p && p.rate && !opts.includes(p.rate)) opts.push(p.rate);
   if(!opts.includes(selectedPrice)) opts.push(selectedPrice);
-  opts.sort((a,b)=>a-b);
-  sel.innerHTML = opts.map(p=>`<option value="${p}" ${p==selectedPrice?'selected':''}>${p} روپے / لیٹر</option>`).join('')
+  opts=[...new Set(opts)].sort((a,b)=>a-b);
+  sel.innerHTML = opts.map(pr=>`<option value="${pr}" ${pr==selectedPrice?'selected':''}>${pr} روپے / ${p?p.unit:'یونٹ'}</option>`).join('')
     + `<option value="other">دیگر (خود لکھیں)</option>`;
 }
 
 function openDay(d){
   selectedDay=d;
-  const current=loadMonth(viewYear,viewMonth);
+  const p=getPerson(currentPersonId);
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   const k=dk(viewYear,viewMonth,d);
   const entry=current.entries[k];
   dayHasEntry=!!entry;
-  editState = entry ? {liters:entry.liters, price:entry.price} : {liters:1, price:profile.defaultPrice||180};
 
   document.getElementById('dayDateSub').textContent=k;
+  document.getElementById('dayModalTitle').textContent=p? p.name : 'اندراج';
 
   if(entry){
-    showDayView(entry);
+    editState = {
+      qty: entry.qty||1, price: entry.price|| (p?p.rate:0)||0,
+      amount: entry.amount||entry.total||0,
+      note: entry.note||'', noteAmount: entry.mode==='note'? (entry.total||0):0
+    };
+    currentMode = entry.mode || 'qty';
+    showDayView(entry, p);
   } else {
-    showDayEdit();
+    editState = {qty:1, price:(p?p.rate:0)||0, amount:0, note:'', noteAmount:0};
+    currentMode = (p && p.unit==='رقم') ? 'amount' : 'qty';
+    showDayEdit(p);
   }
   document.getElementById('dayOverlay').classList.add('show');
 }
 
-function showDayView(entry){
+function showDayView(entry, p){
   document.getElementById('dayViewBox').style.display='block';
   document.getElementById('dayEditBox').style.display='none';
   document.getElementById('viewBig').textContent = fmt(entry.total)+' روپے';
-  document.getElementById('viewCalc').textContent = entry.liters+' لیٹر × '+entry.price+' = '+fmt(entry.total);
+  const noteEl=document.getElementById('viewNote');
+  if(entry.mode==='qty'){
+    document.getElementById('viewCalc').textContent = entry.qty+' '+(p?p.unit:'') +' × '+entry.price+' = '+fmt(entry.total);
+    noteEl.style.display='none';
+  } else if(entry.mode==='amount'){
+    document.getElementById('viewCalc').textContent = 'براہ راست رقم درج کی گئی';
+    noteEl.style.display='none';
+  } else {
+    document.getElementById('viewCalc').textContent = entry.total? 'رقم کے ساتھ نوٹ' : 'صرف نوٹ';
+    if(entry.note){ noteEl.textContent=entry.note; noteEl.style.display='block'; } else { noteEl.style.display='none'; }
+  }
 }
 
-function showDayEdit(){
+function showDayEdit(p){
   document.getElementById('dayViewBox').style.display='none';
   document.getElementById('dayEditBox').style.display='block';
   document.getElementById('cancelEditBtn').style.display = dayHasEntry ? 'block':'none';
+  setMode(currentMode, true);
+}
 
-  document.getElementById('litersInput').value=editState.liters;
-  document.getElementById('litersInput').classList.remove('show');
-  document.getElementById('litersChips').innerHTML=QUICK_LITERS.map(l=>
-    `<button type="button" class="chip${editState.liters==l?' active':''}" onclick="pickLiters(${l})">${l}</button>`).join('')
-    + `<button type="button" class="chip other" onclick="toggleLitersCustom()">دیگر ✎</button>`;
+function switchToEdit(){
+  const p=getPerson(currentPersonId);
+  showDayEdit(p);
+}
+function cancelEdit(){
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
+  const k=dk(viewYear,viewMonth,selectedDay);
+  const entry=current.entries[k];
+  const p=getPerson(currentPersonId);
+  if(entry) showDayView(entry,p); else closeDay();
+}
 
-  buildPriceSelect(editState.price);
-  document.getElementById('priceInput').classList.remove('show');
-  document.getElementById('priceInput').value=editState.price;
+function setMode(mode, silent){
+  currentMode=mode;
+  document.getElementById('modeTabQty').classList.toggle('active', mode==='qty');
+  document.getElementById('modeTabAmount').classList.toggle('active', mode==='amount');
+  document.getElementById('modeTabNote').classList.toggle('active', mode==='note');
+  document.getElementById('qtyModeFields').style.display = mode==='qty' ? 'block':'none';
+  document.getElementById('amountModeFields').style.display = mode==='amount' ? 'block':'none';
+  document.getElementById('noteModeFields').style.display = mode==='note' ? 'block':'none';
 
+  const p=getPerson(currentPersonId);
+  if(mode==='qty'){
+    document.getElementById('qtyFieldLabel').textContent = 'مقدار ('+(p?p.unit:'یونٹ')+')';
+    const quickList = (p && p.unit==='عدد') ? QUICK_QTY_UNIT : QUICK_QTY_DECIMAL;
+    document.getElementById('qtyInput').value=editState.qty;
+    document.getElementById('qtyInput').classList.remove('show');
+    document.getElementById('qtyChips').innerHTML=quickList.map(l=>
+      `<button type="button" class="chip${editState.qty==l?' active':''}" onclick="pickQty(${l})">${l}</button>`).join('')
+      + `<button type="button" class="chip other" onclick="toggleQtyCustom()">دیگر ✎</button>`;
+    buildPriceSelect(editState.price);
+    document.getElementById('priceInput').classList.remove('show');
+    document.getElementById('priceInput').value=editState.price;
+  } else if(mode==='amount'){
+    document.getElementById('amountOnlyInput').value = editState.amount||'';
+  } else {
+    document.getElementById('noteInput').value = editState.note||'';
+    document.getElementById('noteAmountInput').value = editState.noteAmount||'';
+  }
   updateDayTotals();
 }
 
-function switchToEdit(){ showDayEdit(); }
-function cancelEdit(){
-  const current=loadMonth(viewYear,viewMonth);
-  const k=dk(viewYear,viewMonth,selectedDay);
-  const entry=current.entries[k];
-  if(entry) showDayView(entry); else closeDay();
+function toggleQtyCustom(){
+  document.getElementById('qtyInput').classList.add('show');
+  document.getElementById('qtyInput').focus();
 }
-
-function toggleLitersCustom(){
-  document.getElementById('litersInput').classList.add('show');
-  document.getElementById('litersInput').focus();
-}
-
-function pickLiters(l){
-  editState.liters=l;
-  document.getElementById('litersInput').value=l;
-  document.querySelectorAll('#litersChips .chip').forEach(c=>c.classList.remove('active'));
+function pickQty(l){
+  editState.qty=l;
+  document.getElementById('qtyInput').value=l;
+  document.querySelectorAll('#qtyChips .chip').forEach(c=>c.classList.remove('active'));
   event.target.classList.add('active');
   updateDayTotals();
 }
@@ -558,15 +917,22 @@ document.addEventListener('change',function(e){
   }
 });
 document.addEventListener('input',function(e){
-  if(e.target.id==='litersInput'){ editState.liters=parseFloat(e.target.value)||0; updateDayTotals(); }
+  if(e.target.id==='qtyInput'){ editState.qty=parseFloat(e.target.value)||0; updateDayTotals(); }
   if(e.target.id==='priceInput'){ editState.price=parseFloat(e.target.value)||0; updateDayTotals(); }
+  if(e.target.id==='amountOnlyInput'){ editState.amount=parseFloat(e.target.value)||0; updateDayTotals(); }
+  if(e.target.id==='noteInput'){ editState.note=e.target.value; }
+  if(e.target.id==='noteAmountInput'){ editState.noteAmount=parseFloat(e.target.value)||0; updateDayTotals(); }
 });
 
+function currentComputedTotal(){
+  if(currentMode==='qty') return (editState.qty||0)*(editState.price||0);
+  if(currentMode==='amount') return editState.amount||0;
+  return editState.noteAmount||0;
+}
+
 function updateDayTotals(){
-  const liters=parseFloat(document.getElementById('litersInput').value)||0;
-  const price=parseFloat(document.getElementById('priceInput').value)||0;
-  document.getElementById('dayTotal').textContent=fmt(liters*price);
-  const current=loadMonth(viewYear,viewMonth);
+  document.getElementById('dayTotal').textContent=fmt(currentComputedTotal());
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
   document.getElementById('dayMonthTotal').textContent=fmt(monthTotal);
 }
@@ -574,45 +940,46 @@ function updateDayTotals(){
 function closeDay(){ document.getElementById('dayOverlay').classList.remove('show'); selectedDay=null; }
 
 function saveEntry(){
-  const liters=parseFloat(document.getElementById('litersInput').value)||0;
-  const price=parseFloat(document.getElementById('priceInput').value)||0;
-  if(liters<=0){ toast('لیٹر درج کریں'); return; }
-  if(price<=0){ toast('قیمت درج کریں'); return; }
-  const current=loadMonth(viewYear,viewMonth);
+  const p=getPerson(currentPersonId);
+  let entry;
+  if(currentMode==='qty'){
+    const qty=parseFloat(document.getElementById('qtyInput').value)||0;
+    const price=parseFloat(document.getElementById('priceInput').value)||0;
+    if(qty<=0){ toast('مقدار درج کریں'); return; }
+    if(price<=0){ toast('قیمت درج کریں'); return; }
+    entry={mode:'qty',qty,price,total:qty*price,unitAbbrev:(p?p.unit[0]:'')};
+  } else if(currentMode==='amount'){
+    const amount=parseFloat(document.getElementById('amountOnlyInput').value)||0;
+    if(amount<=0){ toast('رقم درج کریں'); return; }
+    entry={mode:'amount',amount,total:amount};
+  } else {
+    const note=document.getElementById('noteInput').value.trim();
+    const noteAmount=parseFloat(document.getElementById('noteAmountInput').value)||0;
+    if(!note && noteAmount<=0){ toast('نوٹ یا رقم لکھیں'); return; }
+    entry={mode:'note',note,total:noteAmount};
+  }
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   const k=dk(viewYear,viewMonth,selectedDay);
-  current.entries[k]={liters,price,total:liters*price};
-  saveMonth(viewYear,viewMonth,current);
+  current.entries[k]=entry;
+  savePMonth(currentPersonId,viewYear,viewMonth,current);
   closeDay();
   render();
   toast('محفوظ ہو گیا');
 }
 
 function deleteEntry(){
-  const current=loadMonth(viewYear,viewMonth);
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   const k=dk(viewYear,viewMonth,selectedDay);
   delete current.entries[k];
-  saveMonth(viewYear,viewMonth,current);
+  savePMonth(currentPersonId,viewYear,viewMonth,current);
   closeDay();
   render();
   toast('حذف ہو گیا');
 }
 
-function openProfile(){
-  document.getElementById('pName').value=profile.name||'';
-  document.getElementById('pPrice').value=profile.defaultPrice||180;
-  document.getElementById('profileOverlay').classList.add('show');
-}
-function closeProfile(){ document.getElementById('profileOverlay').classList.remove('show'); }
-function saveProfile(){
-  profile={name:document.getElementById('pName').value, defaultPrice: parseFloat(document.getElementById('pPrice').value)||180};
-  localStorage.setItem('dairy001_profile',JSON.stringify(profile));
-  renderProfileLine();
-  closeProfile();
-  toast('محفوظ ہو گیا');
-}
-
+/* ================= PAYMENTS ================= */
 function openPayment(){
-  const g=grandTotals();
+  const g=personGrandTotals(currentPersonId);
   document.getElementById('payDueLabel').textContent=fmt(g.due);
   document.getElementById('payAmount').value='';
   document.getElementById('payOverlay').classList.add('show');
@@ -621,10 +988,10 @@ function closePayment(){ document.getElementById('payOverlay').classList.remove(
 function addPayment(){
   const amt=parseFloat(document.getElementById('payAmount').value);
   if(!amt||amt<=0){ toast('رقم درج کریں'); return; }
-  const current=loadMonth(viewYear,viewMonth);
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   current.payments=current.payments||[];
   current.payments.push({date:dk(viewYear,viewMonth,today.getDate()),amount:amt});
-  saveMonth(viewYear,viewMonth,current);
+  savePMonth(currentPersonId,viewYear,viewMonth,current);
   closePayment();
   render();
   toast('ادائیگی درج ہو گئی');
@@ -632,11 +999,12 @@ function addPayment(){
 
 /* ===== WhatsApp Poster (canvas image) ===== */
 function shareWhatsApp(){
-  const current=loadMonth(viewYear,viewMonth);
+  const p=getPerson(currentPersonId);
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   const entries=Object.keys(current.entries||{}).sort().map(k=>({date:k.split('-')[2], ...current.entries[k]}));
   const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
   const monthPaid=(current.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
-  const g=grandTotals();
+  const g=personGrandTotals(currentPersonId);
 
   const W=1080;
   const rowH=52;
@@ -648,11 +1016,9 @@ function shareWhatsApp(){
   canvas.width=W; canvas.height=H;
   const ctx=canvas.getContext('2d');
 
-  // background
   ctx.fillStyle='#0A0F1A';
   roundRect(ctx,0,0,W,H,0); ctx.fill();
 
-  // outer card
   const pad=36;
   ctx.fillStyle='#121B2C';
   roundRect(ctx,pad,pad,W-pad*2,H-pad*2,32); ctx.fill();
@@ -662,22 +1028,20 @@ function shareWhatsApp(){
   ctx.textAlign='center';
   ctx.direction='rtl';
 
-  // header
   ctx.fillStyle='#F4A825';
   ctx.font='bold 26px Arial';
-  ctx.fillText('ڈیری — ۰۰۱', W/2, pad+60);
+  ctx.fillText('کھاتہ بک', W/2, pad+60);
   ctx.fillStyle='#EAF1F8';
   ctx.font='bold 44px Arial';
-  ctx.fillText('دودھ کا کھاتہ', W/2, pad+118);
+  ctx.fillText(p?p.name:'', W/2, pad+118);
   ctx.fillStyle='#8FA3BE';
   ctx.font='24px Arial';
-  let sub = URDU_MONTHS[viewMonth]+' '+viewYear + (profile.name? '   |   دودھی: '+profile.name : '');
+  let sub = URDU_MONTHS[viewMonth]+' '+viewYear;
   ctx.fillText(sub, W/2, pad+160);
 
   ctx.strokeStyle='#243350';
   ctx.beginPath(); ctx.moveTo(pad+40, pad+190); ctx.lineTo(W-pad-40, pad+190); ctx.stroke();
 
-  // entries
   ctx.textAlign='right';
   ctx.font='24px Arial';
   let y = pad + 190 + 46;
@@ -690,7 +1054,8 @@ function shareWhatsApp(){
     ctx.fillText(e.date+' تاریخ', W-pad-40, y);
     ctx.fillStyle='#8FA3BE';
     ctx.textAlign='center';
-    ctx.fillText(e.liters+' لیٹر × '+e.price, W/2, y);
+    let mid = e.mode==='qty' ? (e.qty+' '+(p?p.unit:'')+' × '+e.price) : (e.mode==='note' ? (e.note||'نوٹ') : 'رقم');
+    ctx.fillText(mid, W/2, y);
     ctx.fillStyle='#8CF0BA';
     ctx.textAlign='left';
     ctx.font='bold 24px Arial';
@@ -700,7 +1065,6 @@ function shareWhatsApp(){
     y+=rowH;
   });
 
-  // footer box
   const fy=y+20;
   ctx.fillStyle='#0D1626';
   roundRect(ctx,pad+20,fy,W-pad*2-40,footH,20); ctx.fill();
@@ -715,7 +1079,7 @@ function shareWhatsApp(){
     ctx.fillText(fmt(val), pad+50, fyy);
     fyy+=48;
   }
-  footRow('ماہانہ کل','',null); fyy-=48; footRow('ماہانہ کل', monthTotal, '#5EC8E8');
+  footRow('ماہانہ کل', monthTotal, '#5EC8E8');
   footRow('وصول شدہ', monthPaid, '#8CF0BA');
   footRow('بقایہ (اس ماہ)', monthTotal-monthPaid, '#FF6B6B');
   if(g.opening) footRow('سابقہ بقایہ', g.opening, '#F4A825');
@@ -732,10 +1096,10 @@ function shareWhatsApp(){
   ctx.fillText(fmt(g.due)+' روپے', pad+50, fyy);
 
   canvas.toBlob(function(blob){
-    const fileName='dairy001-'+viewYear+'-'+pad2(viewMonth+1)+'.png';
+    const fileName='khata-'+(p?p.name.replace(/\s+/g,'_'):'record')+'-'+viewYear+'-'+pad2(viewMonth+1)+'.png';
     const file=new File([blob], fileName, {type:'image/png'});
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      navigator.share({files:[file], title:'دودھ کا کھاتہ', text:'ڈیری-۰۰۱ ماہانہ ریکارڈ'}).catch(()=>{ downloadBlob(blob,fileName); });
+      navigator.share({files:[file], title:'کھاتہ بک', text:'ماہانہ ریکارڈ'}).catch(()=>{ downloadBlob(blob,fileName); });
     } else {
       downloadBlob(blob,fileName);
       toast('پوسٹر تصویر ڈاؤن لوڈ ہو گئی، واٹس ایپ میں بھیج دیں');
@@ -761,23 +1125,26 @@ function roundRect(ctx,x,y,w,h,r){
 
 /* ===== Print ===== */
 function doPrint(){
-  const current=loadMonth(viewYear,viewMonth);
+  const p=getPerson(currentPersonId);
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
   const monthPaid=(current.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
-  const g=grandTotals();
+  const g=personGrandTotals(currentPersonId);
   let rows='';
   Object.keys(current.entries||{}).sort().forEach(k=>{
     const e=current.entries[k];
-    rows+=`<tr><td>${k}</td><td>${e.liters}</td><td>${e.price}</td><td>${fmt(e.total)}</td></tr>`;
+    const mid = e.mode==='qty' ? e.qty : (e.mode==='note' ? (e.note||'نوٹ') : '—');
+    const rate = e.mode==='qty' ? e.price : '—';
+    rows+=`<tr><td>${k}</td><td>${mid}</td><td>${rate}</td><td>${fmt(e.total)}</td></tr>`;
   });
   document.getElementById('printArea').innerHTML=`
     <div class="poster">
       <div class="p-head">
-        <div class="t1">ڈیری — ۰۰۱ | دودھ کا کھاتہ</div>
-        <div class="t2">${profile.name?('دودھی: '+profile.name+' | '):''}ماہ: ${URDU_MONTHS[viewMonth]} ${viewYear}</div>
+        <div class="t1">کھاتہ بک</div>
+        <div class="t2">${p?('نام: '+p.name+' | '):''}ماہ: ${URDU_MONTHS[viewMonth]} ${viewYear}</div>
       </div>
       <table>
-        <thead><tr><th>تاریخ</th><th>لیٹر</th><th>قیمت/لیٹر</th><th>کل</th></tr></thead>
+        <thead><tr><th>تاریخ</th><th>مقدار/نوٹ</th><th>قیمت</th><th>کل</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
       <div class="p-foot">
@@ -791,62 +1158,118 @@ function doPrint(){
   window.print();
 }
 
-/* ===== Backup / Restore (fixes data loss when browser data is cleared) ===== */
-function exportBackup(){
-  const backup={};
+/* ================= SETTINGS / BACKUP ================= */
+function openSettings(){
+  updateLastBackupLine();
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('show'); }
+function updateLastBackupLine(){
+  const t=parseInt(localStorage.getItem('ddlm_last_backup_at')||'0',10);
+  const el=document.getElementById('lastBackupLine');
+  if(!t){ el.textContent='ابھی تک کوئی بیک اپ نہیں لیا گیا'; return; }
+  const d=new Date(t);
+  el.textContent='آخری بیک اپ: '+d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+
+function collectAllData(){
+  const data={};
   for(let i=0;i<localStorage.length;i++){
     const k=localStorage.key(i);
-    if(k && k.startsWith('dairy001_')) backup[k]=localStorage.getItem(k);
+    if(k && k.startsWith('ddlm_')) data[k]=localStorage.getItem(k);
   }
-  if(Object.keys(backup).length===0){
-    toast('ابھی کوئی ریکارڈ موجود نہیں');
-    return;
-  }
-  const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
-  const stamp=new Date();
-  const fileName='dairy001-backup-'+stamp.getFullYear()+'-'+pad2(stamp.getMonth()+1)+'-'+pad2(stamp.getDate())+'.json';
-  downloadBlob(blob,fileName);
-  localStorage.setItem('dairy001_last_backup_at', String(Date.now()));
-  toast('بیک اپ فائل ڈاؤن لوڈ ہو گئی — اسے گوگل ڈرائیو یا واٹس ایپ پر محفوظ رکھیں');
+  return data;
+}
+
+function exportBackup(){
+  toast('🔄 بیک اپ بن رہا ہے...');
+  setTimeout(()=>{
+    const data=collectAllData();
+    if(Object.keys(data).length===0){ toast('ابھی کوئی ریکارڈ موجود نہیں'); return; }
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const stamp=new Date();
+    const fileName='khata-backup-manual-'+stamp.getFullYear()+'-'+pad2(stamp.getMonth()+1)+'-'+pad2(stamp.getDate())+'-'+pad2(stamp.getHours())+pad2(stamp.getMinutes())+'.json';
+    downloadBlob(blob,fileName);
+    localStorage.setItem('ddlm_last_backup_at', String(Date.now()));
+    markBackupDoneForNow();
+    updateLastBackupLine();
+    toast('✅ بیک اپ محفوظ ہو گیا (Downloads فولڈر)');
+  },350);
 }
 
 function importBackup(event){
   const file=event.target.files[0];
   if(!file) return;
+  toast('🔄 بحال ہو رہا ہے...');
   const reader=new FileReader();
   reader.onload=function(e){
     try{
       const data=JSON.parse(e.target.result);
-      const keys=Object.keys(data).filter(k=>k.startsWith('dairy001_'));
-      if(!keys.length){
-        toast('یہ فائل درست بیک اپ نہیں لگتی');
-        return;
-      }
-      if(!confirm('موجودہ ریکارڈ اس بیک اپ سے اوور رائٹ ہو جائے گا۔ جاری رکھیں؟')) return;
+      const keys=Object.keys(data).filter(k=>k.startsWith('ddlm_'));
+      if(!keys.length){ toast('یہ فائل درست بیک اپ نہیں لگتی'); return; }
+      if(!confirm('موجودہ سارا ریکارڈ اس بیک اپ سے اوور رائٹ ہو جائے گا۔ جاری رکھیں؟')){ event.target.value=''; return; }
       keys.forEach(k=>localStorage.setItem(k,data[k]));
-      profile=JSON.parse(localStorage.getItem('dairy001_profile')||'{"name":"","defaultPrice":180}');
-      renderProfileLine();
-      render();
-      toast('بیک اپ کامیابی سے بحال ہو گیا');
+      localStorage.setItem('ddlm_last_backup_at', String(Date.now()));
+      goHome();
+      updateLastBackupLine();
+      toast('✅ بیک اپ کامیابی سے بحال ہو گیا');
     }catch(err){
-      toast('فائل پڑھنے میں مسئلہ ہوا، درست بیک اپ فائل منتخب کریں');
+      toast('فائل پڑھنے میں مسئلہ ہوا');
     }
     event.target.value='';
   };
   reader.readAsText(file);
 }
 
-function checkBackupReminder(){
-  const last=parseInt(localStorage.getItem('dairy001_last_backup_at')||'0',10);
-  const daysSince=(Date.now()-last)/(1000*60*60*24);
-  if(!last || daysSince>14){
-    setTimeout(()=>toast('مشورہ: نیچے دیے بٹن سے اپنے ریکارڈ کا بیک اپ لے لیں 💾'), 1500);
-  }
+/* ---- automatic backups: once on open (any time) + once after 8pm ---- */
+function todayStr(){
+  const d=new Date();
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+}
+function getBackupLog(){
+  try{
+    const log=JSON.parse(localStorage.getItem('ddlm_backup_log')||'null');
+    if(log && log.date===todayStr()) return log;
+  }catch(e){}
+  return {date:todayStr(), open:false, evening:false};
+}
+function saveBackupLog(log){ localStorage.setItem('ddlm_backup_log', JSON.stringify(log)); }
+function markBackupDoneForNow(){
+  const log=getBackupLog();
+  log.open=true;
+  if(new Date().getHours()>=20) log.evening=true;
+  saveBackupLog(log);
 }
 
-renderProfileLine();
-render();
-checkBackupReminder();
+function silentAutoBackup(kind){
+  const data=collectAllData();
+  if(Object.keys(data).length===0) return;
+  toast(kind==='evening' ? '🔄 رات کا خودکار بیک اپ بن رہا ہے...' : '🔄 روزانہ خودکار بیک اپ بن رہا ہے...');
+  setTimeout(()=>{
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const stamp=new Date();
+    const fileName='khata-backup-auto-'+kind+'-'+stamp.getFullYear()+'-'+pad2(stamp.getMonth()+1)+'-'+pad2(stamp.getDate())+'.json';
+    downloadBlob(blob,fileName);
+    localStorage.setItem('ddlm_last_backup_at', String(Date.now()));
+    const log=getBackupLog();
+    if(kind==='open') log.open=true; else log.evening=true;
+    saveBackupLog(log);
+    toast('✅ خودکار بیک اپ محفوظ ہو گیا (Downloads)');
+  },300);
+}
+
+function checkAutoBackups(){
+  const log=getBackupLog();
+  if(!log.open){ silentAutoBackup('open'); return; }
+  if(new Date().getHours()>=20 && !log.evening){ silentAutoBackup('evening'); }
+}
+
+/* ================= INIT ================= */
+migrateOldDairyIfNeeded();
+renderHome();
+checkAutoBackups();
+setInterval(checkAutoBackups, 60000);
 </script>
+
 </body>
 </html>
