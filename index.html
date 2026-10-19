@@ -4,8 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>کھاتہ بک | حساب کتاب</title>
-<meta name="theme-color" content="#0A0F1A">
+<meta name="theme-color" content="#0F2A45">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/JameelNooriNastaleeq.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face{font-family:'Noori';src:url('fonts/JameelNooriNastaleeq.woff2') format('woff2');font-display:swap;}
+  @font-face{font-family:'NooriKasheeda';src:url('fonts/JameelNooriNastaleeqKasheeda.woff2') format('woff2');font-display:swap;}
   :root{
     --navy:#2E7FA8;
     --navy-dark:#1B5C7E;
@@ -22,9 +27,15 @@
     --line:#2C4E72;
   }
   *{box-sizing:border-box;}
+  button,input,select,textarea{font-family:inherit;}
+  /* ہندسے صاف نظر آئیں */
+  .num,.balance-grid .value,.person-due .amt,.day-cell,.view-summary .big,.summary-box b,#versionTag,
+  input[type=number],.chip,#payDueLabel,.opening-row b{font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
+  .ksh,header h1,.modal-head h2{font-family:'NooriKasheeda','Noori',serif;font-weight:400;}
   body{
     margin:0;
-    font-family:'Segoe UI','Tahoma',Arial,sans-serif;
+    font-family:'Noori','Jameel Noori Nastaleeq','Segoe UI',Tahoma,sans-serif;
+    font-size:16px;line-height:1.75;
     background:var(--bg);
     color:var(--ink);
     padding-bottom:40px;
@@ -55,7 +66,7 @@
   }
   header .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
   header .eyebrow{font-size:12px;opacity:.75;letter-spacing:2px;}
-  header h1{margin:2px 0 0;font-size:22px;display:flex;align-items:center;gap:8px;}
+  header h1{margin:2px 0 0;font-size:30px;line-height:1.6;display:flex;align-items:center;gap:8px;}
   .icon-btn{
     background:rgba(255,255,255,.18);
     border:none;color:#fff;width:40px;height:40px;border-radius:50%;
@@ -168,7 +179,7 @@
   }
   @media(min-width:600px){.modal{border-radius:20px;}}
   .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-  .modal-head h2{margin:0;font-size:19px;color:#5EC8E8;}
+  .modal-head h2{margin:0;font-size:25px;line-height:1.7;color:#5EC8E8;}
   .modal-head .close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);}
   .modal .date-sub{font-size:13px;color:var(--muted);margin-bottom:14px;}
   .field-label{font-size:12px;color:var(--muted);margin:12px 0 6px;}
@@ -195,7 +206,7 @@
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14'><path d='M2 4l5 5 5-5' stroke='%23132A45' stroke-width='1.5' fill='none'/></svg>");
     background-repeat:no-repeat;background-position:left 12px center;
   }
-  input[type=number],input[type=text]{
+  input[type=number],input[type=text],input[type=tel]{
     width:100%;padding:10px 12px;border-radius:10px;border:1px solid #C7D6E8;
     font-size:14px;margin-top:8px;font-family:inherit;background:#F3F8FC;color:#132A45;
   }
@@ -254,6 +265,37 @@
   .backup-info{font-size:12.5px;color:var(--muted);line-height:1.9;background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;}
   .backup-lastline{font-size:12px;color:#8CF0BA;margin-top:8px;}
 
+  /* گوگل ڈرائیو */
+  .dchip.ok{background:rgba(59,193,126,.35);} .dchip.warn{background:rgba(255,107,107,.45);} .dchip.busy{background:rgba(244,168,37,.4);}
+  .sec-title{font-size:17px;color:#FFD98C;margin:18px 0 4px;}
+  .dstatus{border-radius:10px;padding:10px 12px;font-size:14px;border:1px solid var(--line);}
+  .dstatus.ok{background:rgba(59,193,126,.12);color:#8CF0BA;}
+  .dstatus.warn{background:rgba(255,107,107,.1);color:#FFB3B3;}
+  .dstatus.busy{background:rgba(244,168,37,.12);color:#FFD98C;}
+  .hint{font-size:12px;color:var(--muted);}
+  .stack{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .stack button{padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg-soft);color:var(--ink);font-size:15px;cursor:pointer;}
+  .stack button.blue{background:linear-gradient(180deg,#4BA3F0,#1F6FC5);border-color:#1F6FC5;color:#fff;}
+  .stack button[hidden]{display:none;}
+  .dfile{display:flex;justify-content:space-between;align-items:center;width:100%;padding:11px 12px;margin-top:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg-soft);color:var(--ink);font-size:14px;cursor:pointer;text-align:right;}
+  .dfile .dn{color:#8CF0BA;font-size:13px;}
+  .restore-big{display:block;margin:0 auto 10px;padding:12px 18px;border-radius:12px;border:none;background:linear-gradient(180deg,#4BA3F0,#1F6FC5);color:#fff;font-size:15px;cursor:pointer;}
+
+  /* تصدیق والا پاپ اپ */
+  .confirm-box{text-align:center;}
+  .confirm-box .calc-line{font-size:20px;color:var(--ink);margin:6px 0;}
+  .confirm-box .calc-line .num{font-size:22px;font-weight:700;color:#FFD98C;}
+  .confirm-box .amt-big{font-size:38px;font-weight:800;color:#8CF0BA;margin:4px 0 2px;}
+  .confirm-box .q{font-size:16px;color:var(--muted);}
+
+  /* پوسٹر */
+  .poster-prev{width:100%;border-radius:14px;display:block;margin:8px 0;box-shadow:0 4px 14px rgba(0,0,0,.4);background:#fff;min-height:120px;}
+  .theme-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:6px 0 2px;}
+  .theme-row button{width:46px;height:46px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+  .theme-row button.active{border-color:#fff;transform:scale(1.1);}
+  .theme-name{text-align:center;font-size:13px;color:var(--muted);}
+  .btn-wa{flex:1;background:#25D366;color:#053d22;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;}
+
   #printArea{display:none;}
   @media print{
     body *{visibility:hidden;}
@@ -298,6 +340,7 @@
         <h1>میرے کھاتے 📒</h1>
       </div>
       <div class="header-actions">
+        <button class="icon-btn dchip warn" id="driveChip" onclick="openSettings()" title="گوگل ڈرائیو">⚠️</button>
         <button class="icon-btn" onclick="openSettings()" title="بیک اپ">⚙️</button>
       </div>
     </div>
@@ -306,6 +349,7 @@
   <div id="peopleListWrap">
     <div class="people-list" id="peopleList"></div>
     <div id="emptyState" class="empty-state" style="display:none;">
+      <button class="restore-big" onclick="openRestoreChoices()">⬇️ پرانا ریکارڈ واپس لائیں (ڈرائیو / فون کی کاپی)</button>
       ابھی کوئی کھاتہ شامل نہیں 🙂<br>نیچے بٹن سے پہلا کھاتہ بنائیں — جیسے "دودھ والا" یا "سبزی والا"
     </div>
     <button class="add-person-btn" onclick="openPersonModal(null)">➕ نیا کھاتہ شامل کریں</button>
@@ -442,6 +486,9 @@
     <div class="field-label">معمول کی قیمت فی یونٹ</div>
     <input type="number" id="perRate" placeholder="مثلاً: 180">
 
+    <div class="field-label">واٹس ایپ نمبر (پوسٹر اسی کو جائے گا)</div>
+    <input type="tel" id="perPhone" placeholder="مثلاً: 03001234567" inputmode="tel" style="direction:ltr;text-align:right">
+
     <div class="modal-actions">
       <button class="btn-primary" onclick="savePerson()">محفوظ کریں</button>
     </div>
@@ -469,10 +516,67 @@
   </div>
 </div>
 
+<!-- Confirm Entry Modal -->
+<div class="overlay" id="confirmOverlay" style="z-index:55" onclick="if(event.target===this)closeConfirm()">
+  <div class="modal confirm-box">
+    <div class="modal-head"><h2>تصدیق کریں</h2><button class="close" onclick="closeConfirm()">✕</button></div>
+    <div class="date-sub" id="cfDate"></div>
+    <div class="calc-line" id="cfCalc"></div>
+    <div class="amt-big num" id="cfAmt"></div>
+    <div class="q" id="cfQ"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeConfirm()">واپس</button>
+      <button class="btn-primary" onclick="confirmSave()">✅ اوکے، جمع کریں</button>
+    </div>
+  </div>
+</div>
+
+<!-- Poster Modal -->
+<div class="overlay" id="posterOverlay" onclick="if(event.target===this)closePoster()">
+  <div class="modal">
+    <div class="modal-head"><h2>ماہانہ پوسٹر</h2><button class="close" onclick="closePoster()">✕</button></div>
+    <div class="theme-row" id="themeRow"></div>
+    <div class="theme-name" id="themeName"></div>
+    <img class="poster-prev" id="posterImg" alt="پوسٹر">
+    <div class="hint" id="posterTo" style="text-align:center"></div>
+    <div class="modal-actions">
+      <button class="btn-wa" onclick="sendPoster()">📤 پوسٹر واٹس ایپ پر بھیجیں</button>
+    </div>
+    <div class="modal-actions" style="margin-top:8px">
+      <button class="btn-secondary" id="waTextBtn" onclick="sendWaText()">💬 نمبر پر حساب کا پیغام</button>
+      <button class="btn-secondary" onclick="savePosterFile()">💾 تصویر محفوظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drive files Modal -->
+<div class="overlay" id="driveBox" style="z-index:56" onclick="if(event.target===this)closeBox('driveBox')">
+  <div class="modal">
+    <div class="modal-head"><h2>ڈرائیو کے بیک اپ</h2><button class="close" onclick="closeBox('driveBox')">✕</button></div>
+    <div class="hint">جو فائل واپس لانی ہو اسے دبائیں — ⭐ والی سب سے تازہ ہے۔</div>
+    <div id="driveFiles"></div>
+  </div>
+</div>
+
 <!-- Settings / Backup Modal -->
 <div class="overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
   <div class="modal">
     <div class="modal-head"><h2>⚙️ بیک اپ / ترتیبات</h2><button class="close" onclick="closeSettings()">✕</button></div>
+    <div class="sec-title">☁️ گوگل ڈرائیو (سب سے محفوظ)</div>
+    <div id="driveStatus" class="dstatus warn"></div>
+    <div class="stack">
+      <button class="blue" id="btnDriveConnect">☁️ گوگل ڈرائیو سے جوڑیں</button>
+      <button id="btnDriveNow" hidden>⬆️ ابھی ڈرائیو پر محفوظ کریں</button>
+      <button id="btnDriveRestore">⬇️ ڈرائیو سے ریکارڈ واپس لائیں</button>
+      <button id="btnDriveOff" hidden>🔌 ڈرائیو سے الگ کریں</button>
+    </div>
+    <div class="hint" style="margin-top:6px">جوڑنے کے بعد ہر اندراج چند سیکنڈ میں خود ڈرائیو پر چلا جاتا ہے، اور ہر دن کی الگ نقل بھی رہتی ہے۔</div>
+
+    <div class="sec-title">🛡️ فون کی حفاظتی کاپی</div>
+    <div class="hint" id="safeLine">ہر اندراج کی ایک الگ کاپی فون کے اندر بھی رکھی جاتی ہے؛ اگر ریکارڈ مٹ جائے تو ایپ کھلتے ہی خود واپس آ جاتا ہے۔</div>
+    <div class="stack"><button onclick="restoreFromSafe(true)">🛡️ فون کی کاپی سے واپس لائیں</button></div>
+
+    <div class="sec-title">📁 فائل والا بیک اپ</div>
     <div class="date-sub">یہ سب کھاتوں (تمام بندوں) کا مکمل ریکارڈ ایک ہی فائل میں محفوظ / بحال کرتا ہے۔</div>
 
     <div class="export-row" style="margin:14px 0 0;">
@@ -490,7 +594,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" style="z-index:70"></div>
 
 <div id="printArea"></div>
 
@@ -502,7 +606,7 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL29801";
+const APP_VERSION="DDL1910MO002";
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -536,12 +640,99 @@ function toast(msg){
   t._timer=setTimeout(()=>t.classList.remove('show'),2200);
 }
 
+/* ================= SAFE STORAGE =================
+   مسئلہ: اسی ویب سائٹ کی کوئی اور ایپ localStorage.clear() کر دے یا براؤزر صاف کر دے تو ریکارڈ مٹ جاتا تھا۔
+   حل: (1) ہر تبدیلی کی کاپی IndexedDB میں (localStorage مٹے تو ایپ کھلتے ہی خود واپس)
+       (2) گوگل ڈرائیو پر خودکار بیک اپ (drive.js)  (3) براؤزر سے مستقل اسٹوریج کی درخواست */
+function lsSet(k,v){
+  try{ localStorage.setItem(k,v); dataChanged(); return true; }
+  catch(e){ alert('⚠️ ریکارڈ محفوظ نہیں ہو سکا — فون/براؤزر میں جگہ کم ہے۔ فوراً بیک اپ لیں۔'); return false; }
+}
+let _chgTimer=null;
+function dataChanged(){
+  clearTimeout(_chgTimer);
+  _chgTimer=setTimeout(()=>{ safePut(); window.dispatchEvent(new Event('ddl-data-changed')); },400);
+}
+function replaceAllData(data){
+  Object.keys(localStorage).filter(k=>k.startsWith('ddlm_')).forEach(k=>localStorage.removeItem(k));
+  Object.keys(data).filter(k=>k.startsWith('ddlm_')).forEach(k=>{
+    const v=data[k]; localStorage.setItem(k, typeof v==='string'? v : JSON.stringify(v));
+  });
+  safePut();
+}
+function peopleCount(){ return loadPeople().length; }
+
+const SAFE_DB='ddlSafe_v1', SAFE_ST='kv';
+function safeOpen(){
+  return new Promise((res,rej)=>{
+    try{
+      const r=indexedDB.open(SAFE_DB,1);
+      r.onupgradeneeded=()=>r.result.createObjectStore(SAFE_ST);
+      r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+    }catch(e){ rej(e); }
+  });
+}
+async function safePut(){
+  try{
+    const n=peopleCount(); if(!n) return;
+    const rec={data:collectAllData(), drive:localStorage.getItem('ddl.drive'), ts:Date.now(), count:n};
+    const db=await safeOpen(); const st=db.transaction(SAFE_ST,'readwrite').objectStore(SAFE_ST);
+    st.put(rec,'main');
+    st.put(rec,'day:'+todayStr());
+    const kr=st.getAllKeys();
+    kr.onsuccess=()=>{ const days=(kr.result||[]).filter(x=>String(x).startsWith('day:')).sort(); while(days.length>30) st.delete(days.shift()); };
+  }catch(e){}
+}
+async function safeGet(key){
+  try{
+    const db=await safeOpen();
+    return await new Promise(res=>{ const r=db.transaction(SAFE_ST,'readonly').objectStore(SAFE_ST).get(key); r.onsuccess=()=>res(r.result||null); r.onerror=()=>res(null); });
+  }catch(e){ return null; }
+}
+function applySafeRecord(m){
+  replaceAllData(m.data);
+  if(m.drive && !localStorage.getItem('ddl.drive')){
+    localStorage.setItem('ddl.drive', m.drive);
+    if(window.DDL_DRIVE && DDL_DRIVE.reloadMeta) DDL_DRIVE.reloadMeta();
+  }
+}
+async function restoreFromSafe(manual){
+  const m=await safeGet('main');
+  if(!m || !(m.count>0)){ toast('فون میں کوئی حفاظتی کاپی نہیں ملی'); return; }
+  const when=new Date(m.ts).toLocaleString('en-GB');
+  if(manual && !confirm('فون کی حفاظتی کاپی ('+m.count+' کھاتے، '+when+') واپس لائیں؟ موجودہ ریکارڈ اس سے بدل جائے گا۔')) return;
+  applySafeRecord(m);
+  closeSettings(); goHome();
+  toast('✅ ریکارڈ واپس آ گیا');
+}
+// ایپ کھلتے وقت: اگر ریکارڈ بالکل غائب ہے (کسی نے صاف کر دیا) تو کاپی سے خود واپس لائیں
+async function autoRecover(){
+  if(localStorage.getItem('ddlm_people')!==null){ safePut(); return; }
+  const m=await safeGet('main');
+  if(!m || !(m.count>0)) return;
+  applySafeRecord(m);
+  renderHome();
+  setTimeout(()=>alert('🛡️ آپ کا ریکارڈ فون کی محفوظ کاپی سے خود بخود واپس لایا گیا ہے۔\n\n📒 '+m.count+' کھاتے\n🕒 آخری محفوظ: '+new Date(m.ts).toLocaleString('en-GB')),300);
+}
+function askPersistentStorage(){
+  try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
+}
+function openBox(id){ document.getElementById(id).classList.add('show'); }
+function closeBox(id){ document.getElementById(id).classList.remove('show'); }
+function openRestoreChoices(){ openSettings(); }
+window.DDL_HOST={
+  toast:(m)=>toast(m), version:APP_VERSION,
+  snapshot:()=>collectAllData(), count:()=>peopleCount(),
+  replace:(d)=>{ replaceAllData(d); goHome(); },
+  openBox, closeBox
+};
+
 /* ================= PEOPLE DATA ================= */
 function loadPeople(){
   try{ return JSON.parse(localStorage.getItem('ddlm_people')||'[]'); }
   catch(e){ return []; }
 }
-function savePeople(list){ localStorage.setItem('ddlm_people', JSON.stringify(list)); }
+function savePeople(list){ lsSet('ddlm_people', JSON.stringify(list)); }
 function getPerson(id){ return loadPeople().find(p=>p.id===id); }
 
 /* ================= MONTH / LEDGER DATA (per person) ================= */
@@ -553,7 +744,7 @@ function loadPMonth(personId,y,m){
   catch(e){ return {entries:{},payments:[]}; }
 }
 function savePMonth(personId,y,m,data){
-  localStorage.setItem(pmk(personId,y,m), JSON.stringify(data));
+  lsSet(pmk(personId,y,m), JSON.stringify(data));
 }
 function personAllMonthKeys(personId){
   let keys=[];
@@ -565,7 +756,7 @@ function personAllMonthKeys(personId){
   return keys;
 }
 function getPOpening(personId){ return parseFloat(localStorage.getItem('ddlm_opening_'+personId))||0; }
-function setPOpening(personId,val){ localStorage.setItem('ddlm_opening_'+personId, val); }
+function setPOpening(personId,val){ lsSet('ddlm_opening_'+personId, String(val)); }
 
 function personGrandTotals(personId){
   let total=0,paid=0;
@@ -658,6 +849,7 @@ function openPersonModal(id){
   document.getElementById('perName').value = p ? p.name : '';
   document.getElementById('perUnit').value = p ? p.unit : 'لیٹر';
   document.getElementById('perRate').value = p ? (p.rate||'') : '';
+  document.getElementById('perPhone').value = p ? (p.phone||'') : '';
   selectedEmoji = p ? (p.emoji||EMOJIS[0]) : EMOJIS[0];
   document.getElementById('deletePersonBtn').style.display = p ? 'block':'none';
 
@@ -680,13 +872,14 @@ function savePerson(){
   if(!name){ toast('نام لکھیں'); return; }
   const unit=document.getElementById('perUnit').value;
   const rate=parseFloat(document.getElementById('perRate').value)||0;
+  const phone=document.getElementById('perPhone').value.trim();
   let people=loadPeople();
   if(editingPersonId){
     const idx=people.findIndex(p=>p.id===editingPersonId);
-    if(idx>-1) people[idx]={...people[idx],name,unit,rate,emoji:selectedEmoji};
+    if(idx>-1) people[idx]={...people[idx],name,unit,rate,phone,emoji:selectedEmoji};
   } else {
     if(people.length>=MAX_PEOPLE){ toast('زیادہ سے زیادہ '+MAX_PEOPLE+' کھاتے بن سکتے ہیں'); return; }
-    people.push({id:uid(),name,unit,rate,emoji:selectedEmoji});
+    people.push({id:uid(),name,unit,rate,phone,emoji:selectedEmoji});
   }
   savePeople(people);
   closePersonModal();
@@ -700,6 +893,7 @@ function deletePerson(){
   savePeople(people);
   personAllMonthKeys(editingPersonId).forEach(k=>localStorage.removeItem(k));
   localStorage.removeItem('ddlm_opening_'+editingPersonId);
+  dataChanged();
   closePersonModal();
   goHome();
   toast('کھاتہ حذف ہو گیا');
@@ -958,13 +1152,41 @@ function saveEntry(){
     if(!note && noteAmount<=0){ toast('نوٹ یا رقم لکھیں'); return; }
     entry={mode:'note',note,total:noteAmount};
   }
+  if(!entry.total){ commitEntry(entry); toast('نوٹ محفوظ ہو گیا'); return; }
+  showConfirm(entry,p);
+}
+
+/* ---- محفوظ کرنے سے پہلے تصدیق: «3 لیٹر × 180 = 540 روپے جمع کر دوں؟» ---- */
+let pendingEntry=null;
+function showConfirm(entry,p){
+  pendingEntry=entry;
+  const d=new Date(viewYear,viewMonth,selectedDay);
+  document.getElementById('cfDate').textContent=(p?p.name+' — ':'')+selectedDay+' '+URDU_MONTHS[viewMonth]+' '+viewYear+'، '+URDU_DAYS[d.getDay()];
+  let calc='';
+  if(entry.mode==='qty') calc=`<span class="num">${entry.qty}</span>&nbsp; ${p?p.unit:''} &nbsp;×&nbsp; <span class="num">${fmt(entry.price)}</span>&nbsp; روپے`;
+  else if(entry.mode==='amount') calc='براہ راست رقم';
+  else calc='نوٹ: '+escapeHtml(entry.note||'');
+  document.getElementById('cfCalc').innerHTML=calc;
+  document.getElementById('cfAmt').textContent='= '+fmt(entry.total)+' روپے';
+  document.getElementById('cfQ').textContent='یہ '+fmt(entry.total)+' روپے کھاتے میں جمع کر دوں؟';
+  openBox('confirmOverlay');
+}
+function closeConfirm(){ closeBox('confirmOverlay'); pendingEntry=null; }
+function commitEntry(entry){
   const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   const k=dk(viewYear,viewMonth,selectedDay);
   current.entries[k]=entry;
   savePMonth(currentPersonId,viewYear,viewMonth,current);
   closeDay();
   render();
-  toast('محفوظ ہو گیا');
+}
+function confirmSave(){
+  if(!pendingEntry) return;
+  const entry=pendingEntry;
+  closeConfirm();
+  commitEntry(entry);
+  toast('✅ '+fmt(entry.total)+' روپے جمع ہو گئے');
+  openPoster(true);
 }
 
 function deleteEntry(){
@@ -997,115 +1219,212 @@ function addPayment(){
   toast('ادائیگی درج ہو گئی');
 }
 
-/* ===== WhatsApp Poster (canvas image) ===== */
-function shareWhatsApp(){
+/* ===== WhatsApp Poster — ہلکے رنگوں کے پانچ تھیم، نوری نستعلیق / کشیدہ ===== */
+const POSTER_THEMES=[
+  {id:'sky', name:'آسمانی', bg:'#EAF5FF', h1:'#6DB8F5', h2:'#1F6FC5', alt:'#F2F8FF', ink:'#14324F', muted:'#5E7894', acc:'#1F6FC5', line:'#CFE3F7'},
+  {id:'rose',name:'گلابی',  bg:'#FFF0F5', h1:'#F7A1C0', h2:'#D3366F', alt:'#FFF5F8', ink:'#4A1630', muted:'#93617A', acc:'#C2185B', line:'#F6D2DF'},
+  {id:'mint',name:'سبز',    bg:'#EAFBF1', h1:'#7FDDAE', h2:'#1C9A5E', alt:'#F2FCF6', ink:'#123D29', muted:'#5C8A72', acc:'#15803D', line:'#CBEFDB'},
+  {id:'gold',name:'سنہری',  bg:'#FFF7E6', h1:'#FFD27A', h2:'#D98A00', alt:'#FFFAF0', ink:'#4A3200', muted:'#97784A', acc:'#B45309', line:'#F5E2BC'},
+  {id:'lav', name:'جامنی',  bg:'#F4F0FF', h1:'#BFAEFF', h2:'#6D4AE0', alt:'#F8F5FF', ink:'#2B1B5C', muted:'#7A6CA6', acc:'#5B3CC4', line:'#E0D8FA'}
+];
+const F_UR='Noori', F_KSH='NooriKasheeda', F_NUM="'Segoe UI',Tahoma,Arial,sans-serif";
+let posterBlob=null, posterName='', posterText='';
+
+function posterTheme(){
+  const id=localStorage.getItem('ddlm_poster_theme');
+  return POSTER_THEMES.find(t=>t.id===id)||POSTER_THEMES[0];
+}
+let _fontsReady=null;
+function posterFontsReady(){
+  if(!_fontsReady) _fontsReady=Promise.all([
+    document.fonts.load('40px '+F_UR,'حساب'), document.fonts.load('60px '+F_KSH,'حساب')
+  ]).catch(()=>{});
+  return _fontsReady;
+}
+// ایک لائن میں اردو اور ہندسے الگ فونٹ میں — parts پڑھنے کی ترتیب میں (دائیں سے بائیں)
+function drawParts(ctx,parts,x,align){
+  parts.forEach(pt=>{ ctx.font=pt.f; pt.w=ctx.measureText(pt.t).width; });
+  const gap=8, total=parts.reduce((s,pt)=>s+pt.w,0)+gap*(parts.length-1);
+  let right = align==='right'? x : align==='left'? x+total : x+total/2;
+  ctx.textAlign='right';
+  parts.forEach(pt=>{ ctx.font=pt.f; ctx.fillStyle=pt.c; ctx.fillText(pt.t,right,pt.y||0); right-=pt.w+gap; });
+}
+function ur(sz){ return sz+'px '+F_UR; }
+function nm(sz,b){ return (b?'bold ':'')+sz+'px '+F_NUM; }
+
+function posterData(){
   const p=getPerson(currentPersonId);
   const current=loadPMonth(currentPersonId,viewYear,viewMonth);
-  const entries=Object.keys(current.entries||{}).sort().map(k=>({date:k.split('-')[2], ...current.entries[k]}));
-  const monthTotal=Object.values(current.entries||{}).reduce((s,e)=>s+(e.total||0),0);
-  const monthPaid=(current.payments||[]).reduce((s,p)=>s+(p.amount||0),0);
+  const entries=Object.keys(current.entries||{}).sort().map(k=>({day:parseInt(k.split('-')[2],10), ...current.entries[k]}));
+  const payments=(current.payments||[]).slice();
+  const monthTotal=entries.reduce((s,e)=>s+(e.total||0),0);
+  const monthPaid=payments.reduce((s,x)=>s+(x.amount||0),0);
   const g=personGrandTotals(currentPersonId);
+  const previous=g.due-(monthTotal-monthPaid);
+  return {p,entries,payments,monthTotal,monthPaid,previous,due:g.due};
+}
 
-  const W=1080;
-  const rowH=52;
-  const headH=230;
-  const footH= g.opening ? 300 : 260;
-  const H = headH + 70 + entries.length*rowH + footH + 60;
+async function buildPoster(){
+  await posterFontsReady();
+  const T=posterTheme(), D=posterData(), p=D.p;
+  const W=1080, M=40, rowH=74;
+  const listRows=D.entries.length + D.payments.length;
+  const headH=300, tHead=80, footH=430;
+  const H=M+headH+30+tHead+Math.max(1,listRows)*rowH+40+footH+140;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const ctx=c.getContext('2d'); ctx.direction='rtl'; ctx.textBaseline='alphabetic';
 
-  const canvas=document.createElement('canvas');
-  canvas.width=W; canvas.height=H;
-  const ctx=canvas.getContext('2d');
+  ctx.fillStyle=T.bg; ctx.fillRect(0,0,W,H);
+  // ہلکے دائرے پس منظر میں
+  ctx.globalAlpha=.35; ctx.fillStyle=T.line;
+  ctx.beginPath(); ctx.arc(W-60,H-120,200,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(80,H*0.45,140,0,7); ctx.fill();
+  ctx.globalAlpha=1;
 
-  ctx.fillStyle='#0A0F1A';
-  roundRect(ctx,0,0,W,H,0); ctx.fill();
+  // سرخی
+  const hg=ctx.createLinearGradient(0,M,0,M+headH); hg.addColorStop(0,T.h1); hg.addColorStop(1,T.h2);
+  ctx.fillStyle=hg; roundRect(ctx,M,M,W-2*M,headH,36); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.18)'; roundRect(ctx,M+14,M+14,W-2*M-28,headH-28,28); ctx.fill();
+  ctx.textAlign='center'; ctx.fillStyle='#fff';
+  ctx.font='34px '+F_UR; ctx.fillText((p&&p.emoji?p.emoji+'  ':'')+'ماہانہ حساب کتاب', W/2, M+78);
+  ctx.font='88px '+F_KSH; ctx.fillText(p?p.name:'کھاتہ', W/2, M+190);
+  drawParts(ctx,[{t:URDU_MONTHS[viewMonth],f:ur(40),c:'#fff',y:M+262},{t:String(viewYear),f:nm(34,true),c:'#fff',y:M+262}],W/2,'center');
 
-  const pad=36;
-  ctx.fillStyle='#121B2C';
-  roundRect(ctx,pad,pad,W-pad*2,H-pad*2,32); ctx.fill();
-  ctx.strokeStyle='#243350'; ctx.lineWidth=2;
-  roundRect(ctx,pad,pad,W-pad*2,H-pad*2,32); ctx.stroke();
+  // جدول
+  let y=M+headH+30;
+  const tw=W-2*M;
+  ctx.fillStyle='#fff'; roundRect(ctx,M,y,tw,tHead+Math.max(1,listRows)*rowH+24,28); ctx.fill();
+  ctx.strokeStyle=T.line; ctx.lineWidth=2; roundRect(ctx,M,y,tw,tHead+Math.max(1,listRows)*rowH+24,28); ctx.stroke();
+  const xR=W-M-36, xL=M+36, xMid=W/2+40;
+  ctx.fillStyle=T.acc;
+  ctx.font=ur(32); ctx.textAlign='right'; ctx.fillText('تاریخ',xR,y+56);
+  ctx.textAlign='center'; ctx.fillText('تفصیل',xMid,y+56);
+  ctx.textAlign='left'; ctx.fillText('رقم',xL,y+56);
+  ctx.strokeStyle=T.acc; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(M+24,y+tHead); ctx.lineTo(W-M-24,y+tHead); ctx.stroke();
+  y+=tHead+12;
 
-  ctx.textAlign='center';
-  ctx.direction='rtl';
-
-  ctx.fillStyle='#F4A825';
-  ctx.font='bold 26px Arial';
-  ctx.fillText('کھاتہ بک', W/2, pad+60);
-  ctx.fillStyle='#EAF1F8';
-  ctx.font='bold 44px Arial';
-  ctx.fillText(p?p.name:'', W/2, pad+118);
-  ctx.fillStyle='#8FA3BE';
-  ctx.font='24px Arial';
-  let sub = URDU_MONTHS[viewMonth]+' '+viewYear;
-  ctx.fillText(sub, W/2, pad+160);
-
-  ctx.strokeStyle='#243350';
-  ctx.beginPath(); ctx.moveTo(pad+40, pad+190); ctx.lineTo(W-pad-40, pad+190); ctx.stroke();
-
-  ctx.textAlign='right';
-  ctx.font='24px Arial';
-  let y = pad + 190 + 46;
-  entries.forEach((e,i)=>{
-    if(i%2===0){
-      ctx.fillStyle='rgba(255,255,255,0.03)';
-      roundRect(ctx,pad+20,y-32,W-pad*2-40,44,10); ctx.fill();
+  const rows=D.entries.map(e=>({type:'e',day:e.day,e})).concat(D.payments.map(x=>({type:'p',day:parseInt(String(x.date).split('-')[2],10)||'',x})));
+  if(!rows.length){ ctx.fillStyle=T.muted; ctx.font=ur(32); ctx.textAlign='center'; ctx.fillText('اس ماہ ابھی کوئی اندراج نہیں',W/2,y+50); }
+  rows.forEach((r,i)=>{
+    if(i%2===0){ ctx.fillStyle=T.alt; roundRect(ctx,M+16,y+4,tw-32,rowH-8,16); ctx.fill(); }
+    const by=y+rowH/2+12;
+    const dow=r.day? URDU_DAYS[new Date(viewYear,viewMonth,r.day).getDay()] : '';
+    drawParts(ctx,[{t:String(r.day),f:nm(32,true),c:T.ink,y:by},{t:dow,f:ur(26),c:T.muted,y:by}],xR,'right');
+    if(r.type==='e'){
+      const e=r.e; let parts;
+      if(e.mode==='qty') parts=[{t:String(e.qty),f:nm(30,true),c:T.ink},{t:(p?p.unit:''),f:ur(28),c:T.ink},{t:'×',f:nm(28),c:T.muted},{t:fmt(e.price),f:nm(30),c:T.ink}];
+      else if(e.mode==='note') parts=[{t:(e.note||'نوٹ').slice(0,26),f:ur(26),c:T.muted}];
+      else parts=[{t:'رقم',f:ur(28),c:T.muted}];
+      parts.forEach(pt=>pt.y=by);
+      drawParts(ctx,parts,xMid,'center');
+      ctx.textAlign='left'; ctx.font=nm(32,true); ctx.fillStyle=T.ink; ctx.fillText(fmt(e.total),xL,by);
+    } else {
+      drawParts(ctx,[{t:'✅ وصولی',f:ur(28),c:'#15803D',y:by}],xMid,'center');
+      ctx.textAlign='left'; ctx.font=nm(32,true); ctx.fillStyle='#15803D'; ctx.fillText(fmt(r.x.amount),xL,by);
     }
-    ctx.fillStyle='#EAF1F8';
-    ctx.fillText(e.date+' تاریخ', W-pad-40, y);
-    ctx.fillStyle='#8FA3BE';
-    ctx.textAlign='center';
-    let mid = e.mode==='qty' ? (e.qty+' '+(p?p.unit:'')+' × '+e.price) : (e.mode==='note' ? (e.note||'نوٹ') : 'رقم');
-    ctx.fillText(mid, W/2, y);
-    ctx.fillStyle='#8CF0BA';
-    ctx.textAlign='left';
-    ctx.font='bold 24px Arial';
-    ctx.fillText(fmt(e.total), pad+40, y);
-    ctx.font='24px Arial';
-    ctx.textAlign='right';
     y+=rowH;
   });
+  y+=24+40;
 
-  const fy=y+20;
-  ctx.fillStyle='#0D1626';
-  roundRect(ctx,pad+20,fy,W-pad*2-40,footH,20); ctx.fill();
-  ctx.strokeStyle='#243350';
-  roundRect(ctx,pad+20,fy,W-pad*2-40,footH,20); ctx.stroke();
-
-  let fyy=fy+50;
-  function footRow(label,val,color){
-    ctx.fillStyle='#8FA3BE'; ctx.font='24px Arial'; ctx.textAlign='right';
-    ctx.fillText(label, W-pad-50, fyy);
-    ctx.fillStyle=color||'#EAF1F8'; ctx.font='bold 26px Arial'; ctx.textAlign='left';
-    ctx.fillText(fmt(val), pad+50, fyy);
-    fyy+=48;
+  // خلاصہ
+  ctx.fillStyle='#fff'; roundRect(ctx,M,y,tw,footH,30); ctx.fill();
+  ctx.strokeStyle=T.line; ctx.lineWidth=2; roundRect(ctx,M,y,tw,footH,30); ctx.stroke();
+  let fy=y+70;
+  function line(label,val,color){
+    ctx.textAlign='right'; ctx.font=ur(32); ctx.fillStyle=T.muted; ctx.fillText(label,xR,fy);
+    ctx.textAlign='left'; ctx.font=nm(34,true); ctx.fillStyle=color; ctx.fillText(fmt(val),xL,fy);
+    fy+=66;
   }
-  footRow('ماہانہ کل', monthTotal, '#5EC8E8');
-  footRow('وصول شدہ', monthPaid, '#8CF0BA');
-  footRow('بقایہ (اس ماہ)', monthTotal-monthPaid, '#FF6B6B');
-  if(g.opening) footRow('سابقہ بقایہ', g.opening, '#F4A825');
+  line('اس ماہ کا حساب',D.monthTotal,T.ink);
+  line('اس ماہ وصول ہوئے',D.monthPaid,'#15803D');
+  line('پچھلا بقایہ',D.previous,T.muted);
+  ctx.setLineDash([10,8]); ctx.strokeStyle=T.line; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(M+30,fy-30); ctx.lineTo(W-M-30,fy-30); ctx.stroke(); ctx.setLineDash([]);
+  const bg=ctx.createLinearGradient(0,fy-10,0,fy+120); bg.addColorStop(0,T.h1); bg.addColorStop(1,T.h2);
+  ctx.fillStyle=bg; roundRect(ctx,M+24,fy-6,tw-48,130,24); ctx.fill();
+  ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='52px '+F_KSH; ctx.fillText('کل بقایہ',xR-10,fy+80);
+  drawParts(ctx,[{t:fmt(D.due),f:nm(56,true),c:'#fff',y:fy+80},{t:'روپے',f:ur(34),c:'#fff',y:fy+80}],xL+10,'left');
 
-  ctx.strokeStyle='#3a4a68';
-  ctx.setLineDash([6,6]);
-  ctx.beginPath(); ctx.moveTo(pad+50, fyy-14); ctx.lineTo(W-pad-50, fyy-14); ctx.stroke();
-  ctx.setLineDash([]);
-  fyy+=14;
+  // نیچے
+  const now=new Date();
+  ctx.textAlign='center'; ctx.fillStyle=T.muted;
+  drawParts(ctx,[{t:'کھاتہ بک',f:ur(28),c:T.muted,y:H-50},{t:'•',f:nm(24),c:T.muted,y:H-50},{t:pad(now.getDate())+'-'+pad(now.getMonth()+1)+'-'+now.getFullYear(),f:nm(26),c:T.muted,y:H-50}],W/2,'center');
 
-  ctx.fillStyle='#F4A825'; ctx.font='bold 22px Arial'; ctx.textAlign='right';
-  ctx.fillText('کل بقایہ (سب ماہ)', W-pad-50, fyy);
-  ctx.fillStyle='#FFD98C'; ctx.font='bold 34px Arial'; ctx.textAlign='left';
-  ctx.fillText(fmt(g.due)+' روپے', pad+50, fyy);
-
-  canvas.toBlob(function(blob){
-    const fileName='khata-'+(p?p.name.replace(/\s+/g,'_'):'record')+'-'+viewYear+'-'+pad2(viewMonth+1)+'.png';
-    const file=new File([blob], fileName, {type:'image/png'});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      navigator.share({files:[file], title:'کھاتہ بک', text:'ماہانہ ریکارڈ'}).catch(()=>{ downloadBlob(blob,fileName); });
-    } else {
-      downloadBlob(blob,fileName);
-      toast('پوسٹر تصویر ڈاؤن لوڈ ہو گئی، واٹس ایپ میں بھیج دیں');
-    }
-  },'image/png');
+  posterName='khata-'+(p?p.name.replace(/\s+/g,'_'):'record')+'-'+viewYear+'-'+pad2(viewMonth+1)+'.png';
+  posterText=posterSummaryText(D);
+  return await new Promise(res=>c.toBlob(b=>res(b),'image/png'));
 }
+
+function posterSummaryText(D){
+  const p=D.p, u=p?p.unit:'';
+  let t='*'+(p?p.name:'کھاتہ')+' — '+URDU_MONTHS[viewMonth]+' '+viewYear+'*\n';
+  D.entries.forEach(e=>{
+    if(e.mode==='qty') t+=e.day+' تاریخ: '+e.qty+' '+u+' × '+fmt(e.price)+' = '+fmt(e.total)+'\n';
+    else if(e.total) t+=e.day+' تاریخ: '+fmt(e.total)+(e.note?' ('+e.note+')':'')+'\n';
+  });
+  t+='\nاس ماہ کا حساب: '+fmt(D.monthTotal)+'\nاس ماہ وصول: '+fmt(D.monthPaid)+'\nپچھلا بقایہ: '+fmt(D.previous)+'\n*کل بقایہ: '+fmt(D.due)+' روپے*';
+  return t;
+}
+
+function waNumber(raw){
+  let d=String(raw||'').replace(/\D/g,'');
+  if(!d) return '';
+  if(d.startsWith('00')) d=d.slice(2);
+  if(d.startsWith('0')) d='92'+d.slice(1);
+  else if(d.length===10 && d.startsWith('3')) d='92'+d;
+  return d;
+}
+
+function renderThemeRow(){
+  const cur=posterTheme();
+  document.getElementById('themeRow').innerHTML=POSTER_THEMES.map(t=>
+    `<button type="button" class="${t.id===cur.id?'active':''}" style="background:linear-gradient(135deg,${t.h1},${t.h2})" title="${t.name}" onclick="pickTheme('${t.id}')"></button>`).join('');
+  document.getElementById('themeName').textContent='رنگ: '+cur.name;
+}
+async function pickTheme(id){
+  lsSet('ddlm_poster_theme',id);
+  renderThemeRow();
+  await refreshPoster();
+}
+async function refreshPoster(){
+  posterBlob=await buildPoster();
+  const img=document.getElementById('posterImg');
+  if(img._url) URL.revokeObjectURL(img._url);
+  img._url=URL.createObjectURL(posterBlob); img.src=img._url;
+}
+
+async function openPoster(autoSend){
+  const p=getPerson(currentPersonId);
+  renderThemeRow();
+  const num=waNumber(p&&p.phone);
+  document.getElementById('posterTo').innerHTML= num ? ('📱 '+escapeHtml(p.name)+': <span dir="ltr" class="num">+'+num+'</span>') : '📱 اس کھاتے میں واٹس ایپ نمبر نہیں — ✏️ سے لکھ دیں';
+  document.getElementById('waTextBtn').style.display = num ? '' : 'none';
+  openBox('posterOverlay');
+  await refreshPoster();
+  if(autoSend && posterBlob && canShareFile()) sendPoster(true);
+}
+function closePoster(){ closeBox('posterOverlay'); }
+function shareWhatsApp(){ openPoster(false); }
+function canShareFile(){
+  try{ return !!(navigator.canShare && navigator.canShare({files:[new File([new Blob(['x'])],'a.png',{type:'image/png'})]})); }catch(e){ return false; }
+}
+async function sendPoster(auto){
+  if(!posterBlob) await refreshPoster();
+  const file=new File([posterBlob], posterName, {type:'image/png'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file], text:posterText}); }
+    catch(e){ if(!auto && e && e.name!=='AbortError') { downloadBlob(posterBlob,posterName); toast('تصویر محفوظ ہو گئی، واٹس ایپ میں بھیج دیں'); } }
+  } else {
+    downloadBlob(posterBlob,posterName);
+    toast('پوسٹر تصویر ڈاؤن لوڈ ہو گئی، واٹس ایپ میں بھیج دیں');
+  }
+}
+function sendWaText(){
+  const p=getPerson(currentPersonId); const num=waNumber(p&&p.phone);
+  if(!num){ toast('پہلے کھاتے میں واٹس ایپ نمبر لکھیں'); return; }
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(posterText),'_blank');
+}
+function savePosterFile(){ if(posterBlob){ downloadBlob(posterBlob,posterName); toast('💾 تصویر محفوظ ہو گئی'); } }
 function pad2(n){return String(n).padStart(2,'0');}
 function downloadBlob(blob,fileName){
   const url=URL.createObjectURL(blob);
@@ -1208,8 +1527,9 @@ function importBackup(event){
       const keys=Object.keys(data).filter(k=>k.startsWith('ddlm_'));
       if(!keys.length){ toast('یہ فائل درست بیک اپ نہیں لگتی'); return; }
       if(!confirm('موجودہ سارا ریکارڈ اس بیک اپ سے اوور رائٹ ہو جائے گا۔ جاری رکھیں؟')){ event.target.value=''; return; }
-      keys.forEach(k=>localStorage.setItem(k,data[k]));
+      replaceAllData(data);
       localStorage.setItem('ddlm_last_backup_at', String(Date.now()));
+      dataChanged();
       goHome();
       updateLastBackupLine();
       toast('✅ بیک اپ کامیابی سے بحال ہو گیا');
@@ -1265,11 +1585,15 @@ function checkAutoBackups(){
 }
 
 /* ================= INIT ================= */
+askPersistentStorage();
 migrateOldDairyIfNeeded();
 renderHome();
+autoRecover();
+posterFontsReady();
 checkAutoBackups();
 setInterval(checkAutoBackups, 60000);
 </script>
+<script src="drive.js"></script>
 
 </body>
 </html>
