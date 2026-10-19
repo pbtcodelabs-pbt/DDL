@@ -294,6 +294,10 @@
   .theme-row button{width:40px;height:40px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3);}
   .theme-row button.active{border-color:#fff;transform:scale(1.1);}
   .theme-name{text-align:center;font-size:13px;color:var(--muted);}
+  .next-adj{display:flex;gap:6px;align-items:center;justify-content:center;margin:8px 0 2px;}
+  .next-adj button{padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg-soft);color:var(--ink);font-size:14px;cursor:pointer;}
+  .next-show{position:relative;flex:1;text-align:center;padding:7px 8px;border-radius:10px;background:rgba(244,168,37,.15);border:1px solid #5a4520;color:#FFD98C;font-size:15px;cursor:pointer;}
+  .next-show input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;}
   .btn-wa{flex:1;background:#25D366;color:#053d22;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;}
 
   #printArea{display:none;}
@@ -540,6 +544,12 @@
     <div class="theme-name" id="themeName"></div>
     <div class="field-label" style="text-align:center">آئندہ حاضری کتنے دن بعد؟</div>
     <div class="chip-row" id="gapRow" style="justify-content:center"></div>
+    <div class="next-adj">
+      <button type="button" onclick="shiftNext(-1)">− ایک دن</button>
+      <label class="next-show" title="تاریخ خود چنیں"><span id="nextShow"></span> 📅
+        <input type="date" id="nextPick" onchange="pickNextDate(this.value)"></label>
+      <button type="button" onclick="shiftNext(1)">+ ایک دن</button>
+    </div>
     <img class="poster-prev" id="posterImg" alt="پوسٹر">
     <div class="modal-actions">
       <button class="btn-wa" id="waMainBtn" onclick="sendMain()">📤 پوسٹر واٹس ایپ پر بھیجیں</button>
@@ -609,7 +619,7 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL1910MO007";
+const APP_VERSION="DDL1910MO008";
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1243,6 +1253,8 @@ const NEXT_GAPS=[1,2,3,4,5,7];
 let posterBlob=null, posterName='';
 /* ابھی کیا ہوا (حاضری یا وصولی) — اسی کو «آج» مان کر پوسٹر بنتا ہے */
 let posterHighlight=null;
+/* آئندہ حاضری کی تاریخ میں ہاتھ سے آگے/پیچھے (صرف اسی پوسٹر کے لیے) */
+let posterShift=0;
 
 function posterTheme(){
   const id=localStorage.getItem('ddlm_poster_theme');
@@ -1297,7 +1309,7 @@ function posterData(){
   const todayAmt=todayEv? todayEv.amt : 0;
   const total=prevBal-paid+todayAmt;
   const base=parseDk(todayEv? todayEv.date : (prev? prev.date : anchor));
-  const next=new Date(base.getFullYear(),base.getMonth(),base.getDate()+personGap(p));
+  const next=new Date(base.getFullYear(),base.getMonth(),base.getDate()+personGap(p)+posterShift);
   return {p,prev,todayEv,prevBal,paid,todayAmt,total,next,anchor};
 }
 function entryDetail(e,p){
@@ -1427,6 +1439,19 @@ function drawPoster(){
 }
 
 /* آئندہ حاضری کتنے دن بعد — ہر کھاتے کی اپنی (پہلے سے 3) */
+function renderNextShow(){
+  const D=posterData(), i=dateInfo(D.next);
+  document.getElementById('nextShow').textContent='آئندہ: '+i.d+' '+i.m+'، بروز '+i.dow;
+  document.getElementById('nextPick').value=D.next.getFullYear()+'-'+pad2(D.next.getMonth()+1)+'-'+pad2(D.next.getDate());
+}
+async function shiftNext(n){ posterShift+=n; renderNextShow(); await refreshPoster(); }
+async function pickNextDate(v){
+  if(!v) return;
+  posterShift=0;
+  const auto=posterData().next, want=parseDk(v);
+  posterShift=Math.round((want-auto)/864e5);
+  renderNextShow(); await refreshPoster();
+}
 function renderGapRow(){
   const p=getPerson(currentPersonId), g=personGap(p);
   document.getElementById('gapRow').innerHTML=NEXT_GAPS.map(n=>
@@ -1436,7 +1461,9 @@ async function pickGap(n){
   const people=loadPeople(), i=people.findIndex(x=>x.id===currentPersonId);
   if(i<0) return;
   people[i].gap=n; savePeople(people);
+  posterShift=0;
   renderGapRow();
+  renderNextShow();
   await refreshPoster();
 }
 
@@ -1462,7 +1489,9 @@ async function openPoster(autoSend){
   const p=getPerson(currentPersonId);
   const num=waNumber(p&&p.phone);
   renderThemeRow();
+  posterShift=0;
   renderGapRow();
+  renderNextShow();
   document.getElementById('waMainBtn').textContent = num ? ('💬 '+p.name+' کی چیٹ میں پوسٹر') : '📤 پوسٹر واٹس ایپ پر بھیجیں';
   document.getElementById('chatHint').style.display = num ? '' : 'none';
   document.getElementById('shareBtn2').style.display = num ? '' : 'none';
