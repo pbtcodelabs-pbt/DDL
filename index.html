@@ -540,10 +540,10 @@
     <img class="poster-prev" id="posterImg" alt="پوسٹر">
     <div class="hint" id="posterTo" style="text-align:center"></div>
     <div class="modal-actions">
-      <button class="btn-wa" onclick="sendPoster()">📤 پوسٹر واٹس ایپ پر بھیجیں</button>
+      <button class="btn-wa" id="waMainBtn" onclick="sendMain()">📤 پوسٹر واٹس ایپ پر بھیجیں</button>
     </div>
     <div class="modal-actions" style="margin-top:8px">
-      <button class="btn-secondary" id="waTextBtn" onclick="sendWaText()">💬 نمبر پر حساب کا پیغام</button>
+      <button class="btn-secondary" id="waTextBtn" onclick="sendPoster()">🖼️ پوسٹر تصویر شیئر</button>
       <button class="btn-secondary" onclick="savePosterFile()">💾 تصویر محفوظ</button>
     </div>
   </div>
@@ -606,7 +606,7 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL1910MO003";
+const APP_VERSION="DDL1910MO004";
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1424,11 +1424,15 @@ async function openPoster(autoSend){
   const p=getPerson(currentPersonId);
   renderThemeRow();
   const num=waNumber(p&&p.phone);
+  document.getElementById('waMainBtn').textContent = num ? ('💬 '+(p.name||'')+' کی چیٹ کھولیں') : '📤 پوسٹر واٹس ایپ پر بھیجیں';
+  // نمبر محفوظ ہے تو اوکے دباتے ہی اسی کی چیٹ کھلے، حساب کا پیغام لکھا ہوا (بھیجنا خود دبائیں)
+  posterBlob=null;
+  if(autoSend && num) openChat(num);
   document.getElementById('posterTo').innerHTML= num ? ('📱 '+escapeHtml(p.name)+': <span dir="ltr" class="num">+'+num+'</span>') : '📱 اس کھاتے میں واٹس ایپ نمبر نہیں — ✏️ سے لکھ دیں';
   document.getElementById('waTextBtn').style.display = num ? '' : 'none';
   openBox('posterOverlay');
   await refreshPoster();
-  if(autoSend && posterBlob && canShareFile()) sendPoster(true);
+  if(autoSend && !num && posterBlob && canShareFile()) sendPoster(true);
 }
 function closePoster(){ closeBox('posterOverlay'); }
 function shareWhatsApp(){ posterHighlight=null; openPoster(false); }
@@ -1446,10 +1450,45 @@ async function sendPoster(auto){
     toast('پوسٹر تصویر ڈاؤن لوڈ ہو گئی، واٹس ایپ میں بھیج دیں');
   }
 }
+/* ---- محفوظ نمبر کی اپنی چیٹ کھولنا ----
+   واٹس ایپ خود بخود «بھیج» نہیں ہونے دیتا، مگر چیٹ کھل کر پیغام ٹائپ شدہ کھڑا ہو جاتا ہے۔
+   ساتھ ہی پوسٹر تصویر کلپ بورڈ میں کاپی ہو جاتی ہے تاکہ چیٹ میں چسپاں (Paste) ہو سکے۔
+   یہ فنکشن بٹن دبانے کے اندر ہی (بغیر انتظار) چلنا چاہیے ورنہ فون اسے روک دیتا ہے۔ */
+function copyPosterToClipboard(){
+  try{
+    if(!(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write)) return;
+    const blobP = posterBlob ? Promise.resolve(posterBlob) : buildPoster().then(b=>{ posterBlob=b; return b; });
+    navigator.clipboard.write([new ClipboardItem({'image/png': blobP})]).then(()=>{ openChat._copied=true; }).catch(()=>{});
+  }catch(e){}
+}
+function openChat(num){
+  const text=posterSummaryText(posterData());
+  posterText=text;
+  copyPosterToClipboard();
+  const msg=encodeURIComponent(text);
+  const appUrl='whatsapp://send?phone='+num+'&text='+msg;
+  const webUrl='https://api.whatsapp.com/send?phone='+num+'&text='+msg;
+  let left=false;
+  const onHide=()=>{ if(document.hidden) left=true; };
+  document.addEventListener('visibilitychange',onHide);
+  try{ location.href=appUrl; }catch(e){}
+  setTimeout(()=>{
+    document.removeEventListener('visibilitychange',onHide);
+    if(!left && !document.hidden){
+      const a=document.createElement('a'); a.href=webUrl; a.target='_blank'; a.rel='noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+  },1400);
+  toast('💬 چیٹ کھل رہی ہے — پیغام لکھا ہوا ہے، بھیجیں دبا دیں۔ تصویر کے لیے چیٹ میں Paste کریں');
+}
+function sendMain(){
+  const p=getPerson(currentPersonId); const num=waNumber(p&&p.phone);
+  if(num) openChat(num); else sendPoster();
+}
 function sendWaText(){
   const p=getPerson(currentPersonId); const num=waNumber(p&&p.phone);
   if(!num){ toast('پہلے کھاتے میں واٹس ایپ نمبر لکھیں'); return; }
-  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(posterText),'_blank');
+  openChat(num);
 }
 function savePosterFile(){ if(posterBlob){ downloadBlob(posterBlob,posterName); toast('💾 تصویر محفوظ ہو گئی'); } }
 function pad2(n){return String(n).padStart(2,'0');}
