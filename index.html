@@ -486,6 +486,9 @@
     <div class="field-label">معمول کی قیمت فی یونٹ</div>
     <input type="number" id="perRate" placeholder="مثلاً: 180">
 
+    <div class="field-label">واٹس ایپ نمبر (پوسٹر اسی کی چیٹ میں)</div>
+    <input type="tel" id="perPhone" placeholder="مثلاً: 03001234567" inputmode="tel" style="direction:ltr;text-align:right">
+
 
     <div class="modal-actions">
       <button class="btn-primary" onclick="savePerson()">محفوظ کریں</button>
@@ -539,9 +542,11 @@
     <div class="chip-row" id="gapRow" style="justify-content:center"></div>
     <img class="poster-prev" id="posterImg" alt="پوسٹر">
     <div class="modal-actions">
-      <button class="btn-wa" onclick="sendPoster()">📤 پوسٹر واٹس ایپ پر بھیجیں</button>
+      <button class="btn-wa" id="waMainBtn" onclick="sendMain()">📤 پوسٹر واٹس ایپ پر بھیجیں</button>
     </div>
+    <div class="hint" id="chatHint" style="text-align:center;margin-top:6px;display:none">چیٹ کھلنے پر لکھنے والی جگہ کو دبا کر رکھیں ← <b>Paste / چسپاں</b> — پوسٹر لگ جائے گا، پھر بھیجیں</div>
     <div class="modal-actions" style="margin-top:8px">
+      <button class="btn-secondary" id="shareBtn2" onclick="sendPoster()" style="display:none">📤 شیئر</button>
       <button class="btn-secondary" onclick="savePosterFile()">💾 تصویر محفوظ</button>
     </div>
   </div>
@@ -604,7 +609,7 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL1910MO006";
+const APP_VERSION="DDL1910MO007";
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -847,6 +852,7 @@ function openPersonModal(id){
   document.getElementById('perName').value = p ? p.name : '';
   document.getElementById('perUnit').value = p ? p.unit : 'لیٹر';
   document.getElementById('perRate').value = p ? (p.rate||'') : '';
+  document.getElementById('perPhone').value = p ? (p.phone||'') : '';
   selectedEmoji = p ? (p.emoji||EMOJIS[0]) : EMOJIS[0];
   document.getElementById('deletePersonBtn').style.display = p ? 'block':'none';
 
@@ -869,13 +875,14 @@ function savePerson(){
   if(!name){ toast('نام لکھیں'); return; }
   const unit=document.getElementById('perUnit').value;
   const rate=parseFloat(document.getElementById('perRate').value)||0;
+  const phone=document.getElementById('perPhone').value.trim();
   let people=loadPeople();
   if(editingPersonId){
     const idx=people.findIndex(p=>p.id===editingPersonId);
-    if(idx>-1) people[idx]={...people[idx],name,unit,rate,emoji:selectedEmoji};
+    if(idx>-1) people[idx]={...people[idx],name,unit,rate,phone,emoji:selectedEmoji};
   } else {
     if(people.length>=MAX_PEOPLE){ toast('زیادہ سے زیادہ '+MAX_PEOPLE+' کھاتے بن سکتے ہیں'); return; }
-    people.push({id:uid(),name,unit,rate,emoji:selectedEmoji});
+    people.push({id:uid(),name,unit,rate,phone,emoji:selectedEmoji});
   }
   savePeople(people);
   closePersonModal();
@@ -1222,13 +1229,14 @@ function addPayment(){
 
 /* ===== WhatsApp Poster (DDL1910MO006) — 9:16 (1080×1920)، صرف «سابقہ حاضری + آج کی حاضری = کل بقایہ» اور آئندہ حاضری کی درخواست ===== */
 const POSTER_THEMES=[
-  {id:'sky',  name:'آسمانی',     bg:'#EAF5FF', bg2:'#D6EBFF', card:'#FFFFFF', ink:'#14324F', muted:'#5E7894', h1:'#6DB8F5', h2:'#1F6FC5', acc:'#1F6FC5', line:'#CFE3F7', req:['#1F6FC5','#0B3F80']},
-  {id:'rose', name:'گلابی',      bg:'#FFF0F5', bg2:'#FFDDE9', card:'#FFFFFF', ink:'#4A1630', muted:'#93617A', h1:'#F7A1C0', h2:'#D3366F', acc:'#C2185B', line:'#F6D2DF', req:['#D3366F','#7E1240']},
-  {id:'mint', name:'سبز',        bg:'#EAFBF1', bg2:'#D2F4E1', card:'#FFFFFF', ink:'#123D29', muted:'#5C8A72', h1:'#7FDDAE', h2:'#1C9A5E', acc:'#15803D', line:'#CBEFDB', req:['#1C9A5E','#0B5233']},
-  {id:'gold', name:'سنہری',      bg:'#FFF7E6', bg2:'#FFEBC2', card:'#FFFFFF', ink:'#4A3200', muted:'#97784A', h1:'#FFD27A', h2:'#D98A00', acc:'#B45309', line:'#F5E2BC', req:['#D98A00','#7A4300']},
-  {id:'navy', name:'گہرا نیلا',  bg:'#0B1A2E', bg2:'#132B4A', card:'#17304F', ink:'#EAF2FB', muted:'#9FB6CF', h1:'#3C8DDB', h2:'#1A4F8F', acc:'#6DB8F5', line:'#2A4A70', req:['#F4A825','#C77700'], dark:1},
-  {id:'emer', name:'گہرا سبز',   bg:'#0A2219', bg2:'#113528', card:'#153F30', ink:'#E8FBF1', muted:'#9CCBB4', h1:'#2FB57A', h2:'#136B47', acc:'#7FDDAE', line:'#235C46', req:['#F4A825','#C77700'], dark:1},
-  {id:'plum', name:'گہرا جامنی', bg:'#1A1030', bg2:'#2A1A4A', card:'#2E1F52', ink:'#F3EEFF', muted:'#B9A9DE', h1:'#8E6CF0', h2:'#4E2FA8', acc:'#BFAEFF', line:'#45337A', req:['#F06292','#A3204F'], dark:1}
+  /* گہرے، چمکدار رنگ — پس منظر پورا رنگین، خانے سفید */
+  {id:'royal',  name:'شاہی نیلا', bg:'#1E3FD8', bg2:'#5BA8FF', h1:'#1E3A8A', h2:'#0B1A4F', acc:'#1D4ED8', ink:'#0F1E45', muted:'#5B6B8C', card:'#FFFFFF', line:'#DCE3F0', req:['#FF8F00','#D84315']},
+  {id:'emerald',name:'زمردی سبز', bg:'#059669', bg2:'#34D399', h1:'#065F46', h2:'#022C22', acc:'#047857', ink:'#0B3B2A', muted:'#4F7A68', card:'#FFFFFF', line:'#D5EDE3', req:['#F59E0B','#C2410C']},
+  {id:'sunset', name:'نارنجی',    bg:'#F4511E', bg2:'#FFB300', h1:'#BF360C', h2:'#5D1A06', acc:'#E64A19', ink:'#3E1306', muted:'#8A5A44', card:'#FFFFFF', line:'#F3DED3', req:['#3949AB','#1A237E']},
+  {id:'violet', name:'جامنی',     bg:'#7C3AED', bg2:'#EC4899', h1:'#5B21B6', h2:'#2E1065', acc:'#7C3AED', ink:'#2E1065', muted:'#6B5B8E', card:'#FFFFFF', line:'#E6DDF7', req:['#F59E0B','#B45309']},
+  {id:'ruby',   name:'سرخ',       bg:'#C62828', bg2:'#FF5252', h1:'#8E0000', h2:'#3B0000', acc:'#C62828', ink:'#3B0A0A', muted:'#8B5A5A', card:'#FFFFFF', line:'#F2DADA', req:['#00897B','#004D40']},
+  {id:'teal',   name:'فیروزی',    bg:'#00838F', bg2:'#26C6DA', h1:'#006064', h2:'#002B30', acc:'#00838F', ink:'#06343A', muted:'#4B7280', card:'#FFFFFF', line:'#D4ECEF', req:['#E91E63','#880E4F']},
+  {id:'night',  name:'رات سنہری', bg:'#0B1220', bg2:'#1E3A5F', h1:'#F59E0B', h2:'#B45309', acc:'#F59E0B', ink:'#F8FAFC', muted:'#94A3B8', card:'#1E293B', line:'#334155', req:['#F59E0B','#B45309'], dark:1}
 ];
 const F_UR='Noori', F_KSH='NooriKasheeda', F_NUM="'Segoe UI',Tahoma,Arial,sans-serif";
 const NEXT_GAPS=[1,2,3,4,5,7];
@@ -1301,14 +1309,19 @@ function entryDetail(e,p){
 
 async function buildPoster(){
   await posterFontsReady();
+  const c=drawPoster();
+  return await new Promise(res=>c.toBlob(b=>res(b),'image/png'));
+}
+/* بغیر انتظار (sync) — بٹن دباتے ہی تصویر کلپ بورڈ میں ڈالنے کے لیے بھی */
+function drawPoster(){
   const T=posterTheme(), D=posterData(), p=D.p;
   const W=1080, H=1920, M=48, cw=W-2*M, xR=W-M-40, xL=M+40;
   const c=document.createElement('canvas'); c.width=W; c.height=H;
   const ctx=c.getContext('2d'); ctx.direction='rtl'; ctx.textBaseline='alphabetic';
 
-  const bgG=ctx.createLinearGradient(0,0,0,H); bgG.addColorStop(0,T.bg); bgG.addColorStop(1,T.bg2);
+  const bgG=ctx.createLinearGradient(0,0,W,H); bgG.addColorStop(0,T.bg); bgG.addColorStop(1,T.bg2);
   ctx.fillStyle=bgG; ctx.fillRect(0,0,W,H);
-  ctx.globalAlpha=T.dark?.25:.45; ctx.fillStyle=T.line;
+  ctx.globalAlpha=.13; ctx.fillStyle='#fff';
   ctx.beginPath(); ctx.arc(W-40,H-260,230,0,7); ctx.fill();
   ctx.beginPath(); ctx.arc(60,H*0.42,160,0,7); ctx.fill();
   ctx.globalAlpha=1;
@@ -1332,7 +1345,7 @@ async function buildPoster(){
   let y=46;
   const hg=ctx.createLinearGradient(0,y,0,y+320); hg.addColorStop(0,T.h1); hg.addColorStop(1,T.h2);
   ctx.fillStyle=hg; roundRect(ctx,M,y,cw,320,40); ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.16)'; roundRect(ctx,M+16,y+16,cw-32,288,32); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=3; roundRect(ctx,M+14,y+14,cw-28,292,30); ctx.stroke();
   ctx.textAlign='center'; ctx.fillStyle='#fff';
   ctx.font=ur(38); ctx.fillText((p&&p.emoji?p.emoji+'  ':'')+'دودھ کا حساب', W/2, y+82);
   ctx.font='100px '+F_KSH; ctx.fillText(p?p.name:'کھاتہ', W/2, y+212);
@@ -1407,10 +1420,10 @@ async function buildPoster(){
   }
 
   ctx.textAlign='center';
-  drawParts(ctx,[{t:'کھاتہ بک',f:ur(30),c:T.muted,y:H-44}],W/2,'center');
+  drawParts(ctx,[{t:'کھاتہ بک',f:ur(30),c:'rgba(255,255,255,.85)',y:H-44}],W/2,'center');
 
   posterName='khata-'+(p?p.name.replace(/\s+/g,'_'):'record')+'-'+D.anchor+'.png';
-  return await new Promise(res=>c.toBlob(b=>res(b),'image/png'));
+  return c;
 }
 
 /* آئندہ حاضری کتنے دن بعد — ہر کھاتے کی اپنی (پہلے سے 3) */
@@ -1430,7 +1443,7 @@ async function pickGap(n){
 function renderThemeRow(){
   const cur=posterTheme();
   document.getElementById('themeRow').innerHTML=POSTER_THEMES.map(t=>
-    `<button type="button" class="${t.id===cur.id?'active':''}" style="background:linear-gradient(135deg,${t.h1},${t.h2})" title="${t.name}" onclick="pickTheme('${t.id}')"></button>`).join('');
+    `<button type="button" class="${t.id===cur.id?'active':''}" style="background:linear-gradient(135deg,${t.bg},${t.bg2})" title="${t.name}" onclick="pickTheme('${t.id}')"></button>`).join('');
   document.getElementById('themeName').textContent='رنگ: '+cur.name;
 }
 async function pickTheme(id){
@@ -1447,12 +1460,57 @@ async function refreshPoster(){
 
 async function openPoster(autoSend){
   const p=getPerson(currentPersonId);
+  const num=waNumber(p&&p.phone);
   renderThemeRow();
   renderGapRow();
+  document.getElementById('waMainBtn').textContent = num ? ('💬 '+p.name+' کی چیٹ میں پوسٹر') : '📤 پوسٹر واٹس ایپ پر بھیجیں';
+  document.getElementById('chatHint').style.display = num ? '' : 'none';
+  document.getElementById('shareBtn2').style.display = num ? '' : 'none';
   posterBlob=null;
+  // نمبر محفوظ ہے: اوکے دباتے ہی پوسٹر کاپی + اسی کی چیٹ (یہ انتظار کے بغیر ہونا ضروری ہے)
+  if(autoSend && num) openChatWithPoster(num);
   openBox('posterOverlay');
   await refreshPoster();
-  if(autoSend && posterBlob && canShareFile()) sendPoster(true);
+  if(autoSend && !num && posterBlob && canShareFile()) sendPoster(true);
+}
+
+/* ---- محفوظ نمبر کی اپنی چیٹ میں پوسٹر ----
+   ویب ایپ سے واٹس ایپ کسی نمبر پر تصویر خود نہیں بھیجنے دیتا؛ اس لیے: پوسٹر تصویر کلپ بورڈ میں کاپی
+   + اسی نمبر کی چیٹ کھلتی ہے، وہاں Paste کر کے بھیجیں۔ ساتھ کوئی لکھا پیغام نہیں۔ */
+function waNumber(raw){
+  let d=String(raw||'').replace(/\D/g,'');
+  if(!d) return '';
+  if(d.startsWith('00')) d=d.slice(2);
+  if(d.startsWith('0')) d='92'+d.slice(1);
+  else if(d.length===10 && d.startsWith('3')) d='92'+d;
+  return d;
+}
+function dataUrlToBlob(u){
+  const b=atob(u.split(',')[1]), a=new Uint8Array(b.length);
+  for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i);
+  return new Blob([a],{type:'image/png'});
+}
+function openChatWithPoster(num){
+  try{
+    if(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      const blob=dataUrlToBlob(drawPoster().toDataURL('image/png'));
+      navigator.clipboard.write([new ClipboardItem({'image/png':blob})])
+        .then(()=>toast('📋 پوسٹر کاپی ہو گیا — چیٹ میں دبا کر رکھیں اور Paste کریں'))
+        .catch(()=>toast('چیٹ میں 📎 سے گیلری والا پوسٹر لگائیں'));
+    }
+  }catch(e){}
+  const appUrl='whatsapp://send?phone='+num, webUrl='https://wa.me/'+num;
+  let left=false; const onHide=()=>{ if(document.hidden) left=true; };
+  document.addEventListener('visibilitychange',onHide);
+  try{ location.href=appUrl; }catch(e){}
+  setTimeout(()=>{
+    document.removeEventListener('visibilitychange',onHide);
+    if(!left && !document.hidden){ const a=document.createElement('a'); a.href=webUrl; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); }
+  },1500);
+}
+function sendMain(){
+  const p=getPerson(currentPersonId), num=waNumber(p&&p.phone);
+  if(num) openChatWithPoster(num); else sendPoster();
 }
 function closePoster(){ closeBox('posterOverlay'); }
 function shareWhatsApp(){ posterHighlight=null; openPoster(false); }
