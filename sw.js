@@ -1,4 +1,4 @@
-const CACHE_NAME = "khata-book-cache-DDL1910MO006";
+const CACHE_NAME = "khata-book-cache-DDL1910MO007";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
@@ -36,8 +36,9 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(caches.match(req).then((hit) => hit || fetch(req)));
     return;
   }
+  // ہمیشہ تازہ فائل (براؤزر کی پرانی کاپی نہیں) — تاکہ نیا ورژن فوراً آئے
   event.respondWith(
-    fetch(req)
+    fetch(req.url, { cache: "no-store" })
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();
