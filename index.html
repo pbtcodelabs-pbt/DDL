@@ -606,7 +606,7 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL1910MO002";
+const APP_VERSION="DDL1910MO003";
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1184,8 +1184,10 @@ function confirmSave(){
   if(!pendingEntry) return;
   const entry=pendingEntry;
   closeConfirm();
+  const day=selectedDay;
   commitEntry(entry);
   toast('✅ '+fmt(entry.total)+' روپے جمع ہو گئے');
+  posterHighlight={type:'entry',day,total:entry.total};
   openPoster(true);
 }
 
@@ -1217,6 +1219,9 @@ function addPayment(){
   closePayment();
   render();
   toast('ادائیگی درج ہو گئی');
+  /* DDL1910MO003: ادائیگی کے بعد بھی اسی کو پوسٹر — «آج وصول ہوئے X، باقی بقایہ Y» */
+  posterHighlight={type:'pay',day:today.getDate(),amount:amt};
+  openPoster(true);
 }
 
 /* ===== WhatsApp Poster — ہلکے رنگوں کے پانچ تھیم، نوری نستعلیق / کشیدہ ===== */
@@ -1229,6 +1234,8 @@ const POSTER_THEMES=[
 ];
 const F_UR='Noori', F_KSH='NooriKasheeda', F_NUM="'Segoe UI',Tahoma,Arial,sans-serif";
 let posterBlob=null, posterName='', posterText='';
+/* DDL1910MO003: ابھی کیا ہوا (حاضری یا وصولی) — پوسٹر کے اوپر نمایاں پٹی */
+let posterHighlight=null;
 
 function posterTheme(){
   const id=localStorage.getItem('ddlm_poster_theme');
@@ -1269,8 +1276,8 @@ async function buildPoster(){
   const T=posterTheme(), D=posterData(), p=D.p;
   const W=1080, M=40, rowH=74;
   const listRows=D.entries.length + D.payments.length;
-  const headH=300, tHead=80, footH=430;
-  const H=M+headH+30+tHead+Math.max(1,listRows)*rowH+40+footH+140;
+  const headH=300, tHead=80, footH=430, hlH=posterHighlight?130:0;
+  const H=M+headH+30+hlH+tHead+Math.max(1,listRows)*rowH+40+footH+140;
   const c=document.createElement('canvas'); c.width=W; c.height=H;
   const ctx=c.getContext('2d'); ctx.direction='rtl'; ctx.textBaseline='alphabetic';
 
@@ -1290,8 +1297,20 @@ async function buildPoster(){
   ctx.font='88px '+F_KSH; ctx.fillText(p?p.name:'کھاتہ', W/2, M+190);
   drawParts(ctx,[{t:URDU_MONTHS[viewMonth],f:ur(40),c:'#fff',y:M+262},{t:String(viewYear),f:nm(34,true),c:'#fff',y:M+262}],W/2,'center');
 
-  // جدول
   let y=M+headH+30;
+  if(posterHighlight){
+    const h=posterHighlight, isPay=h.type==='pay';
+    const gb=ctx.createLinearGradient(0,y,0,y+110); gb.addColorStop(0,isPay?'#34D399':'#FBBF24'); gb.addColorStop(1,isPay?'#059669':'#D97706');
+    ctx.fillStyle=gb; roundRect(ctx,M,y,W-2*M,110,28); ctx.fill();
+    const by=y+72;
+    const parts = isPay
+      ? [{t:'✅ آج وصول ہوئے',f:ur(36),c:'#fff',y:by},{t:fmt(h.amount),f:nm(40,true),c:'#fff',y:by},{t:'— باقی بقایہ',f:ur(36),c:'#fff',y:by},{t:fmt(D.due),f:nm(40,true),c:'#fff',y:by}]
+      : [{t:'📅',f:nm(34),c:'#fff',y:by},{t:String(h.day),f:nm(38,true),c:'#fff',y:by},{t:URDU_MONTHS[viewMonth]+' کی حاضری',f:ur(36),c:'#fff',y:by},{t:fmt(h.total),f:nm(40,true),c:'#fff',y:by},{t:'روپے جمع',f:ur(34),c:'#fff',y:by}];
+    drawParts(ctx,parts,W/2,'center');
+    y+=hlH;
+  }
+
+  // جدول
   const tw=W-2*M;
   ctx.fillStyle='#fff'; roundRect(ctx,M,y,tw,tHead+Math.max(1,listRows)*rowH+24,28); ctx.fill();
   ctx.strokeStyle=T.line; ctx.lineWidth=2; roundRect(ctx,M,y,tw,tHead+Math.max(1,listRows)*rowH+24,28); ctx.stroke();
@@ -1303,10 +1322,13 @@ async function buildPoster(){
   ctx.strokeStyle=T.acc; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(M+24,y+tHead); ctx.lineTo(W-M-24,y+tHead); ctx.stroke();
   y+=tHead+12;
 
-  const rows=D.entries.map(e=>({type:'e',day:e.day,e})).concat(D.payments.map(x=>({type:'p',day:parseInt(String(x.date).split('-')[2],10)||'',x})));
+  const rows=D.entries.map(e=>({type:'e',day:e.day,e})).concat(D.payments.map(x=>({type:'p',day:parseInt(String(x.date).split('-')[2],10)||'',x})))
+    .sort((a,b)=>(a.day||99)-(b.day||99) || (a.type==='e'?-1:1));   /* DDL1910MO003: وصولی بھی اپنی تاریخ پر */
   if(!rows.length){ ctx.fillStyle=T.muted; ctx.font=ur(32); ctx.textAlign='center'; ctx.fillText('اس ماہ ابھی کوئی اندراج نہیں',W/2,y+50); }
   rows.forEach((r,i)=>{
-    if(i%2===0){ ctx.fillStyle=T.alt; roundRect(ctx,M+16,y+4,tw-32,rowH-8,16); ctx.fill(); }
+    const hl=posterHighlight && r.day===posterHighlight.day && (posterHighlight.type==='pay')===(r.type==='p');
+    if(hl){ ctx.fillStyle='rgba(251,191,36,.30)'; roundRect(ctx,M+16,y+4,tw-32,rowH-8,16); ctx.fill(); }
+    else if(i%2===0){ ctx.fillStyle=T.alt; roundRect(ctx,M+16,y+4,tw-32,rowH-8,16); ctx.fill(); }
     const by=y+rowH/2+12;
     const dow=r.day? URDU_DAYS[new Date(viewYear,viewMonth,r.day).getDay()] : '';
     drawParts(ctx,[{t:String(r.day),f:nm(32,true),c:T.ink,y:by},{t:dow,f:ur(26),c:T.muted,y:by}],xR,'right');
@@ -1358,10 +1380,15 @@ async function buildPoster(){
 function posterSummaryText(D){
   const p=D.p, u=p?p.unit:'';
   let t='*'+(p?p.name:'کھاتہ')+' — '+URDU_MONTHS[viewMonth]+' '+viewYear+'*\n';
+  const h=posterHighlight;
+  if(h && h.type==='pay') t+='✅ آج وصول ہوئے: '+fmt(h.amount)+' روپے\n';
+  if(h && h.type==='entry') t+='📅 '+h.day+' '+URDU_MONTHS[viewMonth]+' کی حاضری: '+fmt(h.total)+' روپے جمع\n';
+  t+='\n';
   D.entries.forEach(e=>{
     if(e.mode==='qty') t+=e.day+' تاریخ: '+e.qty+' '+u+' × '+fmt(e.price)+' = '+fmt(e.total)+'\n';
     else if(e.total) t+=e.day+' تاریخ: '+fmt(e.total)+(e.note?' ('+e.note+')':'')+'\n';
   });
+  D.payments.forEach(x=>{ t+=(parseInt(String(x.date).split('-')[2],10)||'')+' تاریخ: ✅ وصول '+fmt(x.amount)+'\n'; });
   t+='\nاس ماہ کا حساب: '+fmt(D.monthTotal)+'\nاس ماہ وصول: '+fmt(D.monthPaid)+'\nپچھلا بقایہ: '+fmt(D.previous)+'\n*کل بقایہ: '+fmt(D.due)+' روپے*';
   return t;
 }
@@ -1404,7 +1431,7 @@ async function openPoster(autoSend){
   if(autoSend && posterBlob && canShareFile()) sendPoster(true);
 }
 function closePoster(){ closeBox('posterOverlay'); }
-function shareWhatsApp(){ openPoster(false); }
+function shareWhatsApp(){ posterHighlight=null; openPoster(false); }
 function canShareFile(){
   try{ return !!(navigator.canShare && navigator.canShare({files:[new File([new Blob(['x'])],'a.png',{type:'image/png'})]})); }catch(e){ return false; }
 }
