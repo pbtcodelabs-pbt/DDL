@@ -298,6 +298,11 @@
   .next-adj button{padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg-soft);color:var(--ink);font-size:14px;cursor:pointer;}
   .next-show{position:relative;flex:1;text-align:center;padding:7px 8px;border-radius:10px;background:rgba(244,168,37,.15);border:1px solid #5a4520;color:#FFD98C;font-size:15px;cursor:pointer;}
   .next-show input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;}
+  .msg-btns{display:flex;flex-direction:column;gap:10px;margin:16px;}
+  .msg-btns button{font-family:'NooriKasheeda','Noori',serif;font-size:21px;line-height:1.7;padding:12px 14px;border-radius:14px;border:none;color:#fff;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35);}
+  .msg-come{background:linear-gradient(180deg,#22C55E,#15803D);}
+  .msg-no{background:linear-gradient(180deg,#EF4444,#991B1B);}
+  .msg-btns button:active{transform:scale(.98);}
   .btn-wa{flex:1;background:#25D366;color:#053d22;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;}
 
   #printArea{display:none;}
@@ -399,6 +404,10 @@
     <div class="cal-grid" id="calGrid"></div>
   </div>
 
+  <div class="msg-btns">
+    <button class="msg-come" onclick="openPoster(true,'come')">🥛 آج دودھ دینے کے لیے ضرور تشریف لائیں</button>
+    <button class="msg-no" onclick="openPoster(true,'no')">🚫 آج دودھ دینے نہ آئیں — ہم گھر پر نہیں</button>
+  </div>
   <div class="export-row">
     <button class="btn-print" onclick="doPrint()">🖨️ پرنٹ / پی ڈی ایف</button>
     <button class="btn-whatsapp" onclick="shareWhatsApp()">📤 واٹس ایپ پوسٹر</button>
@@ -539,9 +548,10 @@
 <!-- Poster Modal -->
 <div class="overlay" id="posterOverlay" onclick="if(event.target===this)closePoster()">
   <div class="modal">
-    <div class="modal-head"><h2>حاضری پوسٹر</h2><button class="close" onclick="closePoster()">✕</button></div>
+    <div class="modal-head"><h2 id="posterTitle">حاضری پوسٹر</h2><button class="close" onclick="closePoster()">✕</button></div>
     <div class="theme-row" id="themeRow"></div>
     <div class="theme-name" id="themeName"></div>
+    <div id="hisaabCtl">
     <div class="field-label" style="text-align:center">آئندہ حاضری کتنے دن بعد؟</div>
     <div class="chip-row" id="gapRow" style="justify-content:center"></div>
     <div class="next-adj">
@@ -549,6 +559,7 @@
       <label class="next-show" title="تاریخ خود چنیں"><span id="nextShow"></span> 📅
         <input type="date" id="nextPick" onchange="pickNextDate(this.value)"></label>
       <button type="button" onclick="shiftNext(1)">+ ایک دن</button>
+    </div>
     </div>
     <img class="poster-prev" id="posterImg" alt="پوسٹر">
     <div class="modal-actions">
@@ -619,7 +630,7 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL1910MO008";
+const APP_VERSION="DDL2010TU009";
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1325,7 +1336,69 @@ async function buildPoster(){
   return await new Promise(res=>c.toBlob(b=>res(b),'image/png'));
 }
 /* بغیر انتظار (sync) — بٹن دباتے ہی تصویر کلپ بورڈ میں ڈالنے کے لیے بھی */
+/* پیغام والا پوسٹر: «آج ضرور تشریف لائیں» یا «آج نہ آئیں» */
+let posterMsg=null;
+function fitFont(ctx,txt,size,family,maxW){
+  let s=size; ctx.font=s+'px '+family;
+  while(ctx.measureText(txt).width>maxW && s>40){ s-=4; ctx.font=s+'px '+family; }
+  return s;
+}
+function drawMsgPoster(kind){
+  const T=posterTheme(), p=getPerson(currentPersonId);
+  const W=1080, H=1920, M=48, cw=W-2*M;
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const ctx=c.getContext('2d'); ctx.direction='rtl'; ctx.textBaseline='alphabetic';
+  const bgG=ctx.createLinearGradient(0,0,W,H); bgG.addColorStop(0,T.bg); bgG.addColorStop(1,T.bg2);
+  ctx.fillStyle=bgG; ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=.13; ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(W-40,H-260,230,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(60,H*0.40,160,0,7); ctx.fill();
+  ctx.globalAlpha=1;
+  const W2=W/2;
+  // نام
+  let y=60;
+  const hg=ctx.createLinearGradient(0,y,0,y+330); hg.addColorStop(0,T.h1); hg.addColorStop(1,T.h2);
+  ctx.fillStyle=hg; roundRect(ctx,M,y,cw,330,40); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=3; roundRect(ctx,M+14,y+14,cw-28,302,30); ctx.stroke();
+  ctx.textAlign='center'; ctx.fillStyle='#fff';
+  ctx.font=ur(40); ctx.fillText('محترم', W2, y+90);
+  const nm1=(p?p.name:'')+' صاحب';
+  fitFont(ctx,nm1,104,F_KSH,cw-80); ctx.fillText(nm1, W2, y+235);
+  y+=330+40;
+  // پیغام
+  const come=kind==='come';
+  const g1=come?['#22C55E','#14532D']:['#EF4444','#7F1D1D'];
+  const ph=H-140-y;
+  const mg=ctx.createLinearGradient(0,y,0,y+ph); mg.addColorStop(0,g1[0]); mg.addColorStop(1,g1[1]);
+  ctx.fillStyle=mg; roundRect(ctx,M,y,cw,ph,44); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=5; ctx.setLineDash([18,12]);
+  roundRect(ctx,M+20,y+20,cw-40,ph-40,34); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#fff'; ctx.textAlign='center';
+  const contentH = come ? 560 : 840;   // پیغام خانے کے بیچ میں
+  let ty=y+Math.max(170,(ph-160-contentH)/2+110);
+  ctx.font='130px '+F_NUM; ctx.fillText(come?'🥛':'🚫', W2, ty); ty+=150;
+  ctx.font=ur(54); ctx.fillText('برائے مہربانی', W2, ty); ty+=120;
+  const lines = come
+    ? [['آج دودھ دینے کے لیے',ur(66)],['ضرور تشریف لائیں',F_KSH]]
+    : [['آج دودھ دینے کے لیے',ur(66)],['نہ آئیں',F_KSH]];
+  lines.forEach(([t,f])=>{
+    if(f===F_KSH){ fitFont(ctx,t,120,F_KSH,cw-100); ty+=30; } else ctx.font=f;
+    ctx.fillText(t, W2, ty); ty+= f===F_KSH ? 170 : 120;
+  });
+  if(!come){
+    ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(M+80,ty-60,cw-160,3); ctx.fillStyle='#fff';
+    ctx.font=ur(54); ctx.fillText('آج ہم گھر پر موجود نہیں ہیں', W2, ty+30); ty+=130;
+    ctx.font=ur(46); ctx.fillText('جب واپس آئیں گے تو آپ کو بتا دیں گے', W2, ty+20);
+  }
+  // آج کی تاریخ
+  const i=dateInfo(new Date());
+  drawParts(ctx,[{t:'آج:',f:ur(42),c:'#fff',y:y+ph-80},{t:String(i.d),f:nm(46,true),c:'#fff',y:y+ph-80},{t:i.m,f:ur(42),c:'#fff',y:y+ph-80},{t:String(i.y),f:nm(40,true),c:'#fff',y:y+ph-80},{t:'، بروز '+i.dow,f:ur(42),c:'#fff',y:y+ph-80}],W2,'center');
+  drawParts(ctx,[{t:'شکریہ — کھاتہ بک',f:ur(32),c:'rgba(255,255,255,.9)',y:H-50}],W2,'center');
+  posterName='khata-'+(come?'aaj-aayen':'aaj-na-aayen')+'-'+todayStr()+'.png';
+  return c;
+}
 function drawPoster(){
+  if(posterMsg) return drawMsgPoster(posterMsg);
   const T=posterTheme(), D=posterData(), p=D.p;
   const W=1080, H=1920, M=48, cw=W-2*M, xR=W-M-40, xL=M+40;
   const c=document.createElement('canvas'); c.width=W; c.height=H;
@@ -1360,7 +1433,7 @@ function drawPoster(){
   ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=3; roundRect(ctx,M+14,y+14,cw-28,292,30); ctx.stroke();
   ctx.textAlign='center'; ctx.fillStyle='#fff';
   ctx.font=ur(38); ctx.fillText((p&&p.emoji?p.emoji+'  ':'')+'دودھ کا حساب', W/2, y+82);
-  ctx.font='100px '+F_KSH; ctx.fillText(p?p.name:'کھاتہ', W/2, y+212);
+  fitFont(ctx,p?p.name:'کھاتہ',100,F_KSH,cw-80); ctx.fillText(p?p.name:'کھاتہ', W/2, y+212);
   const ai=dateInfo(parseDk(D.anchor));
   drawParts(ctx,[{t:'تاریخ:',f:ur(34),c:'#fff',y:y+282},{t:String(ai.d),f:nm(34,true),c:'#fff',y:y+282},{t:ai.m,f:ur(34),c:'#fff',y:y+282},{t:String(ai.y),f:nm(32),c:'#fff',y:y+282}],W/2,'center');
   y+=320+30;
@@ -1485,7 +1558,10 @@ async function refreshPoster(){
   img._url=URL.createObjectURL(posterBlob); img.src=img._url;
 }
 
-async function openPoster(autoSend){
+async function openPoster(autoSend,msg){
+  posterMsg=msg||null;
+  document.getElementById('hisaabCtl').style.display = posterMsg ? 'none' : '';
+  document.getElementById('posterTitle').textContent = posterMsg==='come' ? 'آج تشریف لائیں' : posterMsg==='no' ? 'آج نہ آئیں' : 'حاضری پوسٹر';
   const p=getPerson(currentPersonId);
   const num=waNumber(p&&p.phone);
   renderThemeRow();
