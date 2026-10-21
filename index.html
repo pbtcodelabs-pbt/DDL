@@ -303,6 +303,9 @@
   .msg-come{background:linear-gradient(180deg,#22C55E,#15803D);}
   .msg-no{background:linear-gradient(180deg,#EF4444,#991B1B);}
   .msg-btns button:active{transform:scale(.98);}
+  .ctl-label{font-size:14px;color:var(--muted);text-align:center;margin-top:8px;}
+  .theme-row.sw button{width:34px;height:34px;border:2px solid rgba(255,255,255,.25);color:#fff;font-size:14px;}
+  .theme-row.sw button.active{border:3px solid #FFD98C;transform:scale(1.15);}
   .btn-wa{flex:1;background:#25D366;color:#053d22;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;}
 
   #printArea{display:none;}
@@ -549,8 +552,18 @@
 <div class="overlay" id="posterOverlay" onclick="if(event.target===this)closePoster()">
   <div class="modal">
     <div class="modal-head"><h2 id="posterTitle">حاضری پوسٹر</h2><button class="close" onclick="closePoster()">✕</button></div>
+    <div id="themeCtl">
     <div class="theme-row" id="themeRow"></div>
     <div class="theme-name" id="themeName"></div>
+    </div>
+    <div id="msgCtl" style="display:none">
+      <div class="ctl-label">🖼️ پس منظر</div><div class="theme-row sw" id="msgBgRow"></div>
+      <div class="ctl-label">🟩 درمیان والا پوسٹر</div><div class="theme-row sw" id="msgPanelRow"></div>
+      <div class="ctl-label">✍️ لکھائی کا رنگ</div><div class="theme-row sw" id="msgTextRow"></div>
+      <div class="ctl-label">🔲 بارڈر</div><div class="theme-row sw" id="msgBorderRow"></div>
+      <div class="ctl-label">🔠 لکھائی کا سائز</div>
+      <div class="next-adj"><button type="button" onclick="msgScale(-0.1)">− چھوٹی</button><span class="next-show" id="msgSize">100%</span><button type="button" onclick="msgScale(0.1)">+ بڑی</button></div>
+    </div>
     <div id="hisaabCtl">
     <div class="field-label" style="text-align:center">آئندہ حاضری کتنے دن بعد؟</div>
     <div class="chip-row" id="gapRow" style="justify-content:center"></div>
@@ -630,7 +643,7 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL2010TU009";
+const APP_VERSION="DDL2110WE010";
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1343,9 +1356,77 @@ function fitFont(ctx,txt,size,family,maxW){
   while(ctx.measureText(txt).width>maxW && s>40){ s-=4; ctx.font=s+'px '+family; }
   return s;
 }
+/* پیغام والے پوسٹر کا اپنا انداز: پس منظر، درمیان والا پوسٹر، لکھائی کا رنگ، بارڈر، لکھائی کا سائز — ہر پیغام کا الگ محفوظ */
+const MSG_PANELS=[
+  {id:'green', name:'سبز',     c:['#22C55E','#14532D']},
+  {id:'red',   name:'سرخ',     c:['#EF4444','#7F1D1D']},
+  {id:'blue',  name:'نیلا',    c:['#3B82F6','#1E3A8A']},
+  {id:'orange',name:'نارنجی',  c:['#FB923C','#C2410C']},
+  {id:'purple',name:'جامنی',   c:['#A855F7','#581C87']},
+  {id:'teal',  name:'فیروزی',  c:['#14B8A6','#134E4A']},
+  {id:'gold',  name:'سنہری',   c:['#FACC15','#A16207']},
+  {id:'pink',  name:'گلابی',   c:['#F472B6','#9D174D']},
+  {id:'black', name:'کالا',    c:['#374151','#0B0F19']},
+  {id:'white', name:'سفید',    c:['#FFFFFF','#E5E7EB']}
+];
+const MSG_TEXTS=[
+  {id:'white', name:'سفید',    c:'#FFFFFF'},
+  {id:'yellow',name:'پیلا',    c:'#FFE066'},
+  {id:'cream', name:'کریمی',   c:'#FFF4D6'},
+  {id:'lgreen',name:'ہلکا سبز',c:'#B9F6CA'},
+  {id:'pink',  name:'گلابی',   c:'#FFC1E3'},
+  {id:'black', name:'کالا',    c:'#111111'},
+  {id:'navy',  name:'گہرا نیلا',c:'#0B2A6B'},
+  {id:'maroon',name:'عنابی',   c:'#7F1D1D'}
+];
+const MSG_BORDERS=[
+  {id:'white', name:'سفید',  c:'rgba(255,255,255,.75)'},
+  {id:'gold',  name:'سنہری', c:'#FFC83D'},
+  {id:'black', name:'کالا',  c:'rgba(0,0,0,.6)'},
+  {id:'none',  name:'بغیر',  c:null}
+];
+function msgStyle(kind){
+  let s={};
+  try{ s=JSON.parse(localStorage.getItem('ddlm_msgstyle_'+kind)||'{}')||{}; }catch(e){}
+  return {
+    bg: s.bg || posterTheme().id,
+    panel: s.panel || (kind==='come'?'green':'red'),
+    text: s.text || 'white',
+    border: s.border || 'white',
+    scale: s.scale || 1
+  };
+}
+function setMsgStyle(kind,key,val){
+  const s=msgStyle(kind); s[key]=val;
+  lsSet('ddlm_msgstyle_'+kind, JSON.stringify(s));
+}
+function swatches(list,cur,key,bgOf){
+  return list.map(o=>`<button type="button" class="${o.id===cur?'active':''}" title="${o.name}" style="background:${bgOf(o)}" onclick="pickMsg('${key}','${o.id}')">${o.id==='none'?'✕':''}</button>`).join('');
+}
+function renderMsgCtl(){
+  if(!posterMsg) return;
+  const s=msgStyle(posterMsg);
+  document.getElementById('msgBgRow').innerHTML=swatches(POSTER_THEMES,s.bg,'bg',t=>`linear-gradient(135deg,${t.bg},${t.bg2})`);
+  document.getElementById('msgPanelRow').innerHTML=swatches(MSG_PANELS,s.panel,'panel',t=>`linear-gradient(180deg,${t.c[0]},${t.c[1]})`);
+  document.getElementById('msgTextRow').innerHTML=swatches(MSG_TEXTS,s.text,'text',t=>t.c);
+  document.getElementById('msgBorderRow').innerHTML=swatches(MSG_BORDERS,s.border,'border',t=>t.c||'transparent');
+  document.getElementById('msgSize').textContent=Math.round(s.scale*100)+'%';
+}
+async function pickMsg(key,val){ setMsgStyle(posterMsg,key,val); renderMsgCtl(); await refreshPoster(); }
+async function msgScale(d){
+  const s=msgStyle(posterMsg);
+  const v=Math.min(1.5,Math.max(0.6,Math.round((s.scale+d)*10)/10));
+  setMsgStyle(posterMsg,'scale',v); renderMsgCtl(); await refreshPoster();
+}
+
 function drawMsgPoster(kind){
-  const T=posterTheme(), p=getPerson(currentPersonId);
-  const W=1080, H=1920, M=48, cw=W-2*M;
+  const S=msgStyle(kind);
+  const T=POSTER_THEMES.find(t=>t.id===S.bg)||POSTER_THEMES[0];
+  const PN=(MSG_PANELS.find(x=>x.id===S.panel)||MSG_PANELS[0]).c;
+  const TX=(MSG_TEXTS.find(x=>x.id===S.text)||MSG_TEXTS[0]).c;
+  const BD=(MSG_BORDERS.find(x=>x.id===S.border)||MSG_BORDERS[0]).c;
+  const k=S.scale||1, p=getPerson(currentPersonId);
+  const W=1080, H=1920, M=48, cw=W-2*M, maxW=cw-100;
   const c=document.createElement('canvas'); c.width=W; c.height=H;
   const ctx=c.getContext('2d'); ctx.direction='rtl'; ctx.textBaseline='alphabetic';
   const bgG=ctx.createLinearGradient(0,0,W,H); bgG.addColorStop(0,T.bg); bgG.addColorStop(1,T.bg2);
@@ -1359,40 +1440,35 @@ function drawMsgPoster(kind){
   let y=60;
   const hg=ctx.createLinearGradient(0,y,0,y+330); hg.addColorStop(0,T.h1); hg.addColorStop(1,T.h2);
   ctx.fillStyle=hg; roundRect(ctx,M,y,cw,330,40); ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=3; roundRect(ctx,M+14,y+14,cw-28,302,30); ctx.stroke();
+  if(BD){ ctx.strokeStyle=BD; ctx.lineWidth=4; roundRect(ctx,M+14,y+14,cw-28,302,30); ctx.stroke(); }
   ctx.textAlign='center'; ctx.fillStyle='#fff';
   ctx.font=ur(40); ctx.fillText('محترم', W2, y+90);
   const nm1=(p?p.name:'')+' صاحب';
-  fitFont(ctx,nm1,104,F_KSH,cw-80); ctx.fillText(nm1, W2, y+235);
+  fitFont(ctx,nm1,Math.round(104*Math.min(k,1.2)),F_KSH,cw-80); ctx.fillText(nm1, W2, y+235);
   y+=330+40;
-  // پیغام
+  // درمیان والا پوسٹر
   const come=kind==='come';
-  const g1=come?['#22C55E','#14532D']:['#EF4444','#7F1D1D'];
   const ph=H-140-y;
-  const mg=ctx.createLinearGradient(0,y,0,y+ph); mg.addColorStop(0,g1[0]); mg.addColorStop(1,g1[1]);
+  const mg=ctx.createLinearGradient(0,y,0,y+ph); mg.addColorStop(0,PN[0]); mg.addColorStop(1,PN[1]);
   ctx.fillStyle=mg; roundRect(ctx,M,y,cw,ph,44); ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=5; ctx.setLineDash([18,12]);
-  roundRect(ctx,M+20,y+20,cw-40,ph-40,34); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle='#fff'; ctx.textAlign='center';
-  const contentH = come ? 560 : 840;   // پیغام خانے کے بیچ میں
-  let ty=y+Math.max(170,(ph-160-contentH)/2+110);
-  ctx.font='130px '+F_NUM; ctx.fillText(come?'🥛':'🚫', W2, ty); ty+=150;
-  ctx.font=ur(54); ctx.fillText('برائے مہربانی', W2, ty); ty+=120;
-  const lines = come
-    ? [['آج دودھ دینے کے لیے',ur(66)],['ضرور تشریف لائیں',F_KSH]]
-    : [['آج دودھ دینے کے لیے',ur(66)],['نہ آئیں',F_KSH]];
-  lines.forEach(([t,f])=>{
-    if(f===F_KSH){ fitFont(ctx,t,120,F_KSH,cw-100); ty+=30; } else ctx.font=f;
-    ctx.fillText(t, W2, ty); ty+= f===F_KSH ? 170 : 120;
+  if(BD){ ctx.strokeStyle=BD; ctx.lineWidth=6; ctx.setLineDash([18,12]); roundRect(ctx,M+20,y+20,cw-40,ph-40,34); ctx.stroke(); ctx.setLineDash([]); }
+  // لکھائی — سائز k سے بڑا/چھوٹا، چوڑائی سے باہر نہ جائے
+  const rows=[{t:come?'🥛':'🚫',sz:130,f:F_NUM,gap:150},{t:'برائے مہربانی',sz:54,f:F_UR,gap:120},{t:'آج دودھ دینے کے لیے',sz:66,f:F_UR,gap:120,pre:0}];
+  if(come) rows.push({t:'ضرور تشریف لائیں',sz:120,f:F_KSH,gap:170,pre:30});
+  else rows.push({t:'نہ آئیں',sz:130,f:F_KSH,gap:150,pre:30},{line:1,gap:90},{t:'آج ہم گھر پر موجود نہیں ہیں',sz:54,f:F_UR,gap:110},{t:'جب واپس آئیں گے تو آپ کو بتا دیں گے',sz:46,f:F_UR,gap:60});
+  const totalH=rows.reduce((s,r)=>s+(r.pre||0)*k+r.gap*k,0);
+  let ty=y+Math.max(150,(ph-170-totalH)/2+120*k);
+  ctx.textAlign='center';
+  rows.forEach(r=>{
+    ty+=(r.pre||0)*k;
+    if(r.line){ ctx.globalAlpha=.4; ctx.fillStyle=TX; ctx.fillRect(M+80,ty-70*k,cw-160,3); ctx.globalAlpha=1; ty+=r.gap*k-90*k; return; }
+    ctx.fillStyle=TX;
+    if(r.f===F_NUM) ctx.font=Math.round(r.sz*k)+'px '+F_NUM; else fitFont(ctx,r.t,Math.round(r.sz*k),r.f,maxW);
+    ctx.fillText(r.t,W2,ty); ty+=r.gap*k;
   });
-  if(!come){
-    ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(M+80,ty-60,cw-160,3); ctx.fillStyle='#fff';
-    ctx.font=ur(54); ctx.fillText('آج ہم گھر پر موجود نہیں ہیں', W2, ty+30); ty+=130;
-    ctx.font=ur(46); ctx.fillText('جب واپس آئیں گے تو آپ کو بتا دیں گے', W2, ty+20);
-  }
   // آج کی تاریخ
-  const i=dateInfo(new Date());
-  drawParts(ctx,[{t:'آج:',f:ur(42),c:'#fff',y:y+ph-80},{t:String(i.d),f:nm(46,true),c:'#fff',y:y+ph-80},{t:i.m,f:ur(42),c:'#fff',y:y+ph-80},{t:String(i.y),f:nm(40,true),c:'#fff',y:y+ph-80},{t:'، بروز '+i.dow,f:ur(42),c:'#fff',y:y+ph-80}],W2,'center');
+  const i=dateInfo(new Date()), dy=y+ph-80;
+  drawParts(ctx,[{t:'آج:',f:ur(42),c:TX,y:dy},{t:String(i.d),f:nm(46,true),c:TX,y:dy},{t:i.m,f:ur(42),c:TX,y:dy},{t:String(i.y),f:nm(40,true),c:TX,y:dy},{t:'، بروز '+i.dow,f:ur(42),c:TX,y:dy}],W2,'center');
   drawParts(ctx,[{t:'شکریہ — کھاتہ بک',f:ur(32),c:'rgba(255,255,255,.9)',y:H-50}],W2,'center');
   posterName='khata-'+(come?'aaj-aayen':'aaj-na-aayen')+'-'+todayStr()+'.png';
   return c;
@@ -1561,6 +1637,9 @@ async function refreshPoster(){
 async function openPoster(autoSend,msg){
   posterMsg=msg||null;
   document.getElementById('hisaabCtl').style.display = posterMsg ? 'none' : '';
+  document.getElementById('themeCtl').style.display = posterMsg ? 'none' : '';
+  document.getElementById('msgCtl').style.display = posterMsg ? '' : 'none';
+  renderMsgCtl();
   document.getElementById('posterTitle').textContent = posterMsg==='come' ? 'آج تشریف لائیں' : posterMsg==='no' ? 'آج نہ آئیں' : 'حاضری پوسٹر';
   const p=getPerson(currentPersonId);
   const num=waNumber(p&&p.phone);
