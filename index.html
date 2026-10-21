@@ -306,6 +306,9 @@
   .ctl-label{font-size:14px;color:var(--muted);text-align:center;margin-top:8px;}
   .theme-row.sw button{width:34px;height:34px;border:2px solid rgba(255,255,255,.25);color:#fff;font-size:14px;}
   .theme-row.sw button.active{border:3px solid #FFD98C;transform:scale(1.15);}
+  .prev-wrap{position:sticky;top:-20px;z-index:3;background:var(--panel);padding:4px 0 8px;margin:0 -4px;box-shadow:0 8px 12px -8px rgba(0,0,0,.5);}
+  .prev-wrap .poster-prev{width:auto;max-width:100%;height:44vh;object-fit:contain;margin:0 auto;}
+  .send-bar{position:sticky;bottom:-26px;background:var(--panel);padding:10px 0 12px;margin-bottom:-12px;z-index:2;box-shadow:0 -8px 12px -8px rgba(0,0,0,.5);}
   .btn-wa{flex:1;background:#25D366;color:#053d22;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;}
 
   #printArea{display:none;}
@@ -338,6 +341,97 @@
     #printArea .p-foot .row.total{border-top:1.5px dashed #000;margin-top:6px;padding-top:8px;font-weight:bold;font-size:16px;}
   }
 </style>
+<script>window.APP_UPD_LANG='ur';</script>
+<script>
+/* ===== یکساں اپڈیٹ پاپ اپ (سب ایپس میں ایک جیسا) — انتظار کی پٹی + "اپڈیٹ مکمل" کارڈ =====
+   AppUpd.waiting(sub) — اوپر چھوٹا کارڈ، ریت والی گھڑی؛ AppUpd.hideWaiting()
+   AppUpd.done(oldV, newV, note) — پرانا (کٹا ہوا) → نیا ورژن، ایک لائن میں کیا بدلا، نیچے درمیان OK */
+(function(){
+  if(window.AppUpd) return;
+  var L = (window.APP_UPD_LANG === 'en') ? 'en' : 'ur';
+  var T = L === 'en' ? {
+    wait:'Updating the app…', waitSub:'Please wait a moment — pause your work', done:'Update complete',
+    oldV:'Old version', newV:'New version', ok:'OK', what:'What’s new'
+  } : {
+    wait:'نئی اپڈیٹ آ رہی ہے…', waitSub:'براہِ کرم تھوڑا انتظار کریں — کام روک دیں', done:'اپڈیٹ مکمل ہو گئی',
+    oldV:'پرانا ورژن', newV:'نیا ورژن', ok:'اوکے', what:'کیا نیا ہے'
+  };
+  var CSS = ''
+  + '.aupd-shield{position:fixed;inset:0;z-index:2147483645;background:rgba(8,20,40,.5);backdrop-filter:blur(2px);display:none}'
+  + '.aupd-shield.show{display:block}.aupd-shield.passive{background:rgba(8,20,40,.15);backdrop-filter:none;pointer-events:none}'
+  + '.aupd-wait{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:2147483646;width:min(360px,calc(100vw - 24px));'
+  +   'display:none;align-items:center;gap:12px;padding:10px 14px;border-radius:16px;color:#fff;background:linear-gradient(135deg,#0d3b66,#0f766e);'
+  +   'box-shadow:0 10px 28px rgba(0,0,0,.35);font-family:inherit;overflow:hidden}'
+  + '.aupd-wait.show{display:flex;animation:aupdDrop .35s ease}'
+  + '.aupd-wait .aw-t{font-size:15px;font-weight:800;line-height:1.5}.aupd-wait .aw-s{font-size:12px;opacity:.9;line-height:1.6}'
+  + '.aupd-wait .aw-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:repeating-linear-gradient(-45deg,#fde68a 0 10px,#f59e0b 10px 20px);background-size:28px 28px;animation:aupdMove .7s linear infinite}'
+  + '.aupd-glass{width:22px;height:30px;flex:0 0 auto;animation:aupdFlip 2.4s ease-in-out infinite}'
+  + '.aupd-glass .sa{animation:aupdTop 2.4s linear infinite;transform-origin:50% 100%}.aupd-glass .sb{animation:aupdBot 2.4s linear infinite;transform-origin:50% 100%}'
+  + '.aupd-glass .st{animation:aupdStream 2.4s linear infinite}'
+  + '.aupd-ov{position:fixed;inset:0;z-index:2147483647;background:rgba(8,20,40,.55);display:none;align-items:center;justify-content:center;padding:16px}'
+  + '.aupd-ov.show{display:flex}'
+  + '.aupd-card{width:min(340px,100%);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.4);animation:aupdPop .45s cubic-bezier(.2,1.4,.4,1);font-family:inherit;text-align:center}'
+  + '.aupd-card .ah{background:linear-gradient(135deg,#059669,#10b981);color:#fff;padding:14px 12px 12px;font-size:18px;font-weight:800;line-height:1.5}'
+  + '.aupd-card .ab{padding:12px 16px 4px}'
+  + '.aupd-card .av{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #e5e7eb;border-radius:12px;padding:7px 12px;margin:6px 0;font-size:13px;color:#374151}'
+  + '.aupd-card .av b{direction:ltr;unicode-bidi:isolate;font-family:Arial,sans-serif;font-size:14.5px;letter-spacing:.4px}'
+  + '.aupd-card .av.o b{color:#9ca3af;text-decoration:line-through}.aupd-card .av.n{border-color:#34d399;background:#ecfdf5}.aupd-card .av.n b{color:#047857}'
+  + '.aupd-card .aa{color:#10b981;font-size:16px;line-height:1}'
+  + '.aupd-card .anote{margin:10px 0 4px;padding:8px 12px;border-radius:12px;background:#fffbeb;border:1px solid #fcd34d;color:#78350f;font-size:13.5px;font-weight:700;line-height:1.7;'
+  +   'white-space:normal;overflow-wrap:anywhere;max-height:40vh;overflow-y:auto}'
+  + '.aupd-card .af{padding:10px 16px 16px;display:flex;justify-content:center}'
+  + '.aupd-card .aok{min-width:140px;height:44px;border:none;border-radius:14px;background:linear-gradient(135deg,#0d3b66,#0f766e);color:#fff;font-size:17px;font-weight:800;font-family:inherit;box-shadow:0 5px 0 #0a2c4d;cursor:pointer}'
+  + '.aupd-card .aok:active{transform:translateY(3px);box-shadow:0 2px 0 #0a2c4d}'
+  + '@keyframes aupdDrop{from{transform:translate(-50%,-120%)}to{transform:translate(-50%,0)}}'
+  + '@keyframes aupdPop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}'
+  + '@keyframes aupdMove{to{background-position:28px 0}}'
+  + '@keyframes aupdFlip{0%,80%{transform:rotate(0)}100%{transform:rotate(180deg)}}'
+  + '@keyframes aupdTop{0%{transform:scaleY(1)}80%,100%{transform:scaleY(0)}}'
+  + '@keyframes aupdBot{0%{transform:scaleY(0)}80%,100%{transform:scaleY(1)}}'
+  + '@keyframes aupdStream{0%,78%{opacity:1}80%,100%{opacity:0}}';
+  var GLASS = '<svg class="aupd-glass" viewBox="0 0 22 30" aria-hidden="true">'
+    + '<rect x="2" y="1" width="18" height="2.5" rx="1.2" fill="#fde68a"/><rect x="2" y="26.5" width="18" height="2.5" rx="1.2" fill="#fde68a"/>'
+    + '<path d="M4 3.5h14c0 5-4 7.5-6 11.5 2 4 6 6.5 6 11.5H4c0-5 4-7.5 6-11.5-2-4-6-6.5-6-11.5z" fill="rgba(255,255,255,.18)" stroke="#fff" stroke-width="1.3"/>'
+    + '<path class="sa" d="M6.5 6h9c-.6 2.6-2.8 4.4-4.5 7-1.7-2.6-3.9-4.4-4.5-7z" fill="#fbbf24"/>'
+    + '<rect class="st" x="10.4" y="13" width="1.2" height="10" fill="#fbbf24"/>'
+    + '<path class="sb" d="M5.6 25.5h10.8c-.4-2.4-2.6-4.3-5.4-5.6-2.8 1.3-5 3.2-5.4 5.6z" fill="#fbbf24"/></svg>';
+  function css(){ if(document.getElementById('aupdCss')) return; var s=document.createElement('style'); s.id='aupdCss'; s.textContent=CSS; document.head.appendChild(s); }
+  function el(id, cls, html){ var e=document.getElementById(id); if(!e){ e=document.createElement('div'); e.id=id; e.className=cls; if(html) e.innerHTML=html; document.body.appendChild(e); } return e; }
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var dir = L==='en' ? 'ltr' : 'rtl';
+  window.AppUpd = {
+    lang: L,
+    waiting: function(sub, passive){
+      css();
+      var sh = el('aupdShield','aupd-shield');
+      var w = el('aupdWait','aupd-wait', GLASS + '<div><div class="aw-t"></div><div class="aw-s"></div></div><div class="aw-bar"></div>');
+      w.setAttribute('dir', dir); w.setAttribute('role','status');
+      w.querySelector('.aw-t').textContent = T.wait;
+      w.querySelector('.aw-s').textContent = sub || T.waitSub;
+      sh.classList.add('show'); sh.classList.toggle('passive', !!passive); w.classList.add('show');
+    },
+    hideWaiting: function(){
+      var w=document.getElementById('aupdWait'), sh=document.getElementById('aupdShield');
+      if(w) w.classList.remove('show'); if(sh) sh.classList.remove('show','passive');
+    },
+    isWaiting: function(){ var w=document.getElementById('aupdWait'); return !!(w && w.classList.contains('show')); },
+    done: function(oldV, newV, note){
+      css(); this.hideWaiting();
+      var ov = el('aupdDone','aupd-ov');
+      ov.setAttribute('dir', dir);
+      ov.innerHTML = '<div class="aupd-card" role="dialog" aria-modal="true">'
+        + '<div class="ah">✅ ' + esc(T.done) + '</div><div class="ab">'
+        + (oldV ? '<div class="av o"><span>' + esc(T.oldV) + '</span><b>' + esc(oldV) + '</b></div><div class="aa">⬇</div>' : '')
+        + '<div class="av n"><span>' + esc(T.newV) + '</span><b>' + esc(newV) + '</b></div>'
+        + (note ? '<div class="anote">🛠️ ' + esc(note) + '</div>' : '')
+        + '</div><div class="af"><button type="button" class="aok">' + esc(T.ok) + '</button></div></div>';
+      ov.querySelector('.aok').onclick = function(){ ov.classList.remove('show'); };
+      ov.classList.add('show');
+    },
+    hideDone: function(){ var ov=document.getElementById('aupdDone'); if(ov) ov.classList.remove('show'); }
+  };
+})();
+</script>
 </head>
 <body>
 
@@ -552,6 +646,7 @@
 <div class="overlay" id="posterOverlay" onclick="if(event.target===this)closePoster()">
   <div class="modal">
     <div class="modal-head"><h2 id="posterTitle">حاضری پوسٹر</h2><button class="close" onclick="closePoster()">✕</button></div>
+    <div class="prev-wrap"><img class="poster-prev" id="posterImg" alt="پوسٹر"></div>
     <div id="themeCtl">
     <div class="theme-row" id="themeRow"></div>
     <div class="theme-name" id="themeName"></div>
@@ -574,8 +669,7 @@
       <button type="button" onclick="shiftNext(1)">+ ایک دن</button>
     </div>
     </div>
-    <img class="poster-prev" id="posterImg" alt="پوسٹر">
-    <div class="modal-actions">
+    <div class="modal-actions send-bar">
       <button class="btn-wa" id="waMainBtn" onclick="sendMain()">📤 پوسٹر واٹس ایپ پر بھیجیں</button>
     </div>
     <div class="hint" id="chatHint" style="text-align:center;margin-top:6px;display:none">چیٹ کھلنے پر لکھنے والی جگہ کو دبا کر رکھیں ← <b>Paste / چسپاں</b> — پوسٹر لگ جائے گا، پھر بھیجیں</div>
@@ -643,15 +737,38 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL2110WE011";
+const APP_VERSION="DDL2110WE012";
+const UPDATE_NOTE="پوسٹر پہلے یہیں دکھتا ہے — رنگ بدل کر نیچے والے بٹن سے بھیجیں؛ نیا یکساں اپڈیٹ کارڈ"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
+/* یکساں اپڈیٹ نظام (AIO، فروٹ/سبزی منڈی، مکتبہ وغیرہ جیسا): نیا ورژن اترے تو ریت گھڑی والا کارڈ،
+   ایپ تازہ ہو کر کھلے تو «اپڈیٹ مکمل»: پرانا ورژن → نیا ورژن + ایک لائن کہ کیا بدلا (UPDATE_NOTE) */
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      reg.addEventListener('updatefound',()=>{
+        if(navigator.serviceWorker.controller){ try{ if(!AppUpd.isWaiting()) AppUpd.waiting(); }catch(e){} }
+      });
+      setInterval(()=>{ reg.update().catch(()=>{}); }, 60*1000);
+    }).catch(()=>{});
+  });
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(refreshing) return; refreshing=true;
+    const busy=()=>{ const a=document.activeElement; return a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
+    const tryReload=()=>{ if(busy()){ setTimeout(tryReload,1500); return; } location.reload(); };
+    tryReload();
   });
 }
+(function(){
+  let old='';
+  try{ old=localStorage.getItem('ddlUpdSeenVer')||''; localStorage.setItem('ddlUpdSeenVer',APP_VERSION); }catch(e){}
+  if(old && old!==APP_VERSION){
+    const show=()=>{ try{ AppUpd.done(old,APP_VERSION,UPDATE_NOTE); }catch(e){} };
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',show); else show();
+  }
+})();
 
 /* ================= STATE ================= */
 let today=new Date();
@@ -1655,15 +1772,13 @@ async function openPoster(autoSend,msg){
   posterShift=0;
   renderGapRow();
   renderNextShow();
-  document.getElementById('waMainBtn').textContent = num ? ('💬 '+p.name+' کی چیٹ میں پوسٹر') : '📤 پوسٹر واٹس ایپ پر بھیجیں';
+  document.getElementById('waMainBtn').textContent = num ? ('📤 '+p.name+' کو بھیجیں') : '📤 پوسٹر واٹس ایپ پر بھیجیں';
   document.getElementById('chatHint').style.display = num ? '' : 'none';
   document.getElementById('shareBtn2').style.display = num ? '' : 'none';
   posterBlob=null;
-  // نمبر محفوظ ہے: اوکے دباتے ہی پوسٹر کاپی + اسی کی چیٹ (یہ انتظار کے بغیر ہونا ضروری ہے)
-  if(autoSend && num) openChatWithPoster(num);
+  // پوسٹر پہلے یہیں دکھے؛ رنگ/لکھائی بدل کر نیچے والے بٹن سے بھیجیں (خود سے واٹس ایپ نہیں کھلتا)
   openBox('posterOverlay');
   await refreshPoster();
-  if(autoSend && !num && posterBlob && canShareFile()) sendPoster(true);
 }
 
 /* ---- محفوظ نمبر کی اپنی چیٹ میں پوسٹر ----
