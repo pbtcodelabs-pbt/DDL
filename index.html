@@ -643,7 +643,7 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL2110WE010";
+const APP_VERSION="DDL2110WE011";
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1351,6 +1351,7 @@ async function buildPoster(){
 /* بغیر انتظار (sync) — بٹن دباتے ہی تصویر کلپ بورڈ میں ڈالنے کے لیے بھی */
 /* پیغام والا پوسٹر: «آج ضرور تشریف لائیں» یا «آج نہ آئیں» */
 let posterMsg=null;
+const MILK_IMG=new Image();
 function fitFont(ctx,txt,size,family,maxW){
   let s=size; ctx.font=s+'px '+family;
   while(ctx.measureText(txt).width>maxW && s>40){ s-=4; ctx.font=s+'px '+family; }
@@ -1453,14 +1454,21 @@ function drawMsgPoster(kind){
   ctx.fillStyle=mg; roundRect(ctx,M,y,cw,ph,44); ctx.fill();
   if(BD){ ctx.strokeStyle=BD; ctx.lineWidth=6; ctx.setLineDash([18,12]); roundRect(ctx,M+20,y+20,cw-40,ph-40,34); ctx.stroke(); ctx.setLineDash([]); }
   // لکھائی — سائز k سے بڑا/چھوٹا، چوڑائی سے باہر نہ جائے
-  const rows=[{t:come?'🥛':'🚫',sz:130,f:F_NUM,gap:150},{t:'برائے مہربانی',sz:54,f:F_UR,gap:120},{t:'آج دودھ دینے کے لیے',sz:66,f:F_UR,gap:120,pre:0}];
+  // «آئیں» میں گلاس کی جگہ موٹر سائیکل پر دودھ والے کی تصویر
+  const useImg=come && MILK_IMG.complete && MILK_IMG.naturalWidth>0;
+  // لکھائی کی جگہ نکال کر جتنی جگہ بچے، تصویر اتنی (تاکہ تاریخ پر نہ چڑھے)
+  const textH=(120+120+30+170)*k+40;
+  const imgH=useImg? Math.round(Math.max(260, Math.min(760, 640*k, ph-200-textH-80))) : 0;
+  const rows=useImg? [{img:1,gap:imgH+80}] : [{t:'🚫',sz:130,f:F_NUM,gap:150}];
+  rows.push({t:'برائے مہربانی',sz:54,f:F_UR,gap:120},{t:'آج دودھ دینے کے لیے',sz:66,f:F_UR,gap:120,pre:0});
   if(come) rows.push({t:'ضرور تشریف لائیں',sz:120,f:F_KSH,gap:170,pre:30});
   else rows.push({t:'نہ آئیں',sz:130,f:F_KSH,gap:150,pre:30},{line:1,gap:90},{t:'آج ہم گھر پر موجود نہیں ہیں',sz:54,f:F_UR,gap:110},{t:'جب واپس آئیں گے تو آپ کو بتا دیں گے',sz:46,f:F_UR,gap:60});
-  const totalH=rows.reduce((s,r)=>s+(r.pre||0)*k+r.gap*k,0);
-  let ty=y+Math.max(150,(ph-170-totalH)/2+120*k);
+  const totalH=rows.reduce((s,r)=>s+(r.pre||0)*k+(r.img?r.gap:r.gap*k),0);
+  let ty=y+Math.max(useImg?60:150,(ph-170-totalH)/2+(useImg?0:120*k));
   ctx.textAlign='center';
   rows.forEach(r=>{
     ty+=(r.pre||0)*k;
+    if(r.img){ const w=Math.round(imgH*MILK_IMG.naturalWidth/MILK_IMG.naturalHeight); ctx.drawImage(MILK_IMG,W2-w/2,ty,w,imgH); ty+=r.gap; return; }
     if(r.line){ ctx.globalAlpha=.4; ctx.fillStyle=TX; ctx.fillRect(M+80,ty-70*k,cw-160,3); ctx.globalAlpha=1; ty+=r.gap*k-90*k; return; }
     ctx.fillStyle=TX;
     if(r.f===F_NUM) ctx.font=Math.round(r.sz*k)+'px '+F_NUM; else fitFont(ctx,r.t,Math.round(r.sz*k),r.f,maxW);
@@ -1508,7 +1516,7 @@ function drawPoster(){
   ctx.fillStyle=hg; roundRect(ctx,M,y,cw,320,40); ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=3; roundRect(ctx,M+14,y+14,cw-28,292,30); ctx.stroke();
   ctx.textAlign='center'; ctx.fillStyle='#fff';
-  ctx.font=ur(38); ctx.fillText((p&&p.emoji?p.emoji+'  ':'')+'دودھ کا حساب', W/2, y+82);
+  ctx.font=ur(38); ctx.fillText('دودھ کا حساب', W/2, y+82);
   fitFont(ctx,p?p.name:'کھاتہ',100,F_KSH,cw-80); ctx.fillText(p?p.name:'کھاتہ', W/2, y+212);
   const ai=dateInfo(parseDk(D.anchor));
   drawParts(ctx,[{t:'تاریخ:',f:ur(34),c:'#fff',y:y+282},{t:String(ai.d),f:nm(34,true),c:'#fff',y:y+282},{t:ai.m,f:ur(34),c:'#fff',y:y+282},{t:String(ai.y),f:nm(32),c:'#fff',y:y+282}],W/2,'center');
@@ -1878,6 +1886,7 @@ migrateOldDairyIfNeeded();
 renderHome();
 autoRecover();
 posterFontsReady();
+MILK_IMG.src='images/milkman.webp';
 checkAutoBackups();
 setInterval(checkAutoBackups, 60000);
 </script>

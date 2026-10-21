@@ -1,10 +1,11 @@
-const CACHE_NAME = "khata-book-cache-DDL2110WE010";
+const CACHE_NAME = "khata-book-cache-DDL2110WE011";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./drive.js",
   "./manifest.json",
   "./icon.svg",
+  "./images/milkman.webp",
   "./fonts/JameelNooriNastaleeq.woff2",
   "./fonts/JameelNooriNastaleeqKasheeda.woff2"
 ];
