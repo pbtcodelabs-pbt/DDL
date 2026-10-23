@@ -309,6 +309,16 @@
   .prev-wrap{position:sticky;top:-20px;z-index:3;background:var(--panel);padding:4px 0 8px;margin:0 -4px;box-shadow:0 8px 12px -8px rgba(0,0,0,.5);}
   .prev-wrap .poster-prev{width:auto;max-width:100%;height:44vh;object-fit:contain;margin:0 auto;}
   .send-bar{position:sticky;bottom:-26px;background:var(--panel);padding:10px 0 12px;margin-bottom:-12px;z-index:2;box-shadow:0 -8px 12px -8px rgba(0,0,0,.5);}
+  .day-items{display:flex;flex-direction:column;gap:8px;margin:6px 0 10px;}
+  .day-item{display:flex;align-items:center;gap:8px;background:var(--bg-soft);border:1px solid var(--line);border-radius:12px;padding:8px 10px;}
+  .day-item .di-src{flex:none;padding:2px 10px;border-radius:999px;background:var(--navy);color:#fff;font-size:14px;}
+  .day-item .di-src.c{background:#7C3AED;}
+  .day-item .di-txt{flex:1;font-size:15px;min-width:0;}
+  .day-item .di-txt .n{color:#9FB6CF;font-size:13px;}
+  .day-item .di-amt{flex:none;color:#8CF0BA;font-weight:700;}
+  .day-item button{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;}
+  .add-more-btn{width:100%;padding:11px;border-radius:12px;border:1.5px dashed #5EC8E8;background:transparent;color:#5EC8E8;font-size:16px;cursor:pointer;}
+  .src-row .chip{font-size:17px;padding:6px 22px;}
   .btn-wa{flex:1;background:#25D366;color:#053d22;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;}
 
   #printArea{display:none;}
@@ -522,17 +532,20 @@
       <div class="view-summary">
         <div class="big" id="viewBig"></div>
         <div class="calc" id="viewCalc"></div>
-        <div class="note-txt" id="viewNote" style="display:none;"></div>
       </div>
+      <div id="viewItems" class="day-items"></div>
+      <button class="add-more-btn" onclick="addAnotherItem()">➕ اسی دن ایک اور اندراج</button>
       <div class="modal-actions">
-        <button class="btn-danger" onclick="deleteEntry()">🗑️ حذف</button>
-        <button class="btn-primary" onclick="switchToEdit()">✏️ ترمیم کریں</button>
+        <button class="btn-danger" onclick="deleteEntry()">🗑️ سارا دن حذف</button>
+        <button class="btn-secondary" onclick="closeDay()">ٹھیک ہے</button>
       </div>
     </div>
 
     <!-- edit mode -->
     <div id="dayEditBox" style="display:none;">
-      <div class="mode-tabs" id="modeTabs">
+      <div class="field-label">کس سے لیا؟</div>
+      <div class="chip-row src-row" id="srcChips"></div>
+      <div class="mode-tabs" id="modeTabs" style="margin-top:10px">
         <button type="button" onclick="setMode('qty')" id="modeTabQty">مقدار × ریٹ</button>
         <button type="button" onclick="setMode('amount')" id="modeTabAmount">صرف رقم</button>
         <button type="button" onclick="setMode('note')" id="modeTabNote">📝 نوٹ</button>
@@ -563,7 +576,7 @@
         <input type="number" id="noteAmountInput" placeholder="اگر رقم بھی جوڑنی ہو تو لکھیں">
       </div>
 
-      <div class="summary-box"><span>کل رقم (آج)</span><b id="dayTotal">0</b></div>
+      <div class="summary-box"><span>اس اندراج کی رقم</span><b id="dayTotal">0</b></div>
       <div class="summary-box"><span>ماہانہ کل (اب تک)</span><b id="dayMonthTotal">0</b></div>
 
       <div class="modal-actions">
@@ -737,8 +750,8 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL2110WE012";
-const UPDATE_NOTE="پوسٹر پہلے یہیں دکھتا ہے — رنگ بدل کر نیچے والے بٹن سے بھیجیں؛ نیا یکساں اپڈیٹ کارڈ"; // ہر ورژن پر ایک لائن کہ کیا بدلا
+const APP_VERSION="DDL2310FR013";
+const UPDATE_NOTE="ایک دن میں کئی اندراج — ہر اندراج کے ساتھ «زمان» یا «چلر» چنیں"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1117,8 +1130,9 @@ function render(){
       if(entry.mode==='note' && !entry.total){ cls+=' note-only'; sub='📝'; }
       else{
         cls+=' has-entry';
-        if(entry.mode==='qty') sub=entry.qty+(entry.unitAbbrev||'');
+        if(entry.qty!=null && (entry.mode==='qty'||entry.mode==='multi')) sub=entry.qty+(entry.unitAbbrev||'');
         else sub='₨'+fmt(entry.total);
+        const n=dayItems(entry).length; if(n>1) sub+=' •'+n;
       }
     }
     if(isToday) cls+=' today';
@@ -1146,6 +1160,63 @@ function buildPriceSelect(selectedPrice){
     + `<option value="other">دیگر (خود لکھیں)</option>`;
 }
 
+/* ---- ایک دن میں کئی اندراج (DDL2310FR013): زمان سے بھی، چلر سے بھی ----
+   دن کا ریکارڈ: {items:[{mode,qty,price,total,src,note…}], total} — پرانا ایک اندراج والا بھی ویسے ہی چلتا ہے */
+const SOURCES=['زمان','چلر'];
+let editingIdx=null, editSrc=SOURCES[0];
+function dayItems(e){ return !e ? [] : (Array.isArray(e.items) ? e.items : [e]); }
+function buildDay(items){
+  items=items.map(it=>{ const c={...it}; delete c.items; return c; });
+  if(!items.length) return null;
+  const total=items.reduce((s,i)=>s+(i.total||0),0);
+  if(items.length===1) return {...items[0], items, total};
+  const allQty=items.every(i=>i.mode==='qty');
+  const day={mode:'multi', items, total};
+  if(allQty){ day.qty=Math.round(items.reduce((s,i)=>s+(i.qty||0),0)*100)/100; day.unitAbbrev=items[0].unitAbbrev||''; }
+  return day;
+}
+function itemText(it,p){
+  if(it.mode==='qty') return it.qty+' '+(p?p.unit:'')+' × '+fmt(it.price)+' = '+fmt(it.total);
+  if(it.mode==='amount') return 'رقم '+fmt(it.total);
+  return (it.note||'نوٹ')+(it.total?' — '+fmt(it.total):'');
+}
+function renderSrcChips(){
+  document.getElementById('srcChips').innerHTML=SOURCES.map(x=>
+    `<button type="button" class="chip${x===editSrc?' active':''}" onclick="pickSrc('${x}')">${x}</button>`).join('');
+}
+function pickSrc(x){ editSrc=x; renderSrcChips(); }
+function addAnotherItem(){
+  const p=getPerson(currentPersonId);
+  editingIdx=null;
+  editState={qty:1, price:(p?p.rate:0)||0, amount:0, note:'', noteAmount:0};
+  currentMode=(p && p.unit==='رقم') ? 'amount' : 'qty';
+  // دوسرا اندراج عموماً دوسری جگہ سے — اگلا ذریعہ خود چن لیں
+  const used=dayItems(loadPMonth(currentPersonId,viewYear,viewMonth).entries[dk(viewYear,viewMonth,selectedDay)]).map(i=>i.src);
+  editSrc=SOURCES.find(x=>!used.includes(x))||SOURCES[0];
+  showDayEdit(p);
+}
+function editItem(idx){
+  const p=getPerson(currentPersonId);
+  const it=dayItems(loadPMonth(currentPersonId,viewYear,viewMonth).entries[dk(viewYear,viewMonth,selectedDay)])[idx];
+  if(!it) return;
+  editingIdx=idx; editSrc=it.src||SOURCES[0];
+  editState={qty:it.qty||1, price:it.price||(p?p.rate:0)||0, amount:it.amount||it.total||0, note:it.note||'', noteAmount:it.mode==='note'?(it.total||0):0};
+  currentMode=it.mode||'qty';
+  showDayEdit(p);
+}
+function removeItem(idx){
+  if(!confirm('یہ اندراج حذف کر دیں؟')) return;
+  const current=loadPMonth(currentPersonId,viewYear,viewMonth);
+  const k=dk(viewYear,viewMonth,selectedDay);
+  const items=dayItems(current.entries[k]).slice(); items.splice(idx,1);
+  const day=buildDay(items);
+  if(day) current.entries[k]=day; else delete current.entries[k];
+  savePMonth(currentPersonId,viewYear,viewMonth,current);
+  render();
+  if(day) showDayView(day,getPerson(currentPersonId)); else closeDay();
+  toast('حذف ہو گیا');
+}
+
 function openDay(d){
   selectedDay=d;
   const p=getPerson(currentPersonId);
@@ -1157,17 +1228,13 @@ function openDay(d){
   document.getElementById('dayDateSub').textContent=k;
   document.getElementById('dayModalTitle').textContent=p? p.name : 'اندراج';
 
+  editingIdx=null;
   if(entry){
-    editState = {
-      qty: entry.qty||1, price: entry.price|| (p?p.rate:0)||0,
-      amount: entry.amount||entry.total||0,
-      note: entry.note||'', noteAmount: entry.mode==='note'? (entry.total||0):0
-    };
-    currentMode = entry.mode || 'qty';
     showDayView(entry, p);
   } else {
     editState = {qty:1, price:(p?p.rate:0)||0, amount:0, note:'', noteAmount:0};
     currentMode = (p && p.unit==='رقم') ? 'amount' : 'qty';
+    editSrc=SOURCES[0];
     showDayEdit(p);
   }
   document.getElementById('dayOverlay').classList.add('show');
@@ -1176,24 +1243,23 @@ function openDay(d){
 function showDayView(entry, p){
   document.getElementById('dayViewBox').style.display='block';
   document.getElementById('dayEditBox').style.display='none';
+  const items=dayItems(entry);
   document.getElementById('viewBig').textContent = fmt(entry.total)+' روپے';
-  const noteEl=document.getElementById('viewNote');
-  if(entry.mode==='qty'){
-    document.getElementById('viewCalc').textContent = entry.qty+' '+(p?p.unit:'') +' × '+entry.price+' = '+fmt(entry.total);
-    noteEl.style.display='none';
-  } else if(entry.mode==='amount'){
-    document.getElementById('viewCalc').textContent = 'براہ راست رقم درج کی گئی';
-    noteEl.style.display='none';
-  } else {
-    document.getElementById('viewCalc').textContent = entry.total? 'رقم کے ساتھ نوٹ' : 'صرف نوٹ';
-    if(entry.note){ noteEl.textContent=entry.note; noteEl.style.display='block'; } else { noteEl.style.display='none'; }
-  }
+  const allQty=items.every(i=>i.mode==='qty');
+  document.getElementById('viewCalc').textContent = items.length>1
+    ? ('آج کے '+items.length+' اندراج'+(allQty?' — کل '+(Math.round(items.reduce((s,i)=>s+i.qty,0)*100)/100)+' '+(p?p.unit:''):''))
+    : 'آج کا اندراج';
+  document.getElementById('viewItems').innerHTML=items.map((it,i)=>
+    `<div class="day-item"><span class="di-src${it.src==='چلر'?' c':''}">${escapeHtml(it.src||'—')}</span>`
+    +`<span class="di-txt">${escapeHtml(itemText(it,p))}</span>`
+    +`<button type="button" title="ترمیم" onclick="editItem(${i})">✏️</button><button type="button" title="حذف" onclick="removeItem(${i})">🗑️</button></div>`).join('');
 }
 
 function showDayEdit(p){
   document.getElementById('dayViewBox').style.display='none';
   document.getElementById('dayEditBox').style.display='block';
   document.getElementById('cancelEditBtn').style.display = dayHasEntry ? 'block':'none';
+  renderSrcChips();
   setMode(currentMode, true);
 }
 
@@ -1306,6 +1372,7 @@ function saveEntry(){
     if(!note && noteAmount<=0){ toast('نوٹ یا رقم لکھیں'); return; }
     entry={mode:'note',note,total:noteAmount};
   }
+  entry.src=editSrc;
   if(!entry.total){ commitEntry(entry); toast('نوٹ محفوظ ہو گیا'); return; }
   showConfirm(entry,p);
 }
@@ -1320,16 +1387,23 @@ function showConfirm(entry,p){
   if(entry.mode==='qty') calc=`<span class="num">${entry.qty}</span>&nbsp; ${p?p.unit:''} &nbsp;×&nbsp; <span class="num">${fmt(entry.price)}</span>&nbsp; روپے`;
   else if(entry.mode==='amount') calc='براہ راست رقم';
   else calc='نوٹ: '+escapeHtml(entry.note||'');
+  calc='<span class="di-src'+(entry.src==='چلر'?' c':'')+'" style="padding:2px 12px;border-radius:999px;background:'+(entry.src==='چلر'?'#7C3AED':'#2E7FA8')+';color:#fff">'+escapeHtml(entry.src||'')+' سے</span>&nbsp; '+calc;
   document.getElementById('cfCalc').innerHTML=calc;
   document.getElementById('cfAmt').textContent='= '+fmt(entry.total)+' روپے';
-  document.getElementById('cfQ').textContent='یہ '+fmt(entry.total)+' روپے کھاتے میں جمع کر دوں؟';
+  // اسی دن پہلے سے اندراج ہوں تو دن کا نیا کل بھی بتائیں
+  const others=dayItems(loadPMonth(currentPersonId,viewYear,viewMonth).entries[dk(viewYear,viewMonth,selectedDay)]).filter((_,i)=>i!==editingIdx);
+  const before=others.reduce((s,i)=>s+(i.total||0),0);
+  document.getElementById('cfQ').textContent='یہ '+fmt(entry.total)+' روپے کھاتے میں جمع کر دوں؟'+(others.length?(' (آج پہلے سے '+fmt(before)+' — دن کا کل '+fmt(before+entry.total)+')'):'');
   openBox('confirmOverlay');
 }
 function closeConfirm(){ closeBox('confirmOverlay'); pendingEntry=null; }
 function commitEntry(entry){
   const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   const k=dk(viewYear,viewMonth,selectedDay);
-  current.entries[k]=entry;
+  const items=dayItems(current.entries[k]).slice();
+  if(editingIdx!=null && items[editingIdx]) items[editingIdx]=entry; else items.push(entry);
+  editingIdx=null;
+  current.entries[k]=buildDay(items);
   savePMonth(currentPersonId,viewYear,viewMonth,current);
   closeDay();
   render();
@@ -1341,7 +1415,8 @@ function confirmSave(){
   const day=selectedDay;
   commitEntry(entry);
   toast('✅ '+fmt(entry.total)+' روپے جمع ہو گئے');
-  posterHighlight={type:'entry',day,total:entry.total};
+  const dayTot=(loadPMonth(currentPersonId,viewYear,viewMonth).entries[dk(viewYear,viewMonth,day)]||{}).total||entry.total;
+  posterHighlight={type:'entry',day,total:dayTot};
   openPoster(true);
 }
 
@@ -1455,6 +1530,20 @@ function posterData(){
 }
 function entryDetail(e,p){
   if(!e) return [];
+  const its=dayItems(e);
+  if(its.length>1){
+    const sm=its.length>2;
+    const parts=[];
+    its.forEach((it,i)=>{
+      if(i) parts.push({t:'+',f:nm(sm?34:40)});
+      parts.push({t:it.src||'',f:ur(sm?30:34)});
+      parts.push({t:it.mode==='qty'?String(it.qty):fmt(it.total),f:nm(sm?36:44,true)});
+    });
+    if(e.mode==='multi' && e.qty!=null) parts.push({t:(p?p.unit:''),f:ur(sm?32:38)});
+    parts.push({t:'=',f:nm(40)},{t:fmt(e.total),f:nm(46,true)});
+    return parts;
+  }
+  if(e.src) return [{t:e.src+' سے',f:ur(32)}].concat(entryDetail({...e,src:null,items:null},p));
   if(e.mode==='qty') return [{t:String(e.qty),f:nm(46,true)},{t:(p?p.unit:''),f:ur(40)},{t:'×',f:nm(40)},{t:fmt(e.price),f:nm(46,true)},{t:'=',f:nm(40)},{t:fmt(e.total),f:nm(46,true)}];
   if(e.mode==='note') return [{t:(e.note||'نوٹ').slice(0,24),f:ur(38)},{t:fmt(e.total),f:nm(46,true)}];
   return [{t:'رقم',f:ur(40)},{t:fmt(e.total),f:nm(46,true)}];
@@ -1862,10 +1951,11 @@ function doPrint(){
   const g=personGrandTotals(currentPersonId);
   let rows='';
   Object.keys(current.entries||{}).sort().forEach(k=>{
-    const e=current.entries[k];
-    const mid = e.mode==='qty' ? e.qty : (e.mode==='note' ? (e.note||'نوٹ') : '—');
-    const rate = e.mode==='qty' ? e.price : '—';
-    rows+=`<tr><td>${k}</td><td>${mid}</td><td>${rate}</td><td>${fmt(e.total)}</td></tr>`;
+    dayItems(current.entries[k]).forEach((e,i)=>{
+      const mid = (e.src?e.src+': ':'')+(e.mode==='qty' ? e.qty : (e.mode==='note' ? (e.note||'نوٹ') : '—'));
+      const rate = e.mode==='qty' ? e.price : '—';
+      rows+=`<tr><td>${i?'':k}</td><td>${mid}</td><td>${rate}</td><td>${fmt(e.total)}</td></tr>`;
+    });
   });
   document.getElementById('printArea').innerHTML=`
     <div class="poster">
