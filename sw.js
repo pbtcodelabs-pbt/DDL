@@ -1,4 +1,4 @@
-const CACHE_NAME = "khata-book-cache-DDL2110WE012";
+const CACHE_NAME = "khata-book-cache-DDL2310FR013";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
