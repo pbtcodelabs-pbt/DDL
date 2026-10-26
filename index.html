@@ -750,8 +750,8 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL2610MO014";
-const UPDATE_NOTE="آئیں / نہ آئیں پوسٹر میں ابھری پٹی: «پیغام دیکھ کر اوکے ضرور لکھ دیں»"; // ہر ورژن پر ایک لائن کہ کیا بدلا
+const APP_VERSION="DDL2610MO015";
+const UPDATE_NOTE="آئیں / نہ آئیں پوسٹر: «آج» کے ساتھ بڑی موٹی تاریخ اور دن، نیچے والی چھوٹی تاریخ ختم"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1660,7 +1660,7 @@ function drawMsgPoster(kind){
   const PN=(MSG_PANELS.find(x=>x.id===S.panel)||MSG_PANELS[0]).c;
   const TX=(MSG_TEXTS.find(x=>x.id===S.text)||MSG_TEXTS[0]).c;
   const BD=(MSG_BORDERS.find(x=>x.id===S.border)||MSG_BORDERS[0]).c;
-  const k=S.scale||1, p=getPerson(currentPersonId);
+  let k=S.scale||1; const p=getPerson(currentPersonId);
   const W=1080, H=1920, M=48, cw=W-2*M, maxW=cw-100;
   const c=document.createElement('canvas'); c.width=W; c.height=H;
   const ctx=c.getContext('2d'); ctx.direction='rtl'; ctx.textBaseline='alphabetic';
@@ -1689,31 +1689,41 @@ function drawMsgPoster(kind){
   if(BD){ ctx.strokeStyle=BD; ctx.lineWidth=6; ctx.setLineDash([18,12]); roundRect(ctx,M+20,y+20,cw-40,ph-40,34); ctx.stroke(); ctx.setLineDash([]); }
   // لکھائی — سائز k سے بڑا/چھوٹا، چوڑائی سے باہر نہ جائے
   // نیچے «اوکے ضرور لکھیں» والی ابھری ہوئی پٹی کی جگہ (تاریخ سے اوپر)
-  const OKB=240, okTop=y+ph-150-OKB, avail=okTop-y-30;
+  const OKB=240, okTop=y+ph-60-OKB, avail=okTop-y-30;
   // «آئیں» میں گلاس کی جگہ موٹر سائیکل پر دودھ والے کی تصویر
   const useImg=come && MILK_IMG.complete && MILK_IMG.naturalWidth>0;
-  // لکھائی کی جگہ نکال کر جتنی جگہ بچے، تصویر اتنی (تاکہ تاریخ پر نہ چڑھے)
-  const textH=(120+120+30+170)*k+40;
-  const imgH=useImg? Math.round(Math.max(260, Math.min(760, 640*k, avail-30-textH-80))) : 0;
-  const rows=useImg? [{img:1,gap:imgH+80}] : [{t:'🚫',sz:130,f:F_NUM,gap:150}];
-  rows.push({t:'برائے مہربانی',sz:54,f:F_UR,gap:120},{t:'آج دودھ دینے کے لیے',sz:66,f:F_UR,gap:120,pre:0});
-  if(come) rows.push({t:'ضرور تشریف لائیں',sz:120,f:F_KSH,gap:170,pre:30});
-  else rows.push({t:'نہ آئیں',sz:130,f:F_KSH,gap:150,pre:30},{line:1,gap:90},{t:'آج ہم گھر پر موجود نہیں ہیں',sz:54,f:F_UR,gap:110},{t:'جب واپس آئیں گے تو آپ کو بتا دیں گے',sz:46,f:F_UR,gap:60});
-  const totalH=rows.reduce((s,r)=>s+(r.pre||0)*k+(r.img?r.gap:r.gap*k),0);
+  // جگہ کم پڑے تو لکھائی (k) خود چھوٹی — کچھ بھی «اوکے» والی پٹی کے پیچھے نہ چھپے
+  let imgH=0, rows=[], totalH=0;
+  function layout(){
+    const textH=(120+230+120+30+170)*k+40;
+    imgH=useImg? Math.round(Math.max(220, Math.min(760, 640*k, avail-30-textH-80))) : 0;
+    rows=useImg? [{img:1,gap:imgH+80}] : [{t:'🚫',sz:130,f:F_NUM,gap:150}];
+    // «آج» کے ساتھ بڑی موٹی تاریخ اور دن، پھر «دودھ دینے کے لیے …» (نیچے والی چھوٹی تاریخ ختم)
+    rows.push({t:'برائے مہربانی',sz:54,f:F_UR,gap:120},{date:1,gap:230},{t:'دودھ دینے کے لیے',sz:66,f:F_UR,gap:120,pre:0});
+    if(come) rows.push({t:'ضرور تشریف لائیں',sz:120,f:F_KSH,gap:150,pre:30});
+    else rows.push({t:'نہ آئیں',sz:130,f:F_KSH,gap:150,pre:30},{line:1,gap:90},{t:'آج ہم گھر پر موجود نہیں ہیں',sz:54,f:F_UR,gap:110},{t:'جب واپس آئیں گے تو آپ کو بتا دیں گے',sz:46,f:F_UR,gap:40});
+    totalH=rows.reduce((s,r)=>s+(r.pre||0)*k+(r.img?r.gap:r.gap*k),0);
+    return (useImg?60:40+120*k)+totalH;
+  }
+  while(layout()>avail && k>0.45) k=Math.round((k-0.05)*100)/100;
   let ty=y+Math.max(useImg?60:150,(avail-totalH)/2+(useImg?0:120*k));
   ctx.textAlign='center';
   rows.forEach(r=>{
     ty+=(r.pre||0)*k;
     if(r.img){ const w=Math.round(imgH*MILK_IMG.naturalWidth/MILK_IMG.naturalHeight); ctx.drawImage(MILK_IMG,W2-w/2,ty,w,imgH); ty+=r.gap; return; }
+    if(r.date){
+      const di=dateInfo(new Date());
+      drawParts(ctx,[{t:'آج',f:ur(Math.round(64*k)),c:TX,y:ty},{t:'، بروز '+di.dow,f:ur(Math.round(64*k)),c:TX,y:ty}],W2,'center');
+      const y2=ty+Math.round(115*k);
+      drawParts(ctx,[{t:String(di.d),f:nm(Math.round(104*k),true),c:TX,y:y2},{t:di.m,f:ur(Math.round(84*k)),c:TX,y:y2},{t:String(di.y),f:nm(Math.round(80*k),true),c:TX,y:y2}],W2,'center');
+      ctx.textAlign='center'; ty+=r.gap*k; return;
+    }
     if(r.line){ ctx.globalAlpha=.4; ctx.fillStyle=TX; ctx.fillRect(M+80,ty-70*k,cw-160,3); ctx.globalAlpha=1; ty+=r.gap*k-90*k; return; }
     ctx.fillStyle=TX;
     if(r.f===F_NUM) ctx.font=Math.round(r.sz*k)+'px '+F_NUM; else fitFont(ctx,r.t,Math.round(r.sz*k),r.f,maxW);
     ctx.fillText(r.t,W2,ty); ty+=r.gap*k;
   });
   drawOkBadge(ctx,M+40,okTop,cw-80,OKB,S.panel);
-  // آج کی تاریخ
-  const i=dateInfo(new Date()), dy=y+ph-80;
-  drawParts(ctx,[{t:'آج:',f:ur(42),c:TX,y:dy},{t:String(i.d),f:nm(46,true),c:TX,y:dy},{t:i.m,f:ur(42),c:TX,y:dy},{t:String(i.y),f:nm(40,true),c:TX,y:dy},{t:'، بروز '+i.dow,f:ur(42),c:TX,y:dy}],W2,'center');
   drawParts(ctx,[{t:'شکریہ — کھاتہ بک',f:ur(32),c:'rgba(255,255,255,.9)',y:H-50}],W2,'center');
   posterName='khata-'+(come?'aaj-aayen':'aaj-na-aayen')+'-'+todayStr()+'.png';
   return c;
