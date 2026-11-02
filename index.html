@@ -456,6 +456,7 @@
         <h1>میرے کھاتے 📒</h1>
       </div>
       <div class="header-actions">
+        <button class="icon-btn" onclick="openHelpDesk()" title="PBT Help Desk">🆘</button>
         <button class="icon-btn dchip warn" id="driveChip" onclick="openSettings()" title="گوگل ڈرائیو">⚠️</button>
         <button class="icon-btn" onclick="openSettings()" title="بیک اپ">⚙️</button>
       </div>
@@ -750,8 +751,8 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL0211MO016";
-const UPDATE_NOTE="نیا SOS بٹن (کنارے پر): PBT Help Desk میں مسئلہ یا مشورہ تصویر اور آواز کے ساتھ بھیجیں، جواب ایپ ہی میں آئے گا"; // ہر ورژن پر ایک لائن کہ کیا بدلا
+const APP_VERSION="DDL0211MO017";
+const UPDATE_NOTE="SOS بٹن اب ایپ کی اپنی پٹی میں (درمیان والا ہٹا دیا)"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -2138,6 +2139,6 @@ setInterval(checkAutoBackups, 60000);
 </script>
 <script src="drive.js"></script>
 
-<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="DDL" data-ver="DDL0211MO016" data-float="1" defer></script> <!-- 🆘 DDL0211MO016: PBT Help Desk -->
+<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="DDL" data-ver="DDL0211MO017" defer></script> <!-- 🆘 DDL0211MO017: PBT Help Desk -->
 </body>
 </html>
