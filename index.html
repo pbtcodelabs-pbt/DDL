@@ -319,6 +319,13 @@
   .day-item button{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;}
   .add-more-btn{width:100%;padding:11px;border-radius:12px;border:1.5px dashed #5EC8E8;background:transparent;color:#5EC8E8;font-size:16px;cursor:pointer;}
   .src-row .chip{font-size:17px;padding:6px 22px;}
+  .pay-due{background:rgba(255,107,107,.12);border:1px solid #5a2020;border-radius:12px;padding:10px 12px;font-size:16px;text-align:center;}
+  .pay-due b{color:#FF8A8A;font-size:20px;}
+  .shot-pick{display:block;text-align:center;padding:12px;border:1.5px dashed #5EC8E8;border-radius:12px;color:#5EC8E8;font-size:16px;cursor:pointer;}
+  .shot-pick input{display:none;}
+  .shot-prev{display:flex;align-items:center;gap:10px;margin-top:8px;}
+  .shot-prev img{max-height:120px;max-width:60%;border-radius:10px;border:2px solid #fff;}
+  .shot-prev button{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg-soft);color:var(--ink);cursor:pointer;}
   .btn-wa{flex:1;background:#25D366;color:#053d22;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;}
 
   #printArea{display:none;}
@@ -635,9 +642,19 @@
 <div class="overlay" id="payOverlay" onclick="if(event.target===this)closePayment()">
   <div class="modal">
     <div class="modal-head"><h2>ادائیگی درج کریں</h2><button class="close" onclick="closePayment()">✕</button></div>
-    <div class="date-sub">کل بقایہ: <b id="payDueLabel"></b></div>
-    <input type="number" id="payAmount" placeholder="رقم لکھیں">
-    <div class="modal-actions"><button class="btn-primary" onclick="addPayment()">جمع کریں</button></div>
+    <div class="pay-due">آپ کی طرف کل بقایہ: <b id="payDueLabel" class="num"></b> روپے</div>
+    <div class="field-label">کتنی ادائیگی کی؟</div>
+    <input type="number" id="payAmount" placeholder="رقم لکھیں" inputmode="decimal">
+    <button type="button" class="chip" style="margin-top:8px" onclick="payFull()">پورا بقایہ</button>
+    <div class="field-label">کس ذریعے سے؟</div>
+    <div class="chip-row src-row" id="payMethodChips"></div>
+    <div class="field-label">کس نمبر / اکاؤنٹ پر؟</div>
+    <input type="tel" id="payAcct" placeholder="مثلاً: 03005008242" style="direction:ltr;text-align:right">
+    <div class="field-label">اسکرین شاٹ (اختیاری)</div>
+    <label class="shot-pick"><input type="file" id="payShot" accept="image/*" onchange="pickShot(this)">📷 اسکرین شاٹ لگائیں</label>
+    <div id="shotPrev" class="shot-prev" style="display:none"><img id="shotImg" alt=""><button type="button" onclick="clearShot()">✕ ہٹائیں</button></div>
+    <div class="summary-box"><span>باقی بقایہ</span><b id="payLeft">0</b></div>
+    <div class="modal-actions"><button class="btn-primary" onclick="addPayment()">✅ جمع کریں اور پوسٹر بنائیں</button></div>
   </div>
 </div>
 
@@ -751,8 +768,8 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL0211MO017";
-const UPDATE_NOTE="SOS بٹن اب ایپ کی اپنی پٹی میں (درمیان والا ہٹا دیا)"; // ہر ورژن پر ایک لائن کہ کیا بدلا
+const APP_VERSION="DDL0311TU018";
+const UPDATE_NOTE="ادائیگی کا پوسٹر: کل بقایہ − ادائیگی (ایزی پیسہ وغیرہ + نمبر) = باقی، ساتھ اسکرین شاٹ"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1432,26 +1449,54 @@ function deleteEntry(){
 }
 
 /* ================= PAYMENTS ================= */
+const PAY_METHODS=['ایزی پیسہ','جیز کیش','نقد','بینک'];
+let payMethod=PAY_METHODS[0], payImg=null;
 function openPayment(){
-  const g=personGrandTotals(currentPersonId);
+  const p=getPerson(currentPersonId), g=personGrandTotals(currentPersonId);
   document.getElementById('payDueLabel').textContent=fmt(g.due);
   document.getElementById('payAmount').value='';
+  payMethod=(p&&p.payMethod)||PAY_METHODS[0];
+  document.getElementById('payAcct').value=(p&&(p.payAcct||p.phone))||'';
+  renderPayMethods(); clearShot(); updatePayLeft();
   document.getElementById('payOverlay').classList.add('show');
 }
 function closePayment(){ document.getElementById('payOverlay').classList.remove('show'); }
+function renderPayMethods(){
+  document.getElementById('payMethodChips').innerHTML=PAY_METHODS.map(x=>
+    `<button type="button" class="chip${x===payMethod?' active':''}" onclick="payMethod='${x}';renderPayMethods()">${x}</button>`).join('');
+}
+function payFull(){ document.getElementById('payAmount').value=Math.max(0,personGrandTotals(currentPersonId).due); updatePayLeft(); }
+function updatePayLeft(){
+  const due=personGrandTotals(currentPersonId).due, amt=parseFloat(document.getElementById('payAmount').value)||0;
+  const left=due-amt;
+  document.getElementById('payLeft').textContent=left<0?('پیشگی '+fmt(-left)):fmt(left);
+}
+document.addEventListener('input',e=>{ if(e.target.id==='payAmount') updatePayLeft(); });
+function pickShot(inp){
+  const f=inp.files&&inp.files[0]; if(!f) return;
+  const img=new Image();
+  img.onload=()=>{ payImg=img; document.getElementById('shotImg').src=img.src; document.getElementById('shotPrev').style.display='flex'; };
+  img.src=URL.createObjectURL(f);
+}
+function clearShot(){ payImg=null; document.getElementById('payShot').value=''; document.getElementById('shotPrev').style.display='none'; }
 function addPayment(){
   const amt=parseFloat(document.getElementById('payAmount').value);
   if(!amt||amt<=0){ toast('رقم درج کریں'); return; }
+  const acct=document.getElementById('payAcct').value.trim();
+  const before=personGrandTotals(currentPersonId).due;
+  const date=dk(viewYear,viewMonth,today.getDate());
   const current=loadPMonth(currentPersonId,viewYear,viewMonth);
   current.payments=current.payments||[];
-  current.payments.push({date:dk(viewYear,viewMonth,today.getDate()),amount:amt});
+  current.payments.push({date,amount:amt,method:payMethod,acct});
   savePMonth(currentPersonId,viewYear,viewMonth,current);
+  // اگلی بار کے لیے ذریعہ اور نمبر یاد رکھیں
+  const people=loadPeople(), i=people.findIndex(x=>x.id===currentPersonId);
+  if(i>-1){ people[i].payMethod=payMethod; people[i].payAcct=acct; savePeople(people); }
+  lastPay={amount:amt,before,after:before-amt,method:payMethod,acct,date,img:payImg};
   closePayment();
   render();
-  toast('ادائیگی درج ہو گئی');
-  /* DDL1910MO003: ادائیگی کے بعد بھی اسی کو پوسٹر — «آج وصول ہوئے X، باقی بقایہ Y» */
-  posterHighlight={type:'pay',day:today.getDate(),amount:amt};
-  openPoster(true);
+  toast('✅ ادائیگی درج ہو گئی');
+  openPoster(true,'pay');
 }
 
 /* ===== WhatsApp Poster (DDL1910MO006) — 9:16 (1080×1920)، صرف «سابقہ حاضری + آج کی حاضری = کل بقایہ» اور آئندہ حاضری کی درخواست ===== */
@@ -1598,7 +1643,7 @@ function msgStyle(kind){
   try{ s=JSON.parse(localStorage.getItem('ddlm_msgstyle_'+kind)||'{}')||{}; }catch(e){}
   return {
     bg: s.bg || posterTheme().id,
-    panel: s.panel || (kind==='come'?'green':'red'),
+    panel: s.panel || (kind==='come'?'green':kind==='pay'?'blue':'red'),
     text: s.text || 'white',
     border: s.border || 'white',
     scale: s.scale || 1
@@ -1655,7 +1700,61 @@ function drawOkBadge(ctx,x,y,w,h,panel){
   let t2='تاکہ ہمیں تسلی ہو جائے کہ آپ نے ہمارا پیغام پڑھ لیا ہے';
   fitFont(ctx,t2,38,F_UR,w-60); emb(t2,ctx.font,y+204);
 }
-function drawMsgPoster(kind){
+/* ===== ادائیگی کا پوسٹر (DDL0311TU018): پہلے کا کل بقایہ − آج کی ادائیگی (ذریعہ + نمبر) = باقی بقایہ، ساتھ اسکرین شاٹ ===== */
+let lastPay=null;   // {amount,before,after,method,acct,date,img}
+function drawPayPoster(){
+  let {S,c,ctx,TX,k,p,W,H,M,cw,maxW,W2,y,ph}=msgFrame('pay');
+  const P=lastPay||{amount:0,before:0,after:0,method:'',acct:''};
+  const OKB=240, okTop=y+ph-60-OKB;
+  const hasImg=P.img && P.img.naturalWidth>0;
+  ctx.textAlign='center'; ctx.fillStyle=TX;
+  let ty=y+(hasImg?120:170);
+  fitFont(ctx,'ادائیگی کی اطلاع',Math.round(96*k),F_KSH,maxW); ctx.fillText('ادائیگی کی اطلاع',W2,ty);
+  ty+=Math.round(80*k);
+  const di=dateInfo(parseDk(P.date||todayStr()));
+  drawParts(ctx,[{t:'آج، بروز '+di.dow,f:ur(Math.round(40*k)),c:TX,y:ty},{t:String(di.d),f:nm(Math.round(48*k),true),c:TX,y:ty},{t:di.m,f:ur(Math.round(42*k)),c:TX,y:ty},{t:String(di.y),f:nm(Math.round(40*k),true),c:TX,y:ty}],W2,'center');
+  ty+=Math.round(40*k);
+  // حساب والا خانہ
+  const bx=M+50, bw=cw-100, rowH=Math.round(92*k), bh=rowH*4+40;
+  ctx.save(); ctx.fillStyle='rgba(255,255,255,.16)'; roundRect(ctx,bx,ty,bw,bh,28); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=2; roundRect(ctx,bx,ty,bw,bh,28); ctx.stroke(); ctx.restore();
+  const xR=bx+bw-30, xL=bx+30;
+  let ry=ty+rowH-18;
+  function row(label,valParts,big){
+    drawParts(ctx,[{t:label,f:big?(Math.round(54*k)+'px '+F_KSH):ur(Math.round(40*k)),c:TX,y:ry}],xR,'right');
+    drawParts(ctx,valParts.map(v=>({...v,c:TX,y:ry})),xL,'left');
+    ry+=rowH;
+  }
+  row('آپ کا کل بقایہ تھا',[{t:fmt(P.before),f:nm(Math.round(46*k),true)},{t:'روپے',f:ur(Math.round(30*k))}]);
+  row('آج ہم نے ادا کیے',[{t:fmt(P.amount),f:nm(Math.round(56*k),true)},{t:'روپے',f:ur(Math.round(30*k))}]);
+  drawParts(ctx,[{t:'ذریعہ',f:ur(Math.round(40*k)),c:TX,y:ry}],xR,'right');
+  drawParts(ctx,[{t:P.method||'—',f:ur(Math.round(40*k)),c:TX,y:ry}].concat(P.acct?[{t:P.acct,f:nm(Math.round(36*k),true),c:TX,y:ry}]:[]),xL,'left');
+  ry+=rowH;
+  ctx.save(); ctx.globalAlpha=.5; ctx.fillStyle=TX; ctx.fillRect(xL,ry-rowH+14,xR-xL,3); ctx.restore();
+  const adv=P.after<0;
+  row(adv?'پیشگی (ایڈوانس)':'باقی بقایہ',[{t:fmt(Math.abs(P.after)),f:nm(Math.round(64*k),true)},{t:'روپے',f:ur(Math.round(32*k))}],true);
+  ctx.textAlign='center';
+  ty+=bh+30;
+  // اسکرین شاٹ
+  if(hasImg){
+    const availH=okTop-30-ty-50, availW=cw-140;
+    if(availH>120){
+      ctx.fillStyle=TX; ctx.font=ur(Math.round(34*k)); ctx.fillText('ادائیگی کا ثبوت (اسکرین شاٹ)',W2,ty+30);
+      const r=Math.min(availW/P.img.naturalWidth, availH/P.img.naturalHeight);
+      const iw=P.img.naturalWidth*r, ih=P.img.naturalHeight*r, ix=W2-iw/2, iy=ty+50;
+      ctx.save(); ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=20; ctx.shadowOffsetY=8;
+      ctx.fillStyle='#fff'; roundRect(ctx,ix-10,iy-10,iw+20,ih+20,16); ctx.fill(); ctx.restore();
+      ctx.drawImage(P.img,ix,iy,iw,ih);
+    }
+  }
+  drawOkBadge(ctx,M+40,okTop,cw-80,OKB,S.panel);
+  drawParts(ctx,[{t:'شکریہ — کھاتہ بک',f:ur(32),c:'rgba(255,255,255,.9)',y:H-50}],W2,'center');
+  posterName='khata-adaigi-'+(P.date||todayStr())+'.png';
+  return c;
+}
+
+/* پیغام والے پوسٹروں کا مشترکہ ڈھانچہ: پس منظر، «محترم … صاحب» سرخی، درمیان والا رنگین پوسٹر */
+function msgFrame(kind){
   const S=msgStyle(kind);
   const T=POSTER_THEMES.find(t=>t.id===S.bg)||POSTER_THEMES[0];
   const PN=(MSG_PANELS.find(x=>x.id===S.panel)||MSG_PANELS[0]).c;
@@ -1683,11 +1782,15 @@ function drawMsgPoster(kind){
   fitFont(ctx,nm1,Math.round(104*Math.min(k,1.2)),F_KSH,cw-80); ctx.fillText(nm1, W2, y+235);
   y+=330+40;
   // درمیان والا پوسٹر
-  const come=kind==='come';
   const ph=H-140-y;
   const mg=ctx.createLinearGradient(0,y,0,y+ph); mg.addColorStop(0,PN[0]); mg.addColorStop(1,PN[1]);
   ctx.fillStyle=mg; roundRect(ctx,M,y,cw,ph,44); ctx.fill();
   if(BD){ ctx.strokeStyle=BD; ctx.lineWidth=6; ctx.setLineDash([18,12]); roundRect(ctx,M+20,y+20,cw-40,ph-40,34); ctx.stroke(); ctx.setLineDash([]); }
+  return {S,c,ctx,TX,k,p,W,H,M,cw,maxW,W2,y,ph};
+}
+function drawMsgPoster(kind){
+  let {S,c,ctx,TX,k,p,W,H,M,cw,maxW,W2,y,ph}=msgFrame(kind);
+  const come=kind==='come';
   // لکھائی — سائز k سے بڑا/چھوٹا، چوڑائی سے باہر نہ جائے
   // نیچے «اوکے ضرور لکھیں» والی ابھری ہوئی پٹی کی جگہ (تاریخ سے اوپر)
   const OKB=240, okTop=y+ph-60-OKB, avail=okTop-y-30;
@@ -1730,6 +1833,7 @@ function drawMsgPoster(kind){
   return c;
 }
 function drawPoster(){
+  if(posterMsg==='pay') return drawPayPoster();
   if(posterMsg) return drawMsgPoster(posterMsg);
   const T=posterTheme(), D=posterData(), p=D.p;
   const W=1080, H=1920, M=48, cw=W-2*M, xR=W-M-40, xL=M+40;
@@ -1896,7 +2000,7 @@ async function openPoster(autoSend,msg){
   document.getElementById('themeCtl').style.display = posterMsg ? 'none' : '';
   document.getElementById('msgCtl').style.display = posterMsg ? '' : 'none';
   renderMsgCtl();
-  document.getElementById('posterTitle').textContent = posterMsg==='come' ? 'آج تشریف لائیں' : posterMsg==='no' ? 'آج نہ آئیں' : 'حاضری پوسٹر';
+  document.getElementById('posterTitle').textContent = posterMsg==='come' ? 'آج تشریف لائیں' : posterMsg==='no' ? 'آج نہ آئیں' : posterMsg==='pay' ? 'ادائیگی کی اطلاع' : 'حاضری پوسٹر';
   const p=getPerson(currentPersonId);
   const num=waNumber(p&&p.phone);
   renderThemeRow();
