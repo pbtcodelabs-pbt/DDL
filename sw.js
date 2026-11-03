@@ -30,6 +30,8 @@ self.addEventListener("activate", (event) => {
 
 // صرف اپنی فائلیں (اسی ویب سائٹ کی GET) — گوگل ڈرائیو وغیرہ کی درخواستیں سیدھی جائیں
 self.addEventListener("fetch", (event) => {
+  /* ہیلپ ڈیسک (#33): pbtcodelabs-pbt.github.io/help/ کی فائلیں (widget.js) کبھی کیش نہیں — ہر ایپ میں نیا بٹن فوراً */
+  try { const _hd = new URL(event.request.url); if (_hd.hostname === 'pbtcodelabs-pbt.github.io' && _hd.pathname.startsWith('/help/')) return; } catch (_e) {}
   const req = event.request;
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
   const isFont = req.url.includes("/fonts/");
