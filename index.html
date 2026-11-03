@@ -768,8 +768,8 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL0311TU019";
-const UPDATE_NOTE="ادائیگی پوسٹر: اسکرین شاٹ ہو تو «ثبوت» لکھائی اور نمبر والی لائن ہٹا دی، تصویر بڑی"; // ہر ورژن پر ایک لائن کہ کیا بدلا
+const APP_VERSION="DDL0311TU020";
+const UPDATE_NOTE="ادائیگی پوسٹر سے ذریعہ اور موبائل نمبر والی لائن ہمیشہ کے لیے ہٹا دی"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -1715,7 +1715,7 @@ function drawPayPoster(){
   drawParts(ctx,[{t:'آج، بروز '+di.dow,f:ur(Math.round(40*k)),c:TX,y:ty},{t:String(di.d),f:nm(Math.round(48*k),true),c:TX,y:ty},{t:di.m,f:ur(Math.round(42*k)),c:TX,y:ty},{t:String(di.y),f:nm(Math.round(40*k),true),c:TX,y:ty}],W2,'center');
   ty+=Math.round(40*k);
   // حساب والا خانہ
-  const bx=M+50, bw=cw-100, rowH=Math.round(92*k), bh=rowH*(hasImg?3:4)+40;
+  const bx=M+50, bw=cw-100, rowH=Math.round(92*k), bh=rowH*3+40;
   ctx.save(); ctx.fillStyle='rgba(255,255,255,.16)'; roundRect(ctx,bx,ty,bw,bh,28); ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=2; roundRect(ctx,bx,ty,bw,bh,28); ctx.stroke(); ctx.restore();
   const xR=bx+bw-30, xL=bx+30;
@@ -1727,12 +1727,7 @@ function drawPayPoster(){
   }
   row('آپ کا کل بقایہ تھا',[{t:fmt(P.before),f:nm(Math.round(46*k),true)},{t:'روپے',f:ur(Math.round(30*k))}]);
   row('آج ہم نے ادا کیے',[{t:fmt(P.amount),f:nm(Math.round(56*k),true)},{t:'روپے',f:ur(Math.round(30*k))}]);
-  // اسکرین شاٹ لگا ہو تو ذریعہ/نمبر والی لائن نہیں (ثبوت خود تصویر میں ہے)
-  if(!hasImg){
-    drawParts(ctx,[{t:'ذریعہ',f:ur(Math.round(40*k)),c:TX,y:ry}],xR,'right');
-    drawParts(ctx,[{t:P.method||'—',f:ur(Math.round(40*k)),c:TX,y:ry}].concat(P.acct?[{t:P.acct,f:nm(Math.round(36*k),true),c:TX,y:ry}]:[]),xL,'left');
-    ry+=rowH;
-  }
+  // ذریعہ/نمبر والی لائن پوسٹر میں نہیں (مالک کی ہدایت) — اسکرین شاٹ نیچے اپنی جگہ
   ctx.save(); ctx.globalAlpha=.5; ctx.fillStyle=TX; ctx.fillRect(xL,ry-rowH+14,xR-xL,3); ctx.restore();
   const adv=P.after<0;
   row(adv?'پیشگی (ایڈوانس)':'باقی بقایہ',[{t:fmt(Math.abs(P.after)),f:nm(Math.round(64*k),true)},{t:'روپے',f:ur(Math.round(32*k))}],true);
