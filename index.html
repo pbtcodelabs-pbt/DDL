@@ -463,7 +463,7 @@
         <h1>میرے کھاتے 📒</h1>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" onclick="openHelpDesk()" title="PBT Help Desk">🆘</button>
+        <button class="icon-btn" onclick="openHelpDesk()" title="PBT Help Desk"><span class="pbthd-sos" style="display:inline-flex;align-items:center;gap:4px;background:linear-gradient(#fde047,#facc15);color:#111;border-radius:999px;padding:2px 9px;font:800 12px/1.35 Arial,sans-serif;box-shadow:0 2px 0 #ca8a04;white-space:nowrap;vertical-align:middle;direction:ltr"><b style="background:#111;color:#facc15;border-radius:50%;width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;font-size:11px">?</b>Help Desk</span></button>
         <button class="icon-btn dchip warn" id="driveChip" onclick="openSettings()" title="گوگل ڈرائیو">⚠️</button>
         <button class="icon-btn" onclick="openSettings()" title="بیک اپ">⚙️</button>
       </div>
@@ -768,8 +768,8 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL0311TU020";
-const UPDATE_NOTE="ادائیگی پوسٹر سے ذریعہ اور موبائل نمبر والی لائن ہمیشہ کے لیے ہٹا دی"; // ہر ورژن پر ایک لائن کہ کیا بدلا
+const APP_VERSION="DDL0511TH021";
+const UPDATE_NOTE="Help Desk کا پیلا بٹن ہر جگہ — SOS کا نشان ختم"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -2240,6 +2240,6 @@ setInterval(checkAutoBackups, 60000);
 </script>
 <script src="drive.js"></script>
 
-<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="DDL" data-ver="DDL0211MO017" defer></script> <!-- 🆘 DDL0211MO017: PBT Help Desk -->
+<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="DDL" data-ver="DDL0511TH021" defer></script> <!-- 🆘 DDL0211MO017: PBT Help Desk -->
 </body>
 </html>
