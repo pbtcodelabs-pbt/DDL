@@ -381,6 +381,10 @@
   +   'box-shadow:0 10px 28px rgba(0,0,0,.35);font-family:inherit;overflow:hidden}'
   + '.aupd-wait.show{display:flex;animation:aupdDrop .35s ease}'
   + '.aupd-wait .aw-t{font-size:15px;font-weight:800;line-height:1.5}.aupd-wait .aw-s{font-size:12px;opacity:.9;line-height:1.6}'
+  + '.aupd-wait .aw-v{display:none;margin-top:4px;font-size:12px;line-height:1.6}.aupd-wait .aw-v.on{display:block}'
+  + '.aupd-wait .aw-v .vv{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;direction:ltr;unicode-bidi:isolate}'
+  + '.aupd-wait .aw-v .vo{opacity:.75;text-decoration:line-through}.aupd-wait .aw-v .vn{background:#fde68a;color:#0d3b66;border-radius:8px;padding:0 7px;font-weight:800}'
+  + '.aupd-wait .aw-v .vt{display:block;margin-top:3px;padding:4px 8px;border-radius:9px;background:rgba(255,255,255,.14);font-weight:700;max-height:22vh;overflow:auto;overflow-wrap:anywhere}'
   + '.aupd-wait .aw-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:repeating-linear-gradient(-45deg,#fde68a 0 10px,#f59e0b 10px 20px);background-size:28px 28px;animation:aupdMove .7s linear infinite}'
   + '.aupd-glass{width:22px;height:30px;flex:0 0 auto;animation:aupdFlip 2.4s ease-in-out infinite}'
   + '.aupd-glass .sa{animation:aupdTop 2.4s linear infinite;transform-origin:50% 100%}.aupd-glass .sb{animation:aupdBot 2.4s linear infinite;transform-origin:50% 100%}'
@@ -421,18 +425,35 @@
     waiting: function(sub, passive){
       css();
       var sh = el('aupdShield','aupd-shield');
-      var w = el('aupdWait','aupd-wait', GLASS + '<div><div class="aw-t"></div><div class="aw-s"></div></div><div class="aw-bar"></div>');
+      var w = el('aupdWait','aupd-wait', GLASS + '<div><div class="aw-t"></div><div class="aw-s"></div><div class="aw-v"></div></div><div class="aw-bar"></div>');
       w.setAttribute('dir', dir); w.setAttribute('role','status');
       w.querySelector('.aw-t').textContent = T.wait;
       w.querySelector('.aw-s').textContent = sub || T.waitSub;
-      sh.classList.add('show'); sh.classList.toggle('passive', !!passive); w.classList.add('show');
+      sh.classList.add('show'); sh.classList.toggle('passive', !!passive); w.classList.add('show'); try{ this.peek(); }catch(e){}
+    },
+    /* AppUpd.peek (ہیلپ ڈیسک #136، مالک کا حکم): اپڈیٹ کے دوران ہی پرانا → نیا ورژن اور کیا بدلا — نئی فائل سرور سے پڑھ کر */
+    oldVer: function(){ var v=window.APP_UPD_OLD||''; if(!v){ try{ v=window.APP_VERSION||''; }catch(e){} } if(!v){ try{ v=APP_VERSION; }catch(e){} } if(!v){ try{ v=APP_BUILD_VERSION; }catch(e){} } if(!v){ try{ v=V; }catch(e){} } return String(v||''); },
+    peek: function(){
+      var self=this, w=document.getElementById('aupdWait'); if(!w) return; var box=w.querySelector('.aw-v'); if(!box) return;
+      var oldV=self.oldVer(), url=(window.APP_UPD_SRC||'')||location.pathname;
+      fetch(url+(url.indexOf('?')<0?'?':'&')+'aupd='+Date.now(), {cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
+        if(!t) return;
+        var m=t.match(/(?:APP_VERSION|APP_BUILD_VERSION|const\s+V)\s*=\s*["']([A-Za-z0-9]+)["']/); var nv=m?m[1]:'';
+        if(!nv || nv===oldV) return;
+        var note='', nm=t.match(new RegExp('["\']'+nv+'["\']\\s*:\\s*(["\'])((?:\\\\.|(?!\\1).)*)\\1'));
+        if(nm) note=nm[2]; else { var u=t.match(/UPDATE_NOTE\s*=\s*(["'`])((?:\\.|(?!\1).)*)\1/); if(u) note=u[2]; }
+        note=note.replace(/\\n/g,' ').replace(/\\(["'\\])/g,'$1');
+        box.innerHTML='<span class="vv">'+(oldV?'<span class="vo">'+esc(oldV)+'</span> → ':'')+'<span class="vn">'+esc(nv)+'</span></span>'
+          +(note?'<span class="vt">🛠️ '+esc(note)+'</span>':'');
+        box.classList.add('on'); self._peekV=nv; self._peekNote=note;
+      }).catch(function(){});
     },
     hideWaiting: function(){
       var w=document.getElementById('aupdWait'), sh=document.getElementById('aupdShield');
       if(w) w.classList.remove('show'); if(sh) sh.classList.remove('show','passive');
     },
     isWaiting: function(){ var w=document.getElementById('aupdWait'); return !!(w && w.classList.contains('show')); },
-    done: function(oldV, newV, note){
+    done: function(oldV, newV, note){ if(!note && this._peekNote && this._peekV===newV) note=this._peekNote;
       css(); this.hideWaiting();
       var ov = el('aupdDone','aupd-ov');
       ov.setAttribute('dir', dir);
@@ -768,8 +789,8 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL0511TH021";
-const UPDATE_NOTE="Help Desk کا پیلا بٹن ہر جگہ — SOS کا نشان ختم"; // ہر ورژن پر ایک لائن کہ کیا بدلا
+const APP_VERSION="DDL0811SU022";
+const UPDATE_NOTE="اپڈیٹ کے دوران ہی پرانا → نیا ورژن اور کیا بدلا نظر آتا ہے"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -2240,6 +2261,6 @@ setInterval(checkAutoBackups, 60000);
 </script>
 <script src="drive.js"></script>
 
-<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="DDL" data-ver="DDL0511TH021" defer></script> <!-- 🆘 DDL0211MO017: PBT Help Desk -->
+<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="DDL" data-ver="DDL0811SU022" defer></script> <!-- 🆘 DDL0211MO017: PBT Help Desk -->
 </body>
 </html>
