@@ -1,0 +1,45 @@
+# خودکار اَن زِپ (مالک کا حکم، 11 نومبر 2026): DDL….zip ریپو میں ڈالیں (ہیلپ ڈیسک «📦 تازہ زپ ← ⬆️ اپلوڈ» یا گیٹ ہب کا Upload)
+# → خود کھل کر فائلیں اپنی جگہ، زپ حذف۔ کسی اور ایپ کی زپ (نام DDL سے شروع نہ ہو) رد ہو کر حذف۔
+name: Auto Unzip (DDL)
+
+on:
+  push:
+    branches: [main]
+    paths: ['**.zip', '**.ZIP']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-unzip
+  cancel-in-progress: false
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: unzip
+        shell: bash
+        run: |
+          set -e
+          EXP=DDL
+          BAD=0
+          while IFS= read -r -d '' z; do
+            name=$(basename "$z"); up=$(echo "$name" | tr 'a-z' 'A-Z')
+            rm -rf /tmp/x && mkdir -p /tmp/x
+            if [[ "$up" == ${EXP}* ]] && unzip -oq "$z" -d /tmp/x; then
+              rm -rf /tmp/x/.git /tmp/x/.github /tmp/x/__MACOSX
+              cp -a /tmp/x/. .
+              echo "OK $name"
+            else
+              echo "::error::REJECTED $name — یہاں صرف $EXP سے شروع ہونے والی zip چلتی ہے"; BAD=1
+            fi
+            rm -f "$z"
+          done < <(find . -path ./.git -prune -o -type f -iname '*.zip' -print0)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then git commit -m "auto unzip"; git pull --rebase; git push; fi
+          exit $BAD
