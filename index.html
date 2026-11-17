@@ -469,6 +469,46 @@
     hideDone: function(){ var ov=document.getElementById('aupdDone'); if(ov) ov.classList.remove('show'); }
   };
 })();
+/* ===== 🔄 خاموش اپڈیٹ (مالک کا حکم، 17 نومبر 2026 — سب ایپس، My City Shines MCS1711TU509 جیسا) =====
+   گاہک / ملازم / Admin 2: اپڈیٹ کا کوئی کارڈ / پردہ نہیں — پیچھے خاموشی سے؛ صفحہ تب تازہ جب کچھ لکھ نہ رہے ہوں اور 8 سیکنڈ سے اسکرین نہ چھوئی ہو (یا ایپ پیچھے جائے)۔
+   صرف مالک کا فون (ہیلپ ڈیسک کا ڈویلپر پاس ورڈ `pbt_devpass_v1` یا `pbt_upd_owner` اسی ویب سائٹ پر): اوپر باریک پٹی 0→100٪، پھر چھوٹی پرچی «پرانا → نیا + تازہ ترین کام» (10 سیکنڈ)۔ */
+(function(){ var A = window.AppUpd; if(!A || A.__quiet) return; A.__quiet = 1;
+  var origPeek = A.peek, on = false, pct = 0, tm = 0, ownC = null, touch = 0;
+  function sharedLS(fn){ try{ var f = document.createElement('iframe'); f.style.display = 'none'; (document.body || document.documentElement).appendChild(f); var r = fn(f.contentWindow.localStorage); f.remove(); return r; }catch(e){ return null; } }
+  function own(){ if(ownC !== null) return ownC; var v = sharedLS(function(ls){ return ls.getItem('pbt_upd_owner') === '1' || !!ls.getItem('pbt_devpass_v1'); });
+    if(!v){ try{ v = localStorage.getItem('pbt_upd_owner') === '1'; }catch(e){} } ownC = !!v; return ownC; }
+  window.pbtUpdOwnerMark = function(){ ownC = true; sharedLS(function(ls){ ls.setItem('pbt_upd_owner', '1'); }); try{ localStorage.setItem('pbt_upd_owner', '1'); }catch(e){} };
+  /* ڈویلپر پینل کا درست پاس ورڈ = مالک کا فون (اگلی بار سے پٹی) */
+  setTimeout(function hk(){ try{ var p = window.pbtHubPwOk; if(typeof p === 'function' && !p.__q){ var w = function(){ return Promise.resolve(p.apply(this, arguments)).then(function(ok){ if(ok) window.pbtUpdOwnerMark(); return ok; }); }; w.__q = 1; window.pbtHubPwOk = w; } }catch(e){} }, 3000);
+  function E(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function css(){ if(document.getElementById('qupdCss')) return; var s = document.createElement('style'); s.id = 'qupdCss';
+    s.textContent = '#qupdBar{position:fixed;left:0;top:env(safe-area-inset-top,0px);height:3px;width:0;z-index:2147483647;background:linear-gradient(90deg,#f59e0b,#fde047,#10b981);box-shadow:0 0 6px rgba(245,158,11,.8);transition:width .4s ease,opacity .6s;pointer-events:none}'
+      + '#qupdBar i{position:absolute;right:4px;top:4px;font:800 10px/1 Arial,sans-serif;color:#fff;background:rgba(13,59,102,.85);padding:2px 6px;border-radius:8px;white-space:nowrap;font-style:normal;direction:ltr}'
+      + '#qupdOk{position:fixed;left:50%;top:calc(8px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:2147483647;width:min(360px,calc(100vw - 20px));box-sizing:border-box;background:#ecfdf5;border:2px solid #10b981;border-radius:14px;padding:8px 12px;box-shadow:0 8px 22px rgba(0,0,0,.25);font:600 13px/1.6 Arial,sans-serif;color:#065f46;cursor:pointer;animation:qupdIn .3s ease;text-align:start}'
+      + '#qupdOk b{direction:ltr;unicode-bidi:isolate}#qupdOk s{color:#9ca3af}#qupdOk .n{display:block;color:#78350f;font-weight:700;margin-top:2px;max-height:30vh;overflow:auto;overflow-wrap:anywhere;unicode-bidi:plaintext}'
+      + '@keyframes qupdIn{from{transform:translate(-50%,-120%)}to{transform:translate(-50%,0)}}';
+    document.head.appendChild(s); }
+  function bar(){ css(); var b = document.getElementById('qupdBar'); if(!b){ b = document.createElement('div'); b.id = 'qupdBar'; b.innerHTML = '<i></i>'; document.body.appendChild(b); }
+    b.style.opacity = '1'; if(!tm){ pct = Math.max(pct, 4); tm = setInterval(function(){ pct += (92 - pct) * 0.06; b.style.width = pct + '%'; var i = b.querySelector('i'); if(i) i.textContent = Math.round(pct) + '%' + (A._peekV ? ' · ' + A._peekV : ''); }, 300); } }
+  function stop(full){ if(tm){ clearInterval(tm); tm = 0; } var b = document.getElementById('qupdBar'); if(!b) return; if(full){ b.style.width = '100%'; var i = b.querySelector('i'); if(i) i.textContent = '100%'; } setTimeout(function(){ b.style.opacity = '0'; setTimeout(function(){ if(b.parentNode) b.remove(); pct = 0; }, 700); }, full ? 900 : 0); }
+  A.waiting = function(){ on = true; if(!own() || !document.body) return; bar();
+    if(!A._peekV && typeof origPeek === 'function'){ var w = document.getElementById('aupdWait'); if(!w){ w = document.createElement('div'); w.id = 'aupdWait'; w.style.display = 'none'; w.innerHTML = '<div class="aw-t"></div><div class="aw-v"></div>'; document.body.appendChild(w); } try{ origPeek.call(A); }catch(e){} } };
+  A.hideWaiting = function(){ on = false; stop(false); };
+  A.isWaiting = function(){ return on; };
+  A.done = function(oldV, newV, note){ on = false; if(!own() || !document.body){ stop(false); return; } bar(); stop(true);
+    if(!note && A._peekNote && A._peekV === newV) note = A._peekNote;
+    css(); var o = document.getElementById('qupdOk'); if(o) o.remove(); o = document.createElement('div'); o.id = 'qupdOk';
+    o.innerHTML = '✅ Updated: ' + (oldV ? '<s><b>' + E(oldV) + '</b></s> → ' : '') + '<b>' + E(newV) + '</b>' + (note ? '<span class="n">🛠️ ' + E(note) + '</span>' : '');
+    o.onclick = function(){ o.remove(); }; document.body.appendChild(o); setTimeout(function(){ if(o.parentNode) o.remove(); }, 10000); };
+  /* نیا ورژن آنے پر صفحہ تب تازہ ہو جب گاہک کچھ لکھ / دبا نہ رہا ہو */
+  try{ ['pointerdown', 'keydown', 'input', 'touchmove', 'wheel'].forEach(function(ev){ window.addEventListener(ev, function(){ touch = Date.now(); }, { passive: true, capture: true }); }); }catch(e){}
+  function safe(){ if(document.visibilityState === 'hidden') return true; var ae = document.activeElement, typing = ae && (/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) || ae.isContentEditable); return !typing && Date.now() - touch > 8000; }
+  try{ var SW = navigator.serviceWorker; if(SW && !SW.__quiet){ SW.__quiet = 1; var add = SW.addEventListener.bind(SW), pend = [];
+    document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden'){ var p = pend.splice(0); p.forEach(function(f){ try{ f(); }catch(e){} }); } });
+    SW.addEventListener = function(t, fn, o){ if(t !== 'controllerchange' || typeof fn !== 'function') return add(t, fn, o);
+      return add(t, function(ev){ var self = this, fired = false; function run(){ if(fired) return; fired = true; var i = pend.indexOf(run); if(i >= 0) pend.splice(i, 1); fn.call(self, ev); }
+        if(safe()) return run(); pend.push(run); (function wait(){ if(fired) return; if(safe()) run(); else setTimeout(wait, 2000); })(); }, o); }; } }catch(e){}
+})();
 </script>
 </head>
 <body>
@@ -789,8 +829,8 @@ const QUICK_QTY_DECIMAL=[0.5,1,1.5,2,2.5,3,5];
 const QUICK_QTY_UNIT=[1,2,3,4,5,6,10];
 const PRICE_OPTIONS=[170,180,190];
 const EMOJIS=["🥛","🥦","🍞","🥩","🥚","🛒","🧴","🧺","👤","💊","🚚","🧑‍🌾"];
-const APP_VERSION="DDL0811SU022";
-const UPDATE_NOTE="اپڈیٹ کے دوران ہی پرانا → نیا ورژن اور کیا بدلا نظر آتا ہے"; // ہر ورژن پر ایک لائن کہ کیا بدلا
+const APP_VERSION="DDL1711TU023";
+const UPDATE_NOTE="🔄 اپڈیٹ اب پیچھے خاموشی سے لگتی ہے — کوئی کارڈ یا رکاوٹ نہیں؛ صرف مالک کے فون پر اوپر باریک پٹی"; // ہر ورژن پر ایک لائن کہ کیا بدلا
 const MAX_PEOPLE=10;
 
 document.getElementById('versionTag').textContent=APP_VERSION;
@@ -2261,6 +2301,6 @@ setInterval(checkAutoBackups, 60000);
 </script>
 <script src="drive.js"></script>
 
-<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="DDL" data-ver="DDL0811SU022" defer></script> <!-- 🆘 DDL0211MO017: PBT Help Desk -->
+<script src="https://pbtcodelabs-pbt.github.io/help/widget.js" data-app="DDL" data-ver="DDL1711TU023" defer></script> <!-- 🆘 DDL0211MO017: PBT Help Desk -->
 </body>
 </html>
